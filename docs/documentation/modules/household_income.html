@@ -183,37 +183,11 @@ on UK government education tiers (Eika, Mogstad, and Zafar 2019)</p></li>
 <li><p>SF_12. Mental well-being. Continuous score indicating overall
 mental-wellbeing. (Viswanathan, Anderson, and Thomas 2005)</p></li>
 </ul>
-<section id="council-tax">
-<h3>Council Tax<a class="headerlink" href="#council-tax" title="Link to this heading"></a></h3>
-<p>In the UKHLS main release data, <a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/ctband_dv/">council
-tax</a>
-information is reported by band. Specific amount deductions are only
-available in the Special Licence and Secure Access datasets. Instead of
-reported deductions, we have simulated the amount of council tax each
-household is paying by taking a random uniform draw for each household
-within the confines of their band.</p>
-</section>
-</section>
-<section id="results">
-<h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
-<p>Model coefficients and diagnostics are displayed below. To summarise:</p>
-<ul class="simple">
-<li><p>r squared of 0.21 indicates reasonable fit.</p></li>
-<li><p>Gender not significant. Some ethnicities see increases. Only London
-has higher income. High quality jobs earn more. PT employed earn less
-students earn more. Housing quality strong indicator of higher
-income.</p></li>
-<li><p>diagnostic plots show under dispersion. Some extreme outlier values
-need investigating.</p></li>
-<li><p>overall decent fit.</p></li>
-</ul>
-<figure class="align-default" id="id2">
-<img alt="plot of chunk income_output" src="../../_images/income_output-1.png" />
-<figcaption>
-<p><span class="caption-number">Fig. 2 </span><span class="caption-text">plot of chunk income_output</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Generalized linear mixed model fit by maximum likelihood (Adaptive Gauss-Hermite Quadrature, nAGQ = 0) [&#39;glmerMod&#39;]</span>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">print</span><span class="p">(</span><span class="nf">summary</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Generalized linear mixed model fit by maximum likelihood (Adaptive</span>
+<span class="c1">##   Gauss-Hermite Quadrature, nAGQ = 0) [glmerMod]</span>
 <span class="c1">##  Family: Gamma  ( log )</span>
 <span class="c1">## Formula: hh_income_new ~ scale(hh_income) + scale(age) + I(scale(age)^2) +</span>
 <span class="c1">##     I(scale(age)^3) + factor(sex) + relevel(factor(ethnicity),</span>
@@ -236,55 +210,202 @@ need investigating.</p></li>
 <span class="c1">## Number of obs: 244341, groups:  pidp, 45218</span>
 <span class="c1">##</span>
 <span class="c1">## Fixed effects:</span>
-<span class="c1">##                                                                     Estimate Std. Error  t value Pr(&gt;|z|)</span>
-<span class="c1">## (Intercept)                                                        2.8993384  0.0010620 2730.051  &lt; 2e-16 ***</span>
-<span class="c1">## scale(hh_income)                                                   0.0161330  0.0001105  146.042  &lt; 2e-16 ***</span>
-<span class="c1">## scale(age)                                                         0.0120801  0.0003153   38.312  &lt; 2e-16 ***</span>
-<span class="c1">## I(scale(age)^2)                                                    0.0011894  0.0001568    7.584 3.34e-14 ***</span>
-<span class="c1">## I(scale(age)^3)                                                   -0.0033103  0.0001208  -27.402  &lt; 2e-16 ***</span>
-<span class="c1">## factor(sex)Male                                                    0.0005210  0.0002845    1.831 0.067063 .</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN                        -0.0138111  0.0011092  -12.452  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA                        -0.0168078  0.0009740  -17.256  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC                        -0.0132551  0.0010234  -12.952  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI                        -0.0027026  0.0020174   -1.340 0.180354</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND                        -0.0055084  0.0007275   -7.572 3.67e-14 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX                        -0.0071087  0.0010081   -7.052 1.77e-12 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS                        -0.0125302  0.0011395  -10.996  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL                        -0.0091845  0.0033619   -2.732 0.006296 **</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH                        -0.0100708  0.0021406   -4.705 2.54e-06 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK                        -0.0123893  0.0008037  -15.416  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO                        -0.0035166  0.0006784   -5.183 2.18e-07 ***</span>
-<span class="c1">## factor(region)East of England                                      0.0017831  0.0006436    2.771 0.005593 **</span>
-<span class="c1">## factor(region)London                                               0.0034875  0.0006409    5.441 5.28e-08 ***</span>
-<span class="c1">## factor(region)North East                                          -0.0031138  0.0008313   -3.746 0.000180 ***</span>
-<span class="c1">## factor(region)North West                                           0.0006368  0.0006284    1.013 0.310841</span>
-<span class="c1">## factor(region)Northern Ireland                                     0.0018572  0.0007615    2.439 0.014732 *</span>
-<span class="c1">## factor(region)Scotland                                             0.0018503  0.0006929    2.670 0.007575 **</span>
-<span class="c1">## factor(region)South East                                           0.0040047  0.0006034    6.637 3.20e-11 ***</span>
-<span class="c1">## factor(region)South West                                           0.0005561  0.0006549    0.849 0.395824</span>
-<span class="c1">## factor(region)Wales                                               -0.0008582  0.0007543   -1.138 0.255270</span>
-<span class="c1">## factor(region)West Midlands                                        0.0016249  0.0006527    2.489 0.012795 *</span>
-<span class="c1">## factor(region)Yorkshire and The Humber                            -0.0011430  0.0006579   -1.737 0.082357 .</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)0                      -0.0031482  0.0009258   -3.401 0.000672 ***</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)2                       0.0031436  0.0009314    3.375 0.000738 ***</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)3                       0.0072619  0.0009717    7.473 7.83e-14 ***</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)5                       0.0078787  0.0009944    7.923 2.32e-15 ***</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)6                       0.0147230  0.0009534   15.443  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)7                       0.0183995  0.0009871   18.641  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)0                              -0.0039234  0.0004000   -9.808  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1                               0.0054748  0.0006001    9.123  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2                               0.0047179  0.0004880    9.668  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4                              -0.0025015  0.0003883   -6.442 1.18e-10 ***</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)5                              -0.0052788  0.0004581  -11.524  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)6                              -0.0031744  0.0005083   -6.246 4.22e-10 ***</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7                              -0.0049089  0.0003712  -13.224  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8                              -0.0051268  0.0004573  -11.212  &lt; 2e-16 ***</span>
-<span class="c1">## scale(SF_12)                                                       0.0013832  0.0001064   12.999  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Family Care  -0.0105363  0.0005240  -20.108  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)FT Education -0.0069073  0.0005810  -11.888  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Job Seeking  -0.0095454  0.0005103  -18.707  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Not Working  -0.0096224  0.0003953  -24.343  &lt; 2e-16 ***</span>
-<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)PT Employed  -0.0042999  0.0003311  -12.987  &lt; 2e-16 ***</span>
+<span class="c1">##                                                                     Estimate</span>
+<span class="c1">## (Intercept)                                                        2.8993384</span>
+<span class="c1">## scale(hh_income)                                                   0.0161330</span>
+<span class="c1">## scale(age)                                                         0.0120801</span>
+<span class="c1">## I(scale(age)^2)                                                    0.0011894</span>
+<span class="c1">## I(scale(age)^3)                                                   -0.0033103</span>
+<span class="c1">## factor(sex)Male                                                    0.0005210</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN                        -0.0138111</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA                        -0.0168078</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC                        -0.0132551</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI                        -0.0027026</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND                        -0.0055084</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX                        -0.0071087</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS                        -0.0125302</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL                        -0.0091845</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH                        -0.0100708</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK                        -0.0123893</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO                        -0.0035166</span>
+<span class="c1">## factor(region)East of England                                      0.0017831</span>
+<span class="c1">## factor(region)London                                               0.0034875</span>
+<span class="c1">## factor(region)North East                                          -0.0031138</span>
+<span class="c1">## factor(region)North West                                           0.0006368</span>
+<span class="c1">## factor(region)Northern Ireland                                     0.0018572</span>
+<span class="c1">## factor(region)Scotland                                             0.0018503</span>
+<span class="c1">## factor(region)South East                                           0.0040047</span>
+<span class="c1">## factor(region)South West                                           0.0005561</span>
+<span class="c1">## factor(region)Wales                                               -0.0008582</span>
+<span class="c1">## factor(region)West Midlands                                        0.0016249</span>
+<span class="c1">## factor(region)Yorkshire and The Humber                            -0.0011430</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)0                      -0.0031482</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)2                       0.0031436</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)3                       0.0072619</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)5                       0.0078787</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)6                       0.0147230</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)7                       0.0183995</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)0                              -0.0039234</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1                               0.0054748</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2                               0.0047179</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4                              -0.0025015</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)5                              -0.0052788</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)6                              -0.0031744</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7                              -0.0049089</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8                              -0.0051268</span>
+<span class="c1">## scale(SF_12)                                                       0.0013832</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Family Care  -0.0105363</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)FT Education -0.0069073</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Job Seeking  -0.0095454</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Not Working  -0.0096224</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)PT Employed  -0.0042999</span>
+<span class="c1">##                                                                   Std. Error</span>
+<span class="c1">## (Intercept)                                                        0.0010620</span>
+<span class="c1">## scale(hh_income)                                                   0.0001105</span>
+<span class="c1">## scale(age)                                                         0.0003153</span>
+<span class="c1">## I(scale(age)^2)                                                    0.0001568</span>
+<span class="c1">## I(scale(age)^3)                                                    0.0001208</span>
+<span class="c1">## factor(sex)Male                                                    0.0002845</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN                         0.0011092</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA                         0.0009740</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC                         0.0010234</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI                         0.0020174</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND                         0.0007275</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX                         0.0010081</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS                         0.0011395</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL                         0.0033619</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH                         0.0021406</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK                         0.0008037</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO                         0.0006784</span>
+<span class="c1">## factor(region)East of England                                      0.0006436</span>
+<span class="c1">## factor(region)London                                               0.0006409</span>
+<span class="c1">## factor(region)North East                                           0.0008313</span>
+<span class="c1">## factor(region)North West                                           0.0006284</span>
+<span class="c1">## factor(region)Northern Ireland                                     0.0007615</span>
+<span class="c1">## factor(region)Scotland                                             0.0006929</span>
+<span class="c1">## factor(region)South East                                           0.0006034</span>
+<span class="c1">## factor(region)South West                                           0.0006549</span>
+<span class="c1">## factor(region)Wales                                                0.0007543</span>
+<span class="c1">## factor(region)West Midlands                                        0.0006527</span>
+<span class="c1">## factor(region)Yorkshire and The Humber                             0.0006579</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)0                       0.0009258</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)2                       0.0009314</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)3                       0.0009717</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)5                       0.0009944</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)6                       0.0009534</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)7                       0.0009871</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)0                               0.0004000</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1                               0.0006001</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2                               0.0004880</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4                               0.0003883</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)5                               0.0004581</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)6                               0.0005083</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7                               0.0003712</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8                               0.0004573</span>
+<span class="c1">## scale(SF_12)                                                       0.0001064</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Family Care   0.0005240</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)FT Education  0.0005810</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Job Seeking   0.0005103</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Not Working   0.0003953</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)PT Employed   0.0003311</span>
+<span class="c1">##                                                                    t value</span>
+<span class="c1">## (Intercept)                                                       2730.051</span>
+<span class="c1">## scale(hh_income)                                                   146.042</span>
+<span class="c1">## scale(age)                                                          38.312</span>
+<span class="c1">## I(scale(age)^2)                                                      7.584</span>
+<span class="c1">## I(scale(age)^3)                                                    -27.402</span>
+<span class="c1">## factor(sex)Male                                                      1.831</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN                         -12.452</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA                         -17.256</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC                         -12.952</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI                          -1.340</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND                          -7.572</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX                          -7.052</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS                         -10.996</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL                          -2.732</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH                          -4.705</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK                         -15.416</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO                          -5.183</span>
+<span class="c1">## factor(region)East of England                                        2.771</span>
+<span class="c1">## factor(region)London                                                 5.441</span>
+<span class="c1">## factor(region)North East                                            -3.746</span>
+<span class="c1">## factor(region)North West                                             1.013</span>
+<span class="c1">## factor(region)Northern Ireland                                       2.439</span>
+<span class="c1">## factor(region)Scotland                                               2.670</span>
+<span class="c1">## factor(region)South East                                             6.637</span>
+<span class="c1">## factor(region)South West                                             0.849</span>
+<span class="c1">## factor(region)Wales                                                 -1.138</span>
+<span class="c1">## factor(region)West Midlands                                          2.489</span>
+<span class="c1">## factor(region)Yorkshire and The Humber                              -1.737</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)0                        -3.401</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)2                         3.375</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)3                         7.473</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)5                         7.923</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)6                        15.443</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)7                        18.641</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)0                                -9.808</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1                                 9.123</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2                                 9.668</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4                                -6.442</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)5                               -11.524</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)6                                -6.246</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7                               -13.224</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8                               -11.212</span>
+<span class="c1">## scale(SF_12)                                                        12.999</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Family Care   -20.108</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)FT Education  -11.888</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Job Seeking   -18.707</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Not Working   -24.343</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)PT Employed   -12.987</span>
+<span class="c1">##                                                                   Pr(&gt;|z|)</span>
+<span class="c1">## (Intercept)                                                        &lt; 2e-16 ***</span>
+<span class="c1">## scale(hh_income)                                                   &lt; 2e-16 ***</span>
+<span class="c1">## scale(age)                                                         &lt; 2e-16 ***</span>
+<span class="c1">## I(scale(age)^2)                                                   3.34e-14 ***</span>
+<span class="c1">## I(scale(age)^3)                                                    &lt; 2e-16 ***</span>
+<span class="c1">## factor(sex)Male                                                   0.067063 .</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN                         &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA                         &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC                         &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI                        0.180354</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND                        3.67e-14 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX                        1.77e-12 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS                         &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL                        0.006296 **</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH                        2.54e-06 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK                         &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO                        2.18e-07 ***</span>
+<span class="c1">## factor(region)East of England                                     0.005593 **</span>
+<span class="c1">## factor(region)London                                              5.28e-08 ***</span>
+<span class="c1">## factor(region)North East                                          0.000180 ***</span>
+<span class="c1">## factor(region)North West                                          0.310841</span>
+<span class="c1">## factor(region)Northern Ireland                                    0.014732 *</span>
+<span class="c1">## factor(region)Scotland                                            0.007575 **</span>
+<span class="c1">## factor(region)South East                                          3.20e-11 ***</span>
+<span class="c1">## factor(region)South West                                          0.395824</span>
+<span class="c1">## factor(region)Wales                                               0.255270</span>
+<span class="c1">## factor(region)West Midlands                                       0.012795 *</span>
+<span class="c1">## factor(region)Yorkshire and The Humber                            0.082357 .</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)0                      0.000672 ***</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)2                      0.000738 ***</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)3                      7.83e-14 ***</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)5                      2.32e-15 ***</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)6                       &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)7                       &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)0                               &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1                               &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2                               &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4                              1.18e-10 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)5                               &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)6                              4.22e-10 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7                               &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8                               &lt; 2e-16 ***</span>
+<span class="c1">## scale(SF_12)                                                       &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Family Care   &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)FT Education  &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Job Seeking   &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)Not Working   &lt; 2e-16 ***</span>
+<span class="c1">## relevel(factor(S7_labour_state), ref = &quot;FT Employed&quot;)PT Employed   &lt; 2e-16 ***</span>
 <span class="c1">## ---</span>
 <span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
 </pre></div>
@@ -295,12 +416,31 @@ need investigating.</p></li>
 <span class="c1">##     vcov(summary(model))        if you need it</span>
 </pre></div>
 </div>
-<figure class="align-default" id="id3">
-<img alt="plot of chunk income_output" src="../../_images/income_output-2.png" />
-<figcaption>
-<p><span class="caption-number">Fig. 3 </span><span class="caption-text">plot of chunk income_output</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
-</figcaption>
-</figure>
+<section id="council-tax">
+<h3>Council Tax<a class="headerlink" href="#council-tax" title="Link to this heading"></a></h3>
+<p>In the UKHLS main release data, <a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/ctband_dv/">council
+tax</a>
+information is reported by band. Specific amount deductions are only
+available in the Special Licence and Secure Access datasets. Instead of
+reported deductions, we have simulated the amount of council tax each
+household is paying by taking a random uniform draw for each household
+within the confines of their band.</p>
+</section>
+</section>
+<section id="results">
+<h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
+<p>Model diagnostics are displayed below. To summarise:</p>
+<ul class="simple">
+<li><p>r squared of 0.21 indicates reasonable fit.</p></li>
+<li><p>Gender not significant. Some ethnicities see increases. Only London
+has higher income. High quality jobs earn more. PT employed earn less
+students earn more. Housing quality strong indicator of higher
+income.</p></li>
+<li><p>diagnostic plots show under dispersion. Some extreme outlier values
+need investigating.</p></li>
+<li><p>overall decent fit.</p></li>
+</ul>
+<p><img alt="plot of chunk income_output" src="../../_images/income_output-1.png" /><img alt="image1" src="../../_images/income_output-2.png" /></p>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>

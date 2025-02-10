@@ -83,6 +83,12 @@ $$  housing\_quality \sim housing\_quality\_last + age + sex + ethnicity + regio
 - financial_situation: Ordinal variable for current subjective financial situation.
 - SF_12:  Mental well-being. Continuous score indicating overall mental-wellbeing.
 
+
+```{r housing_model_summary}
+plot_rfo_importance(model)
+```
+
+
 ## Results
   
 Random Forest Ordinal models from the ranger package cannot provide a summary like some other models can, so instead we will look at plots of observed vs predicted values as well as the importance of each variable in the resulting model.
@@ -91,8 +97,6 @@ Random Forest Ordinal models from the ranger package cannot provide a summary li
 ```{r housing_output, echo=FALSE}
 options(width=120)
 discrete_barplot2(obs, preds, 'housing_quality')
-#rfo_output(model)
-plot_rfo_importance(model)
 ```
 
 

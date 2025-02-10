@@ -61,13 +61,22 @@ Formula:
 
 .. math::   neighbourhood\_safety \sim age + sex + ethnicity + region + education\_state + hh\_income + behind\_on\_bills + financial\_situation  
 
+.. code:: r
+
+   plot_rfo_importance(model)
+
+.. figure:: ./figure/nh_safety_model_summary-1.png
+   :alt: plot of chunk nh_safety_model_summary
+
+   plot of chunk nh_safety_model_summary
+
 Results
 ~~~~~~~
 
-|plot of chunk neighbourhood_output|\ |image1|
+.. figure:: ./figure/neighbourhood_output-1.png
+   :alt: plot of chunk neighbourhood_output
+
+   plot of chunk neighbourhood_output
 
 References
 ~~~~~~~~~~
-
-.. |plot of chunk neighbourhood_output| image:: ./figure/neighbourhood_output-1.png
-.. |image1| image:: ./figure/neighbourhood_output-2.png

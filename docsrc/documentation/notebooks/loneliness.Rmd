@@ -60,6 +60,11 @@ Loneliness has been [linked with educational attainment](https://www.tandfonline
 Loneliness has been [linked with ethnicity](https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-020-09208-0).
 > The association between ethnicity and loneliness was stronger among young and early middle-aged adults, compared to late middle-aged adults.
 
+```{r loneliness_model_summary}
+plot_rfo_importance(model)
+```
+
+
 ## Results
   
 Random Forest Ordinal models from the ranger package cannot provide a summary like some other models can, so instead we will look at plots of observed vs predicted values as well as the importance of each variable in the resulting model.
@@ -67,7 +72,6 @@ Random Forest Ordinal models from the ranger package cannot provide a summary li
 ```{r loneliness_output, echo=FALSE}
 options(width=120)
 discrete_barplot2(obs, preds, "loneliness") 
-plot_rfo_importance(model)
 ```
 
 

@@ -67,6 +67,11 @@ financial situation.
 labour_state. whether a person is employed or not.
 job_sec job quality
 
+```{r tobacco_model_summary}
+zip_output(model)
+```
+
+
 ## Results
   
 Almost all coefficients significant. Particularly prevous consumption of cigarettes. Good estimation of the number of non-smokers in the population at around 55\%. Counts of smoking are underdispersed and fail to estimate consumption over 20 cigarettes. 
@@ -74,10 +79,8 @@ Almost all coefficients significant. Particularly prevous consumption of cigaret
 
 ```{r tobacco_output, echo=FALSE}
 options(width=120)
-#continuous_densities(obs, preds, "ncigs")
-zip_output(model)
+continuous_densities(obs, preds, "ncigs")
 #zip_density(model, 'ncigs')
-zip_output(model)
 ```
 
 ## References

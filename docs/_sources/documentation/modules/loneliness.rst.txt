@@ -53,6 +53,15 @@ ethnicity <https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-020
 > The association between ethnicity and loneliness was stronger among
 young and early middle-aged adults, compared to late middle-aged adults.
 
+.. code:: r
+
+   plot_rfo_importance(model)
+
+.. figure:: ./figure/loneliness_model_summary-1.png
+   :alt: plot of chunk loneliness_model_summary
+
+   plot of chunk loneliness_model_summary
+
 Results
 ~~~~~~~
 
@@ -61,10 +70,10 @@ summary like some other models can, so instead we will look at plots of
 observed vs predicted values as well as the importance of each variable
 in the resulting model.
 
-|plot of chunk loneliness_output|\ |image1|
+.. figure:: ./figure/loneliness_output-1.png
+   :alt: plot of chunk loneliness_output
+
+   plot of chunk loneliness_output
 
 References
 ~~~~~~~~~~
-
-.. |plot of chunk loneliness_output| image:: ./figure/loneliness_output-1.png
-.. |image1| image:: ./figure/loneliness_output-2.png

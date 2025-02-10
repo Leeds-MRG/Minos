@@ -75,12 +75,16 @@ Formula:
 
 $$  neighbourhood\_safety \sim age + sex + ethnicity + region + education\_state + hh\_income + behind\_on\_bills + financial\_situation  $$
 
+```{r nh_safety_model_summary}
+plot_rfo_importance(model)
+```
+
+
 ## Results
 
 ```{r neighbourhood_output, echo=FALSE}
 options(width=120)
 discrete_barplot2(obs, preds, "neighbourhood_safety") 
-plot_rfo_importance(model)
 ```
 
 

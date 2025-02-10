@@ -7,10 +7,6 @@ bibliography:
 
 # Mental Well-Being
 
-## Introduction. 
-
-Prediction of future Short Form 12 Mental Component Score (SF-12 MCS).
-
 ```{r load_data, include=FALSE}
 library(here)
 source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
@@ -22,26 +18,33 @@ preds <- predict(model, type='response')
 v <- "SF_12"
 ```
 
-## Methods
+Mental wellbeing is one of the key output of MINOS. 
 
-What methods are used? Justification due to output data type. explanation of model output.
+To measure mental wellbeing, we use the Short-Form 12 Mental Component Score (SF-12 MCS). The Short-Form 12 survey is a survey consisting of 12 questions relating to both physical and mental health. [See here](https://www.england.nhs.uk/wp-content/uploads/2022/12/Short-form-12-health-survey-questionnaire.pdf) for a copy of the survey.
+Summary scores for both mental and physical health can be calculated from the responses, leading to the Mental Component Score (MCS). MCS is a measure ranging from 0 (low functioning) to 100 (high functioning). SF-12 MCS is represented by a variable directly from the survey - [`sf12mcs_dv`](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/sf12mcs_dv/). Each of the responses to the 12 questions are also available in the survey.
 
-## Data
 
-What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
+```{r}
+continuous_density(obs)
+```
+
+## Transition Model
+
+We use a Linear Mixed Model (LMM) from the [lme4](https://www.rdocumentation.org/packages/lme4/versions/1.1-36) package in R.
+
+Formula:
+
+$$  SF\_12 \sim SF\_12\_last + age + sex + ethnicity + region + education\_state + hh\_income + \\housing\_quality + neighbourhood\_safety + loneliness + nutrition\_quality + ncigs + \\I(ncigs>0) + (1|pidp)  $$
+
+```{r mwb_model_summary}
+print(summary(model))
+```
 
 ## Results
 
-What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
-
 ```{r SF12_Output, echo=FALSE}
 options(width=120)
-#ols_output("data/transitions/SF_12/OLS/SF_12_2018_2019.rds")
-#ols_histogram("data/transitions/SF_12/OLS/SF_12_2018_2019.rds", "next_SF_12")
-
-#glmm_output(model_path)
 continuous_densities(obs, preds, v)
-print(summary(model))
 plot(model)
 ```
 

@@ -90,6 +90,15 @@ Formula:
 -  SF_12: Mental well-being. Continuous score indicating overall
    mental-wellbeing.
 
+.. code:: r
+
+   plot_rfo_importance(model)
+
+.. figure:: ./figure/housing_model_summary-1.png
+   :alt: plot of chunk housing_model_summary
+
+   plot of chunk housing_model_summary
+
 Results
 ~~~~~~~
 
@@ -98,10 +107,10 @@ summary like some other models can, so instead we will look at plots of
 observed vs predicted values as well as the importance of each variable
 in the resulting model.
 
-|plot of chunk housing_output|\ |image1|
+.. figure:: ./figure/housing_output-1.png
+   :alt: plot of chunk housing_output
+
+   plot of chunk housing_output
 
 References
 ~~~~~~~~~~
-
-.. |plot of chunk housing_output| image:: ./figure/housing_output-1.png
-.. |image1| image:: ./figure/housing_output-2.png
