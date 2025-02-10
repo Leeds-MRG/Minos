@@ -42,28 +42,27 @@ def main(output_dir):
 
     file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
-    #data = add_nobs_column(data)
-    data = US_utils.restrict_chains(data, 2)  # grab people with two or more obs.
+    data = add_nobs_column(data)
+    #data = US_utils.restrict_chains(data, 2)  # grab people with two or more obs.
 
     # missingness table simply counts number of missing data entries in entire data frame.
     print("Raw data before correction")
 
     # Last observation carried forwards (LOCF) interpolation of variables only recorded when changed.
-    data_locf = US_missing_LOCF.main(data)
-    data = data_locf.where(-data_locf.isnull(), data) # this is the more complex version.
-
-    # Correct deterministically missing data due to unemployment. see US_missing_deterministic.py
-    data = USmd.main(data)
+    data = US_missing_LOCF.main(data)
 
     # Cut back to just save data. don't want to complete case rows that aren't used.
     print("Removing data before 2009 as it is not used in MINOS.")
     data = data.loc[data["time"].isin(save_years)]
 
+    # Correct deterministically missing data due to unemployment. see US_missing_deterministic.py
+    data = USmd.main(data)
+
+
     # TODO Any further deterministic missingness correction goes here? this is entirely deterministic correction for now.
     # TODO MICE goes here to deal with remaining missing obs. current just using complete case. from US_complete_case.py
     # TODO a further deterministic stage may be needed to better handle missing values in composites.
 
-    data = data.loc[data['region'] != "Northern Ireland", ]
     US_utils.save_multiple_files(data, save_years, output_dir, "")
 
 

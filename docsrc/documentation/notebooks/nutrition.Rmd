@@ -1,0 +1,79 @@
+---
+title: "Nutrition"
+output: html_document
+bibliography: 
+  - "`r here::here('docsrc', 'refs.bib')`"
+
+---
+
+```{r setup, include=FALSE}
+library(here)
+library(glmnet)
+library(plyr)
+
+source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+model_path <- here::here("data", "transitions", "nutrition_quality", "lmm", "nutrition_quality_new_LMM.rds")
+model <- readRDS(model_path)
+
+data <- read.csv(here::here("data", "final_US", "2021_US_cohort.csv"))
+obs <- data$nutrition_quality
+data$nutrition_quality_last <- data$nutrition_quality
+preds <- predict(model, type='response')
+v <- "nutrition_quality"
+
+```
+
+# Nutrition
+
+Nutrition Quality is represented by a proxy of the number of portions of fruit and vegetables eaten per week. The following variables from understanding society that measure fruit and vegetable consumption were used:
+
+- [wkfruit](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/wkfruit),
+- [fruitamt](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fruitamt),
+- [wkvege](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/wkvege), and
+- [vegeamt](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/vegeamt).
+
+The equations to generate the nutrition composite are as follows:
+
+$$  fruit\_intermediate = days\_eating\_fruit\_per\_week * fruit\_per\_day  $$
+$$  veg\_intermediate = days\_eating\_veg\_per\_week * veg\_per\_day  $$
+$$  nutrition\_composite = fruit\_intermediate + veg\_intermediate $$
+
+Both [fruit](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/wkfruit) and [vegetable](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/wkvege) consumption frequency was measured in days per week, and reported as:
+
+1. Never
+2. 1-3 days
+3. 4-6 days
+4. Every day
+
+The amount of [fruit](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/fruitamt) and [veg](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/vegeamt) per day was a continuous variable, indicating the number of portions of fruit or veg eaten on an average day when the respondent eats fruit or veg.
+
+This gives us a continuous nutrition score, composed of the sum of two proxy values for the amount of fruit and veg eaten per week. Unfortunately because the `days_eating_<>_per_week` variables are ordinal (levels = [Never, 1-3 days, 4-6 days, Everyday]) and not just the number of days, we can't calculate an actual value 
+for `amount_per_week`.
+
+```{r, nutrition_quality_data}
+continuous_density(obs)
+```
+
+
+## Transition Model
+
+We use a Linear Mixed Model (LMM) from the [lme4](https://www.rdocumentation.org/packages/lme4/versions/1.1-36) package in R to predict the next state of nutrition quality.
+
+Formula:
+
+$$  nutrition\_quality \sim age + sex + ethnicity + region + education\_state + hh\_income + behind\_on\_bills + financial\_situation + (1|pidp) + (1|hidp)  $$
+
+```{r nutrition_model_summary}
+print(summary(model))
+```
+
+
+## Results
+
+```{r nutrition_output, echo=FALSE}
+options(width=120)
+continuous_densities(obs, preds, v)
+plot(model)
+```
+
+## References
