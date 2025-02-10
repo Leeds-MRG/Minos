@@ -316,7 +316,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/scot_priority_sub'
         source_year = 2020
 
-    # first collect and load the datafile for 2018
+    # first collect and load the datafile for source year
     file_name = f"data/{data_source}/{source_year}_US_cohort.csv"
 
     # Generate the repl pop dataframe

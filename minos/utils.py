@@ -14,6 +14,7 @@ import scipy
 from math import sqrt, log, ceil, floor
 from random import random
 from numpy.random import choice
+import minos.data_generation.US_utils as uut
 
 import sys
 import importlib
@@ -948,3 +949,125 @@ def extend_series(series_in, n, reverse=False, return_r=False, **kwargs):
         return series_out, r
     else:
         return series_out
+
+
+N_DEFAULT = 0.1
+
+# HR 09/02/25 Return Euclidean distance between two vectors
+def euclidean(v1, v2):
+    d = np.sqrt(np.sum((v1 - v2) ** 2))
+    return d
+
+
+def objective_function(df, target_dict):
+    obj = 0.0
+    for v, t in target_dict.items():
+        if isinstance(t, (int, float)):  # For int/float
+            m = df[v].mean()
+            new_val = euclidean(m, t)
+        elif isinstance(t, dict):  # For categoricals
+            vec = np.array(df[v].value_counts(normalize=True, sort=True))
+            t_sorted = ([v for (k, v) in sorted(t.items())])
+            new_val = euclidean(vec, t_sorted)
+        else:
+            new_val = 0.0
+        obj += new_val
+    return obj
+
+
+def sample_with_constraints(df, target_dict, frac=0.1):
+    """
+    Returns a fractional sample of the input dataframe with a set of values close to the target set.
+    Uses simulated annealing to find the sample.
+
+    Parameters:
+    df (pandas.DataFrame): The input dataframe
+    target_dict (dict): The target set of values
+    frac (float): The size of the sample to be returned, expressed as a fraction of the input dataframe
+
+    Returns:
+    pandas.DataFrame: A fractional sample of the input dataframe with a mean value close to the target values
+    """
+    # Initialize variables
+    current_sample = df.sample(frac=frac)
+    current_obj = objective_function(current_sample, target_dict)  # Objective of current sample
+    T_0 = 1000.0  # initial temperature
+    T = T_0
+    alpha = 0.99  # cooling rate
+    delta_threshold = 0.002  # threshold for accepting new samples
+    subfrac = 0.001
+
+    # Run simulated annealing loop
+    i = 0
+
+    # while T > 1.0:
+    while current_obj > delta_threshold:
+
+        # 1. Get subsample to be used as replacement
+        n_replace = int(subfrac * frac * len(df))
+        to_replace = df.sample(n=n_replace)
+
+        # 2. Replace random rows in current sample with subsample
+        new_sample = current_sample.sample(frac=1)[:-n_replace]  # Shuffle then drop last n rows
+        new_sample = pd.concat([new_sample, to_replace])
+
+        # 3. Calculate objective of proposed sample
+        new_obj = objective_function(new_sample, target_dict)
+        diff = new_obj - current_obj
+
+        # 4. If proposed sample better than current sample, keep it; otherwise discard
+        # Accept or reject the new sample based on the Metropolis criterion
+        # if diff < 0 or np.exp(-diff / T) > np.random.rand():
+        if diff < 0:
+            current_sample = new_sample
+            current_obj = new_obj
+
+        # Cool down the system
+        T *= alpha
+        sys.stdout.write('\rIteration no. {} (obj: {})'.format(i, current_obj))
+
+        # # Check if the current sample is close enough to the target mean
+        # if abs(current_obj - target) < delta_threshold:
+        #     break
+
+        i += 1
+
+    return current_sample, current_obj
+
+
+def get_age_fraction_by_year_newethpop(_path, _file, ages):
+    if isinstance(ages, (int, )):
+        ages = [ages]
+    pop = pd.read_csv(os.path.join(_path, _file))
+
+    age_frac_by_year = {}
+    for age in ages:
+        age_frac_by_year[age] = pop.groupby('year').apply(
+            lambda x: x.loc[x['age'] == age]['count'].sum() / x['count'].sum())
+    return age_frac_by_year
+
+
+# HR 10/02/25 Get size of cohort required to give certain proportion of total population
+def get_cohort_size_by_proportion(target_proportion, pop_size):
+    cohort_size = pop_size / ((1 / target_proportion) - 1)
+    return cohort_size
+
+
+# HR 07/02/25 Simulated annealing testing on arbitrary variables
+if __name__ == "__main__":
+    DATA_PATH = os.path.join(up(up(__file__)))
+    y = 2019
+    pathy = os.path.join(DATA_PATH, f"data/final_US/{y}_US_cohort.csv")
+    dy = pd.read_csv(pathy)
+
+    # 1. Mean/float example
+    # samp, mu = sample_with_constraints(dy, target_dict={'age': 48})
+
+    # 2. Eucliean distance/array example
+    # sex_target = {'Female': 0.58, 'Male': 0.42}
+    # dy_filt = dy.loc[dy['sex'].isin(sex_target)]
+    # samp, mu = sample_with_constraints(dy_filt, target_dict={'sex': sex_target, 'age': 48})
+
+    # HR 10/02/25 Get population estimates by year
+    # af = get_age_fraction_by_year_newethpop(_path=PERSISTENT_DIR, _file='age-sex-ethnic_projections_2008-2061.csv', ages = 16)
+    # n16 = get_cohort_size_by_proportion(0.015, 1e6)
