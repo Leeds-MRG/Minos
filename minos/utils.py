@@ -966,7 +966,7 @@ def objective_function(df, target_dict):
             m = df[v].mean()
             new_val = euclidean(m, t)
         elif isinstance(t, dict):  # For categoricals
-            vec = np.array(df[v].value_counts(normalize=True, sort=True))
+            vec = np.array(df[v].value_counts(normalize=True).sort_index())
             t_sorted = ([v for (k, v) in sorted(t.items())])
             new_val = euclidean(vec, t_sorted)
         else:
@@ -975,7 +975,12 @@ def objective_function(df, target_dict):
     return obj
 
 
-def sample_with_constraints(df, target_dict, frac=0.1):
+def sample_with_constraints(df,
+                            target_dict,
+                            frac=0.1,
+                            delta_threshold = 0.002,  # Convergence threshold
+                            subfrac = 0.001,  # Relative size of subsample to replace
+                            ):
     """
     Returns a fractional sample of the input dataframe with a set of values close to the target set.
     Uses simulated annealing to find the sample.
@@ -988,14 +993,12 @@ def sample_with_constraints(df, target_dict, frac=0.1):
     Returns:
     pandas.DataFrame: A fractional sample of the input dataframe with a mean value close to the target values
     """
-    # Initialize variables
+    # Initialise variables
     current_sample = df.sample(frac=frac)
     current_obj = objective_function(current_sample, target_dict)  # Objective of current sample
-    T_0 = 1000.0  # initial temperature
+    T_0 = 1000.0  # Initial temperature
     T = T_0
-    alpha = 0.99  # cooling rate
-    delta_threshold = 0.002  # threshold for accepting new samples
-    subfrac = 0.001
+    alpha = 0.99  # Cooling rate
 
     # Run simulated annealing loop
     i = 0
@@ -1061,12 +1064,33 @@ if __name__ == "__main__":
     dy = pd.read_csv(pathy)
 
     # 1. Mean/float example
-    # samp, mu = sample_with_constraints(dy, target_dict={'age': 48})
+    # samp, mu = sample_with_constraints(dy, target_dict={'age': 40})
 
-    # 2. Eucliean distance/array example
-    # sex_target = {'Female': 0.58, 'Male': 0.42}
+    # 2. Euclidean distance/array example
+    sex_target = {'Female': 0.55, 'Male': 0.45}
     # dy_filt = dy.loc[dy['sex'].isin(sex_target)]
     # samp, mu = sample_with_constraints(dy_filt, target_dict={'sex': sex_target, 'age': 48})
+
+    # 3. As above, but for ethnicity (a) filtered for valid values and (b) with noise added for testing
+    # deth = dy.loc[(~dy['ethnicity'].isin(uut.missing_types)) & (dy['sex'].isin(sex_target))]
+    # eth_dist = deth['ethnicity'].value_counts(normalize=True).sort_index()
+    # noise = np.random.normal(0, 0.1, len(eth_dist))
+    # eth_noisy = abs(eth_dist - noise)
+    # eth_noisy = (eth_noisy / eth_noisy.sum()).to_dict()
+    #
+    # samp, obj = sample_with_constraints(deth, target_dict={'ethnicity': eth_noisy,
+    #                                                        'sex': sex_target},
+    #                                     delta_threshold=0.01)
+
+    # 4. Another distribution example... ethnicity simplified
+    eth_dist = {'WBI': 0.8, 'WHO': 0.1, 'BAN': 0.05, 'BLA': 0.05}
+    deth = dy.loc[(dy['ethnicity'].isin(eth_dist)) & (dy['sex'].isin(sex_target))]
+
+    samp, obj = sample_with_constraints(deth, target_dict={'ethnicity': eth_dist,
+                                                           # 'sex': sex_target,
+                                                           },
+                                        delta_threshold=0.01)
+
 
     # HR 10/02/25 Get population estimates by year
     # af = get_age_fraction_by_year_newethpop(_path=PERSISTENT_DIR, _file='age-sex-ethnic_projections_2008-2061.csv', ages = 16)
