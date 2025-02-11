@@ -899,10 +899,10 @@ def calculate_equivalent_income(data):
     # First set up dictionaries for each variable to hold its factor weights
     phys_health_dict = {
         5: 0,
-        4: -0.116/1.282,
-        3: -0.135/1.282,
-        2: -0.479/1.282,
-        1: -0.837/1.282,
+        4: -0.115/1.12,
+        3: -0.176/1.12,
+        2: -0.46/1.12,
+        1: -0.776/1.12,
         -9: -1,
         -8: -1,
         -7: -1,
@@ -912,10 +912,10 @@ def calculate_equivalent_income(data):
     }
     men_health_dict = {
         5: 0,
-        4: -0.14/1.282,
-        3: -0.215/1.282,
-        2: -0.656/1.282,
-        1: -0.877/1.282,
+        4: -0.103/1.12,
+        3: -0.167/1.12,
+        2: -0.571/1.12,
+        1: -0.753/1.12,
         -9: -1,
         -8: -1,
         -7: -1,
@@ -925,8 +925,8 @@ def calculate_equivalent_income(data):
     }
     loneliness_dict = {
         1: 0,
-        2: -0.186/1.282,
-        3: -0.591/1.282,
+        2: -0.178/1.12,
+        3: -0.531/1.12,
         -9: -1,
         -8: -1,
         -7: -1,
@@ -936,11 +936,11 @@ def calculate_equivalent_income(data):
     }
     employment_dict = {
         'FT Employed': 0,
-        'PT Employed': 0.033/1.282,
-        'Job Seeking': -0.283/1.282,
-        'FT Education': -0.184/1.282,
-        'Family Care': -0.755/1.282,
-        'Not Working': -0.221/1.282,
+        'PT Employed': 0.065/1.12,
+        'Job Seeking': -0.228/1.12,
+        'FT Education': -0.164/1.12,
+        'Family Care': -0.658/1.12,
+        'Not Working': -0.152/1.12,
         -9: -1,
         -8: -1,
         -7: -1,
@@ -950,8 +950,8 @@ def calculate_equivalent_income(data):
     }
     housing_dict = {
         'Yes to all': 0,
-        'Yes to some': -0.235/1.282,
-        'No to all': -0.696/1.282,
+        'Yes to some': -0.224/1.12,
+        'No to all': -0.615/1.12,
         '-9': -1,
         '-8': -1,
         '-7': -1,
@@ -961,8 +961,8 @@ def calculate_equivalent_income(data):
     }
     nh_safety_dict = {
         'Hardly ever': 0,
-        'Some of the time': -0.291/1.282,
-        'Often': -0.599/1.282,
+        'Some of the time': -0.247/1.12,
+        'Often': -0.548/1.12,
         '-9': -1,
         '-8': -1,
         '-7': -1,
