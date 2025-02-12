@@ -1,0 +1,354 @@
+---
+title: "expensive LSOA analysis"
+output: html_notebook
+---
+
+
+```{r}
+library(here)
+library(ggplot2)
+library(tidyr) #data manipulation
+library(dplyr) # data manipulation
+library(stringr) # for nice formatting of axes labels.
+library(viridis) # for nice colour palettes
+library(sf)
+library(tibble)
+
+source(here::here("minos", "utils_datain.R"))
+source(here::here('minos', 'utils_validation_vis.R'))
+source(here::here('minos', 'validation', 'utils.r'))
+```
+
+```{r}
+# load in datasets
+#expensive LSOAs
+
+epcg_expensive_lsoas <- read.csv(here::here("plots", "cost_vs_gain_by_lsoa_QALYs_manchester_synthetic_baseline_EPCG_2025_diffmap.pdfexpensive_non_green_lsoas.csv"))
+gbis_expensive_lsoas <- read.csv(here::here("plots", "cost_vs_gain_by_lsoa_QALYs_manchester_synthetic_baseline_GBIS_2025_diffmap.pdfexpensive_non_green_lsoas.csv"))
+
+epcg_effective_lsoas <- read.csv(here::here("plots", "cost_vs_gain_by_lsoa_QALYs_manchester_synthetic_baseline_EPCG_2025_diffmap.pdfgreen_lsoas.csv"))
+gbis_effective_lsoas <- read.csv(here::here("plots", "cost_vs_gain_by_lsoa_QALYs_manchester_synthetic_baseline_GBIS_2025_diffmap.pdfgreen_lsoas.csv"))
+
+
+# EPCG individuals 2020 and 2025
+# GBIS individuals 2020 and 2025
+epcg_data <- read.csv(here::here("output", "energy_manchester_scaled", "EPCG", "2024_07_26_18_23_14", "0001_run_id_2025.csv"))
+epcg_data <- epcg_data[which(epcg_data$alive == "alive"), ]
+gbis_data <- read.csv(here::here("output", "energy_manchester_scaled", "GBIS", "2024_09_09_13_10_52", "0001_run_id_2025.csv"))
+gbis_data <- gbis_data[which(gbis_data$alive == "alive"), ]
+
+
+# get expensive LSOA individuals for EPCG and GBIS data.
+
+epcg_data$is_expensive <- "Neither"
+gbis_data$is_expensive <- "Neither"
+
+epcg_data[(which(epcg_data$ZoneID %in% epcg_expensive_lsoas$x)), "is_expensive"] <- "Expensive"
+gbis_data[(which(gbis_data$ZoneID %in% gbis_expensive_lsoas$x)), "is_expensive"] <- "Expensive"
+
+epcg_data[(which(epcg_data$ZoneID %in% epcg_effective_lsoas$x)), "is_expensive"] <- "Cost-Effective"
+gbis_data[(which(gbis_data$ZoneID %in% gbis_effective_lsoas$x)), "is_expensive"] <- "Cost-Effective"
+
+```
+
+
+```{r} 
+# discrete var comparisons
+
+#ggplot(epcg_data, aes(fill=S7_labour_state, x=is_expensive, color=S7_labour_state)) + 
+#  geom_bar(aes( y=..count../tapply(..count.., ..x.. ,sum)[..x..]), position="dodge")
+
+discrete_summary_table <- function(data, v){
+  print(v)
+  Expensive_LSOAs <- table(epcg_data[which(epcg_data$is_expensive == "Expensive"), v]) / length(which(data$is_expensive == "Expensive"))
+  Effective_LSOAs <- table(epcg_data[which(epcg_data$is_expensive == "Cost-Effective"), v]) / length(which(data$is_expensive == "Cost-Effective"))
+  Neither_LSOAs <- table(epcg_data[which(epcg_data$is_expensive == "Neither"), v]) /  length(which(data$is_expensive == "Neither"))
+  t3 <- cbind(Expensive_LSOAs, Effective_LSOAs, Neither_LSOAs)
+  print(t3)
+
+}
+
+
+discrete_summary_table_cross <- function(data, v1, v2){
+  print(v)
+  Expensive_LSOAs <- table(data[which(data$is_expensive == "Expensive"), c(v1, v2)]) / length(which(data$is_expensive == "Expensive"))
+  Effective_LSOAs <- table(data[which(data$is_expensive == "Cost-Effective"), c(v1, v2)]) / length(which(data$is_expensive == "Cost-Effective"))
+  Neither_LSOAs <- table(data[which(data$is_expensive == "Neither"), c(v1, v2)]) /  length(which(data$is_expensive == "Neither"))
+  #t3 <- rbind(Expensive_LSOAs, Effective_LSOAs, Neither_LSOAs)
+  #print(t3)
+  print("Expensive")
+  print(Expensive_LSOAs)
+  print("Effective")
+  print(Effective_LSOAs)  
+  print("Neither")
+  print(Neither_LSOAs)  
+}
+
+
+
+discrete_summary_table(epcg_data, "S7_labour_state")
+discrete_summary_table(epcg_data, "housing_quality")
+discrete_summary_table(epcg_data, "neighbourhood_safety")
+discrete_summary_table(epcg_data, "financial_situation") # 1 is good.
+discrete_summary_table(epcg_data, "behind_on_bills") # 1 is good.
+discrete_summary_table(epcg_data, "age_bucket")
+discrete_summary_table(epcg_data, "housing_sector") # 0 owned #1 public rental # 2 private
+discrete_summary_table(epcg_data, "universal_credit") # 0 not on UC
+discrete_summary_table(epcg_data, "number_of_bedrooms")
+discrete_summary_table(epcg_data, "auditc")
+discrete_summary_table(epcg_data, "FP10")
+discrete_summary_table(epcg_data, "ethnicity")
+discrete_summary_table(epcg_data, "sex")
+discrete_summary_table(epcg_data, "nkids")
+#discrete_summary_table(epcg_data, "council_tax_band")
+
+
+discrete_summary_table_cross(epcg_data[which(epcg_data$universal_credit>=0),], "universal_credit", "housing_sector")
+discrete_summary_table_cross(epcg_data, "nkids", "housing_sector")
+discrete_summary_table_cross(epcg_data, "FP10", "housing_sector")
+
+
+
+print("")
+print("===========================")
+print("BREAK")
+print("===========================")
+print("")
+
+discrete_summary_table(gbis_data, "S7_labour_state")
+discrete_summary_table(gbis_data, "housing_quality")
+discrete_summary_table(gbis_data, "neighbourhood_safety")
+discrete_summary_table(gbis_data, "financial_situation") # 1 is good.
+discrete_summary_table(gbis_data, "behind_on_bills") # 1 is good.
+discrete_summary_table(gbis_data, "age_bucket")
+discrete_summary_table(gbis_data, "housing_sector") # 0 owned #1 public rental # 2 private
+discrete_summary_table(gbis_data, "universal_credit") # 0 not on UC
+discrete_summary_table(gbis_data, "number_of_bedrooms")
+discrete_summary_table(gbis_data, "auditc")
+discrete_summary_table(gbis_data, "FP10")
+discrete_summary_table(gbis_data, "ethnicity")
+discrete_summary_table(gbis_data, "sex")
+discrete_summary_table(gbis_data, "council_tax_band")
+discrete_summary_table(gbis_data, "income_boosted")
+
+```
+
+
+```{r} 
+# continuous var comparisons
+
+continuous_var_summary <- function(data, v) {
+  print("================")
+  print(v)
+  print(summary(epcg_data[which(epcg_data$is_expensive =="Expensive"), v]))
+  print(summary(epcg_data[which(!epcg_data$is_expensive == "Cost-Effective"), v]))
+  print(summary(epcg_data[which(!epcg_data$is_expensive =="Neither"), v]))
+  
+  f <- ggplot(data, aes(x=!!sym(v), color=is_expensive)) + 
+    geom_density()
+  print(f)
+  print("==============")
+}
+
+
+continuous_var_summary(epcg_data, "hh_income")
+continuous_var_summary(epcg_data, "net_hh_income")
+continuous_var_summary(epcg_data, "hh_rent")
+continuous_var_summary(epcg_data, "hh_mortgage")
+
+continuous_var_summary(epcg_data, "yearly_energy")
+continuous_var_summary(epcg_data, "yearly_gas")
+continuous_var_summary(epcg_data, "yearly_electric")
+continuous_var_summary(epcg_data, "yearly_gas_electric")
+continuous_var_summary(epcg_data, "SF_12_MCS")
+continuous_var_summary(epcg_data, "SF_12_PCS")
+
+```
+
+
+Doing same again for LSOAs that benefit a lot. 
+individual tracks as well.
+
+
+```{r}
+
+#continuous individual tracks.
+
+# load in 10 years of data
+# get individuals in effective LSOAs vs ineffective. cross over for households effective in GBIS but not in EPCG.
+long_epcg_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "EPCG", drop.dead=FALSE)
+long_epcg_data <- long_epcg_data[which(long_epcg_data$alive == "alive"), ]
+
+expensive_long_epcg_data <- long_epcg_data[which(long_epcg_data$ZoneID %in% epcg_expensive_lsoas$x), ]
+effective_long_epcg_data <- long_epcg_data[which(long_epcg_data$ZoneID %in% epcg_effective_lsoas$x), ]
+
+
+expensive_long_epcg_data_sample <- expensive_long_epcg_data[which((expensive_long_epcg_data$hidp %% 100) == 13),]
+effective_long_epcg_data_sample <- effective_long_epcg_data[which((effective_long_epcg_data$hidp %% 100) == 13),]
+
+rm(long_epcg_data)
+
+
+long_baseline_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "baseline", drop.dead=FALSE)
+long_baseline_data <- long_baseline_data[which(long_baseline_data$alive == "alive"), ]
+
+expensive_long_baseline_epcg_data_sample <- long_baseline_data[which(long_baseline_data$hidp %in% expensive_long_epcg_data_sample$hidp), ]
+effective_long_baseline_epcg_data_sample <- long_baseline_data[which(long_baseline_data$hidp %in% effective_long_epcg_data_sample$hidp), ]
+
+
+
+rm(long_baseline_data)
+```
+```{r}
+
+spaghetti_plot <- function(data, v)
+{
+  # spaghetti plot displaying trajectories over time for continuous variable v
+  # data: list Some dataset to plot. Needs v, time and pidp variables.
+  # v : some continuous variable to plot. 
+  #TODO convert this to pure ggplot2 as with joint spaghetti plot below. Far more flexible and doesnt need stupid wide format conversion. 
+  data_plot <- data[, c("time", "pidp", v)]
+  output_plot <- ggplot(data_plot, aes(x = time, y = !!sym(v), group = pidp)) + 
+                 ggplot2::labs(x = "time", y = v) + 
+                 ggplot2::theme_classic() + 
+                 ggplot2::theme(text = ggplot2::element_text(size = 12)) + 
+                 ggplot2::scale_colour_viridis_d()+ 
+                 #ggplot2::geom_smooth(colour="blue") +
+                 ggplot2::geom_line(colour="blue", alpha=0.2) +
+                 ggplot2::geom_point() #+
+                 #ggplot2::geom_smooth()
+    
+  return (output_plot)
+}
+
+spaghetti_split_plot <- function(data1, data2, v)
+{
+  # spaghetti plot displaying trajectories over time for continuous variable v
+  # data: list Some dataset to plot. Needs v, time and pidp variables.
+  # v : some continuous variable to plot. 
+  #TODO convert this to pure ggplot2 as with joint spaghetti plot below. Far more flexible and doesnt need stupid wide format conversion. 
+  data1_plot <- data1[, c("time", "pidp", v)]
+  data2_plot <- data1[, c("time", "pidp", v)]
+  
+  data2_plot$tag <- "Baseline"
+  data1_plot$tag <- "EPCG"
+  
+  data_plot <- cbind(data1_plot, data2_plot)
+  output_plot <- ggplot(data_plot, aes(x = time, y = !!sym(v), group = pidp)) + 
+                 ggplot2::labs(x = "time", y = v) + 
+                 ggplot2::theme_classic() + 
+                 ggplot2::theme(text = ggplot2::element_text(size = 12)) + 
+                 ggplot2::scale_colour_viridis_d()+ 
+                 #ggplot2::geom_smooth(colour="blue") +
+                 ggplot2::geom_line(colour="blue", alpha=0.2) +
+                 ggplot2::geom_point() #+
+                 #ggplot2::geom_smooth()
+    
+  return (output_plot)
+}
+
+
+discrete_barplot <- function(data, v) {
+  housing <- data %>%
+  select(pidp, time, v) %>%
+  group_by(time, housing_quality) %>%
+  count() %>%
+  mutate(source = 'baseline_output')
+
+housing[[v]] <- as.factor(housing[[v]])
+
+
+housing.norm <- housing %>%
+  group_by(time) %>%
+  mutate(total = sum(n)) %>%
+  mutate(prct = (n / total))
+
+start.year <- 2021
+ggplot(data = housing.norm, mapping = aes(x = time, y = prct, fill=!!sym(v))) +
+  geom_bar(stat = 'identity') +
+  geom_vline(xintercept=start.year, linetype='dotted') +
+  labs(title = 'Housing Quality') +
+  xlab('Year') +
+  ylab('Proportion')
+
+}
+
+
+shall.we.save <-F
+save.path <- ""
+
+spaghetti_plot(expensive_long_baseline_epcg_data_sample, "SF_12_MCS")
+spaghetti_plot(expensive_long_epcg_data_sample, "SF_12_MCS")
+
+discrete_barplot(expensive_long_baseline_epcg_data_sample, "housing_quality")
+discrete_barplot(expensive_long_epcg_data_sample, "housing_quality")
+
+
+discrete_barplot(effective_long_baseline_epcg_data_sample, "housing_quality")
+discrete_barplot(effective_long_epcg_data_sample, "housing_quality")
+
+
+
+```
+
+
+
+```{r}
+#discrete vars.
+
+
+#discrete individual tracks?
+```
+
+
+
+
+```{r}
+#spatial map of expensive LSOAs
+
+manchester_lsoas <- read.csv(here::here("persistent_data", "spatial_data", "manchester_lsoas.csv"))
+spatial_data <- st_read(here::here("persistent_data", "spatial_data", "UK_super_outputs.geojson"))
+spatial_data <- st_as_sf(spatial_data)
+spatial_data <-  as_tibble(spatial_data)
+spatial_data <- spatial_data[which(spatial_data$ZoneID %in% manchester_lsoas$LSOA11CD), ]
+
+LA_data <- st_read(here::here("persistent_data", "spatial_data", "UK_LADs.geojson"))
+gmca_LAs <- c("Bolton", "Bury", "Rochdale", "Oldham", "Tameside", "Stockport", "Manchester", "Trafford", "Salford", "Wigan")
+LA_data <- LA_data[which(LA_data$LAD21NM %in% gmca_LAs), ]
+LA_data$geometry <- st_transform(LA_data$geometry, crs=4326) # transform to wgs84 for consistency of multiple map layers.
+
+spatial_data$is_expensive <- "Neither"
+spatial_data[which(spatial_data$ZoneID %in% unique(epcg_expensive_lsoas$x)), "is_expensive"] <- "Expensive"
+spatial_data[which(spatial_data$ZoneID %in% unique(epcg_effective_lsoas$x)), "is_expensive"] <- "Cost-Effective"
+
+
+pdf(here::here("plots", "EPCG_cost_effectiveness_map.pdf"))
+epcg_map <-ggplot() +
+    #geom_polygon() +
+    geom_sf(data = spatial_data, aes(geometry = geometry, fill=is_expensive), color='black', lwd=0.01) +
+    geom_sf(data=LA_data, col="black", fill=NA) +
+    geom_sf_label(data=LA_data, aes(label=LAD21NM), alpha=0.25, label.size=NA) +
+    ylab("Latitude") +
+    xlab("Longitude") + 
+    guides(fill=guide_legend(title="Cost-Effectiveness"))
+print(epcg_map)
+dev.off()
+
+spatial_data$is_expensive <- "Neither"
+spatial_data[which(spatial_data$ZoneID %in% unique(gbis_expensive_lsoas$x)), "is_expensive"] <- "Expensive"
+spatial_data[which(spatial_data$ZoneID %in% unique(gbis_effective_lsoas$x)), "is_expensive"] <- "Cost-Effective"
+
+
+pdf(here::here("plots", "GBIS_cost_effectiveness_map.pdf"))
+gbis_map <- ggplot() +
+    #geom_polygon() +
+    geom_sf(data = spatial_data, aes(geometry = geometry, fill=is_expensive), color='black', lwd=0.01) +
+    geom_sf(data=LA_data, col="black", fill=NA)+
+    geom_sf_label(data=LA_data, aes(label=LAD21NM), alpha=0.25, label.size=NA) +
+    ylab("Latitude") +
+    xlab("Longitude") + 
+    guides(fill=guide_legend(title="Cost-Effectiveness"))
+print(gbis_map)
+dev.off()
+
+```

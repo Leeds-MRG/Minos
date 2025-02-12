@@ -159,7 +159,7 @@ def main(mode, interventions):
     # downlaod three qaly datasets
 
     qaly_data = pd.DataFrame()
-    tags = ["Baseline", "EPCG", "GBIS", "EPCG and GBIS"]
+    tags = ["Baseline", "EPCG", "WHS", "EPCG and WHS"]
     for i, intervention in enumerate(interventions):
         file_dir = os.path.join('output/', mode, intervention)
         runtime_list = os.listdir(os.path.abspath(file_dir))

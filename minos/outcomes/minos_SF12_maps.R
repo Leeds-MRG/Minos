@@ -95,8 +95,8 @@ cost_vs_gain_imd_plot <- function(data, destination_file_name, v, do_save=T) {
   
   # take cost, variable, and imd.
   
-  data <- data[, c("diff", "intervention_cost.y", "ZoneID", "pop_size.y", "qaly_var.x", "qaly_pareto_index.x")]
-  colnames(data) <- c("diff", "intervention_cost", "ZoneID", "pop_size", "qaly_var", "qaly_pareto_index")
+  data <- data[, c("diff", "intervention_cost.y", "ZoneID", "pop_size.y", "QALYs.x", "LAName.x")]#, "qaly_pareto_index.x")]
+  colnames(data) <- c("diff", "intervention_cost", "ZoneID", "pop_size", "qaly_var", "LAName")#, "qaly_pareto_index")
     
   imd_data <- read.csv("persistent_data/spatial_data/UK_lsoa_imd.csv")
   colnames(imd_data) <- c("ZoneID", "IMD_Rank", "IMD_decile")
@@ -104,7 +104,7 @@ cost_vs_gain_imd_plot <- function(data, destination_file_name, v, do_save=T) {
   #browser()
   
   data$intervention_cost_per_capita <- data$intervention_cost / data$pop_size
-  # lineplot cost and variable. colour by imd. 
+  # lineplot cost and variable. colour by imd/. 
   
   # other parametres and save.
   
@@ -116,9 +116,9 @@ cost_vs_gain_imd_plot <- function(data, destination_file_name, v, do_save=T) {
     pdf(destination_file_name)
     #plot(x=data$intervention_cost_per_capita, y=data$diff, col=data$IMD_decile)
     #plot(x=data$intervention_cost.y, y=data$diff, col=data$IMD_decile)
-    f <- ggplot(data, aes(x=intervention_cost, y=diff, color=factor(IMD_decile))) +
+    f <- ggplot(data, aes(x=intervention_cost, y=diff, color=factor(LAName))) +
       geom_point() + geom_abline(intercept = 0, slope = 1/70000) +  # green book is 70k. nice is 30k.
-      labs(x="Intervention Cost", y="QALY Cumulative Gain", color="IMD Decile") + 
+      labs(x="Intervention Cost", y="QALY Cumulative Gain", color="LAName") + 
       annotate("text", x=800000, y=10, label = "<- Minimum Cost-Effectivess Line \n    According to the Green Book.", color = "black", hjust=0) +
       scale_x_continuous(labels = label_comma())
       
@@ -127,7 +127,29 @@ cost_vs_gain_imd_plot <- function(data, destination_file_name, v, do_save=T) {
     dev.off()
     print("saved cost gain scatterplot to: ")
     print(destination_file_name)
+    #browser()
   }
+  #browser()
+  if(do_save==T) {
+    
+    extension_contours <- "contours"
+    place <- "Rochdale"
+    destination_file_name_contours <- paste0(destination, "/", extension_contours, place, file_name)
+    pdf(destination_file_name_contours)
+    
+    contours_plot <- ggplot(data=data[which(data$LAName == place),], aes(x=intervention_cost, y=diff)) +
+      geom_density2d_filled() +
+      scale_color_viridis_c()  + geom_abline(intercept = 0, slope = 1/70000) +  # green book is 70k. nice is 30k.
+      labs(x="Intervention Cost", y="QALY Cumulative Gain", color="LAName") + 
+      annotate("text", x=800000, y=10, label = "<- Minimum Cost-Effectivess Line \n    According to the Green Book.", color = "black", hjust=0) +
+      scale_x_continuous(labels = label_comma())
+    
+    print(contours_plot)
+    
+    dev.off()
+  }
+  
+  
   else {
     plot(x=data$intervention_cost_per_capita, y=data$diff, col=data$IMD_decile)
   }
@@ -139,23 +161,23 @@ cost_vs_gain_imd_plot <- function(data, destination_file_name, v, do_save=T) {
 
   # doing plot with uncertainty and inequality as well.
   # qaly gain variance and pareto index for now. 
-  if(do_save == T){
-    destination = strsplit(destination_file_name, "/")[[1]][1]
-    file_name = strsplit(destination_file_name, "/")[[1]][2]
-    extension <- "uncertainty_vs_gain_by_lsoa_"
-    destination_file_name <- paste0(destination, "/", extension, file_name)
-    pdf(destination_file_name)
-    #plot(x=data$intervention_cost_per_capita, y=data$diff, col=data$IMD_decile)
-    #plot(x=data$intervention_cost.y, y=data$diff, col=data$IMD_decile)
-    f <- ggplot(data, aes(x=qaly_var, y=diff, color=qaly_pareto_index)) +
-      geom_point() + #+ geom_abline(intercept = 0, slope = 1/70000) +  # green book is 70k. nice is 30k.
-      labs(x="QALY Uncertainty (Variance) ", y="QALY Cumulative Gain", color="QALY Inequality (Pareto Index)")
-    print(f)
-    #abline(a=1/30000, b=0)
-    dev.off()
-    print("saved uncertainty gain scatterplot to: ")
-    print(destination_file_name)
-  }
+  # if(do_save == T){
+  #   destination = strsplit(destination_file_name, "/")[[1]][1]
+  #   file_name = strsplit(destination_file_name, "/")[[1]][2]
+  #   extension <- "uncertainty_vs_gain_by_lsoa_"
+  #   destination_file_name <- paste0(destination, "/", extension, file_name)
+  #   pdf(destination_file_name)
+  #   #plot(x=data$intervention_cost_per_capita, y=data$diff, col=data$IMD_decile)
+  #   #plot(x=data$intervention_cost.y, y=data$diff, col=data$IMD_decile)
+  #   f <- ggplot(data, aes(x=qaly_var, y=diff, color=qaly_pareto_index)) +
+  #     geom_point() + #+ geom_abline(intercept = 0, slope = 1/70000) +  # green book is 70k. nice is 30k.
+  #     labs(x="QALY Uncertainty (Variance) ", y="QALY Cumulative Gain", color="QALY Inequality (Pareto Index)")
+  #   print(f)
+  #   #abline(a=1/30000, b=0)
+  #   dev.off()
+  #   print("saved uncertainty gain scatterplot to: ")
+  #   print(destination_file_name)
+  # }
   
   }
 

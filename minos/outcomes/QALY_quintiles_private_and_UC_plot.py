@@ -10,7 +10,7 @@ def main(mode, interventions):
 
     subset_function_string = "who_private_rental_and_UC"
     qaly_data = pd.DataFrame()
-    tags = ["Baseline", "EPCG", "GBIS", "EPCG and GBIS"]#, "Good Heating Dummy"
+    tags = ["Baseline", "EPCG", "WHS", "EPCG and WHS"]#, "Good Heating Dummy"
     for i, intervention in enumerate(interventions):
         file_dir = os.path.join('output/', mode, intervention)
         runtime_list = os.listdir(os.path.abspath(file_dir))
