@@ -55,7 +55,7 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     #data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.repeat(data.loc[data['tag']==baseline, "QALYs_cumsum"].values, len(data['tag'].value_counts()))
     data['QALYs_cumsum_percentage_diff'] = data['QALYs_cumsum_diff']/data["QALYs_cumsum"]
 
-    data = data.loc[data['tag'].isin(["EPCG", "GBIS", "EPCG and GBIS"]), ]
+    data = data.loc[data['tag'].isin(["EPCG", "GBIS", "EPCG and GBIS", "WHS", "EPCG and WHS"]), ]
     data.loc[data['QALYs_cumsum_diff']==0, 'QALYs_cumsum_diff'] += 1
     data['ICER'] = data['total_boost_cumsum']/data['QALYs_cumsum_diff']
 
