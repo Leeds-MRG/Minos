@@ -28,10 +28,12 @@ def QALY_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     #data['QALYs_cumsum_diff'] = data['QALYs_cumsum'] - np.repeat(data.loc[data['tag']=="Baseline", "QALYs_cumsum"].values, len(data['tag'].value_counts()))
     data['QALYs_cumsum_percentage_diff'] = data['QALYs_cumsum_diff']/data["QALYs_cumsum"]
 
+    data['Intervention'] = data['tag']
+
     # plot.
     f=plt.figure()
     #TODO: CHANGE TO TAG
-    ax = sns.lineplot(data=data, x='year', y="QALYs_cumsum_diff", hue='tag', style='tag', markers=True, palette='Set2')
+    ax = sns.lineplot(data=data, x='year', y="QALYs_cumsum_diff", hue='Intervention', style='Intervention', markers=True, palette='Set2')
     ax.set(ylabel="QALYs difference (years)")
     file_name = prefix + ".pdf"
     file_name = os.path.join(destination, file_name)
@@ -64,11 +66,13 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     print(data['ICER'])
     data.to_csv(f"plots/icer.csv", index=False)
 
+
+    data['Intervention'] = data['tag']
     # plot.
     f=plt.figure()
     #TODO: CHANGE TO TAG
-    ax = sns.lineplot(data=data, x='year', y="ICER", hue='tag',style='tag', markers=True, palette='Set2')
-    ax.set(ylabel="ICER (log10(x+1) scale)")
+    ax = sns.lineplot(data=data, x='year', y="ICER", hue='Intervention',style='Intervention', markers=True, palette='Set2')
+    ax.set(ylabel="ICER (log10 scale) (QALY/£)")
 
     file_name = prefix + ".pdf"
     file_name = os.path.join(destination, file_name)
@@ -101,9 +105,11 @@ def QALY_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
         plot_data = pd.concat([plot_data, subset_data])
 
     # plot.
+    plot_data['Intervention'] = plot_data['tag']
     f = plt.figure()
     # TODO: CHANGE TO TAG
-    ax = sns.lineplot(data=plot_data, x='year', y="QALYs_cumsum_diff", hue='tag', style='tag', markers=True, palette='Set2')
+    ax = sns.lineplot(data=plot_data, x='year', y="QALYs_cumsum_diff", hue='Intervention', style='Intervention',
+                      markers=True, palette='Set2')
     ax.set(ylabel="QALYs difference (years)")
     file_name = prefix + ".pdf"
     file_name = os.path.join(destination, file_name)
@@ -139,13 +145,15 @@ def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
         plot_data = pd.concat([plot_data, subset_data])
 
     plot_data = plot_data.loc[plot_data['year'] != 2020, ]
+    plot_data['Intervention'] = data['tag']
+
     print(plot_data['ICER'])
     plot_data.to_csv(f"plots/{group}_icer.csv", index=False)
     # plot.
     f=plt.figure()
     #TODO: CHANGE TO TAG
-    ax = sns.lineplot(data=plot_data, x='year', y="ICER", hue='tag',style='tag', markers=True, palette='Set2')
-    ax.set(ylabel="ICER (log10(x+1) scale)")
+    ax = sns.lineplot(data=plot_data, x='year', y="ICER", hue='Intervention',style='Intervention', markers=True, palette='Set2')
+    ax.set(ylabel="ICER (log10 scale) (QALY/£)")
 
     file_name = prefix + ".pdf"
     file_name = os.path.join(destination, file_name)
