@@ -36,6 +36,6 @@ def main(mode, intervention, tag):
     ICER_quintiles_lineplot(qaly_data, f"{mode}_{intervention}_simd_quintiles_energy_combined_ICR_lineplot")
 
 if __name__ == '__main__':
-    main("energy_manchester_scaled", "GBIS", "WHS")
+    main("energy_manchester_scaled", "GBIS", "GBIS")
     main("energy_manchester_scaled", "EPCG", "EPCG")
-    main("energy_manchester_scaled", "EPCGandGBIS", "EPCG and WHS")
+    main("energy_manchester_scaled", "EPCGandGBIS", "EPCG and GBIS")
