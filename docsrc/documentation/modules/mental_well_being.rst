@@ -210,6 +210,22 @@ Formula:
    ## optimizer (nloptwrap) convergence code: 0 (OK)
    ## Gradient contains NAs
 
+Validation
+~~~~~~~~~~
+
+.. code:: r
+
+   handover_boxplots(raw.dat, base.dat, v)
+
+.. figure:: ./figure/mwb_validation-1.png
+   :alt: plot of chunk mwb_validation
+
+   plot of chunk mwb_validation
+
+.. code:: r
+
+   #handover_lineplots(raw.dat, base.dat, v)
+
 Results
 ~~~~~~~
 

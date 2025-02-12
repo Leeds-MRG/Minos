@@ -9,11 +9,13 @@ bibliography:
 # Tobacco
 
 ```{r setup, include=FALSE}
+library(dplyr)
 library(here)
-library(glmnet)
-library(plyr)
+library(pscl)
 
 source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
 model_path <- here::here("data", "transitions", "ncigs", "zip", "ncigs_2019_2020.rds")
 model <- readRDS(model_path)
 
@@ -28,6 +30,27 @@ data$ncigs_last <- data$ncigs
 
 v <- "ncigs"
 
+### Read data in for handovers plots
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.dat <- raw.dat %>%
+  filter(weight > 0)
+
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
+
+# cut off any years of raw data AFTER start year of simulation
+if (min(base.dat$time) <= max(raw.dat$time)) {
+  raw.dat <- raw.dat %>%
+    filter(time <= min(base.dat$time))
+}
+
+# cut missing data for key variable
+raw.dat <- raw.dat %>%
+  filter(!.data[[v]] %in% miss.values)
 ```
 
 Tobacco consumption is measured in the usual number of cigarettes smoked per day, and is taken directly from a US variable ([ncigs](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ncigs)). Number of cigarettes consumed is an indicator of several mental illnesses including anxiety [@lawrence2010anxiety].
@@ -44,7 +67,7 @@ The number of zero inflated values is higher than expected for a count distribut
 
 Formula:
 
-$$  ncigs ~ ncigs\_last + age + sex + ethnicity + region + education\_state + housing\_quality + neighbourhood\_safety + loneliness + nutrition\_quality + hh\_income + SF\_12 + behind\_on\_bills + financial\_situation | ncigs\_last + I(ncigs_last>0) + ethnicity + housing\_quality + neighbourhood\_safety + loneliness + nutrition\_quality + job\_sec + hh\_income + SF\_12 + behind\_on\_bills + financial\_situation  $$
+$$  ncigs \sim ncigs\_last + age + sex + ethnicity + region + education\_state + housing\_quality + \\neighbourhood\_safety + loneliness + nutrition\_quality + \\hh\_income + SF\_12 + behind\_on\_bills + financial\_situation \\|\\ ncigs\_last + I(ncigs_last>0) + ethnicity + housing\_quality + \\neighbourhood\_safety + loneliness + nutrition\_quality + job\_sec + \\hh\_income + SF\_12 + behind\_on\_bills + financial\_situation  $$
 
 NOTE: The syntax seen above `I(ncigs>0)` represents a binary flag for whether a person smoked previously (`ncigs > 0`).
 
@@ -72,9 +95,18 @@ zip_output(model)
 ```
 
 
+## Validation
+
+```{r ncigs_validation}
+handover_boxplots(raw.dat, base.dat, v)
+handover_lineplots(raw.dat, base.dat, v)
+```
+
+
+
 ## Results
   
-Almost all coefficients significant. Particularly prevous consumption of cigarettes. Good estimation of the number of non-smokers in the population at around 55\%. Counts of smoking are underdispersed and fail to estimate consumption over 20 cigarettes. 
+Almost all coefficients significant. Particularly previous consumption of cigarettes. Good estimation of the number of non-smokers in the population at around 55\%. Counts of smoking are underdispersed and fail to estimate consumption over 20 cigarettes. 
 
 
 ```{r tobacco_output, echo=FALSE}

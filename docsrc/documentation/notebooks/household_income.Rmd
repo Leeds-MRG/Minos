@@ -7,13 +7,39 @@ bibliography:
 
 ```{r load_data, include=FALSE}
 library(here)
+library(tidyverse)
+library(lme4)
 source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
 model_path <- here::here("data", "transitions", "hh_income", "glmm", "hh_income_new_GLMM.rds")
 model <- readRDS(model_path)
 
 obs <- model@frame$hh_income
 preds <- predict(model, type='response')
 v <- "hh_income"
+
+### Read data in for handovers plots
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.dat <- raw.dat %>%
+  filter(weight > 0)
+
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
+
+# cut off any years of raw data AFTER start year of simulation
+if (min(base.dat$time) <= max(raw.dat$time)) {
+  raw.dat <- raw.dat %>%
+    filter(time <= min(base.dat$time))
+}
+
+# cut missing data for key variable
+raw.dat <- raw.dat %>%
+  filter(!.data[[v]] %in% miss.values)
 ```
 
 # Household Disposable Income
@@ -44,7 +70,7 @@ To estimate this variable we use a Generalised Linear Mixed Model (GLMM) using t
   
 Formula:
   
-$$  hh\_income\_next \sim hh\_income\_last + age + age^2 +  age^3 + sex + ethnicity + region + education\_state + job\_sec + SF\_12 + labour\_state + (1\|pidp)$$
+$$  hh\_income\_next \sim hh\_income\_last + age + age^2 +  age^3 + sex + ethnicity + region + \\education\_state + job\_sec + SF\_12 + labour\_state + (1|pidp)$$
 
 Each variable included is defined as follows. Each variable with discrete values is defined in the data tables section of this documentation [here](https://leeds-mrg.github.io/Minos/documentation/data_tables.html).
 
@@ -65,6 +91,12 @@ print(summary(model))
 ### Council Tax
 
 In the UKHLS main release data, [council tax](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/ctband_dv/) information is reported by band. Specific amount deductions are only available in the Special Licence and Secure Access datasets. Instead of reported deductions, we have simulated the amount of council tax each household is paying by taking a random uniform draw for each household within the confines of their band.
+
+## Validation
+
+```{r hh_income_validation}
+handover_boxplots(raw.dat, base.dat, v)
+```
 
 
 ## Results

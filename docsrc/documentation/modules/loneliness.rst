@@ -40,7 +40,7 @@ package in R.
 
 Formula:
 
-.. math::   loneliness \sim loneliness\_last + age + sex + ethnicity + region + education\_state + housing\_quality + neighbourhood\_safety + nutrition\_quality + ncigs + job\_sec + hh\_income + marital\_status + behind\_on\_bills + financial\_situation  
+.. math::   loneliness \sim loneliness\_last + age + sex + ethnicity + region + education\_state + housing\_quality + \\neighbourhood\_safety + nutrition\_quality + ncigs + job\_sec + hh\_income + \\marital\_status + behind\_on\_bills + financial\_situation  
 
 Loneliness has been `linked with educational
 attainment <https://www.tandfonline.com/doi/full/10.1080/03601270701569275?casa_token=3vV_r99mb0QAAAAA%3ACK8Wogj5cs5CQm8gZfLKuHJtctkCyGX_i2y4CLyDgAhsReGB1s7QrV1I0qul-6Gw75QBcY93WoWuWA>`__.
@@ -62,6 +62,15 @@ young and early middle-aged adults, compared to late middle-aged adults.
 
    plot of chunk loneliness_model_summary
 
+Validation
+~~~~~~~~~~
+
+.. code:: r
+
+   handover_ordinal(raw.dat, base.dat, v)
+
+|plot of chunk loneliness_validation|\ |image1|
+
 Results
 ~~~~~~~
 
@@ -77,3 +86,6 @@ in the resulting model.
 
 References
 ~~~~~~~~~~
+
+.. |plot of chunk loneliness_validation| image:: ./figure/loneliness_validation-1.png
+.. |image1| image:: ./figure/loneliness_validation-2.png

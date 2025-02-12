@@ -1,6 +1,11 @@
 Neighbourhood
 -------------
 
+.. _neighbourhood-1:
+
+Neighbourhood
+-------------
+
 Neighbourhood Safety is a composite derived from 7 questions related to
 different facets of safety in the neighbourhood.
 
@@ -59,7 +64,7 @@ package in R to estimate transitions for this variable.
 
 Formula:
 
-.. math::   neighbourhood\_safety \sim age + sex + ethnicity + region + education\_state + hh\_income + behind\_on\_bills + financial\_situation  
+.. math::   neighbourhood\_safety \sim age + sex + ethnicity + region + education\_state + hh\_income + \\behind\_on\_bills + financial\_situation  
 
 .. code:: r
 
@@ -69,6 +74,15 @@ Formula:
    :alt: plot of chunk nh_safety_model_summary
 
    plot of chunk nh_safety_model_summary
+
+Validation
+~~~~~~~~~~
+
+.. code:: r
+
+   handover_ordinal(raw.dat, base.dat, v)
+
+|plot of chunk nh_safety_validation|\ |image1|
 
 Results
 ~~~~~~~
@@ -80,3 +94,6 @@ Results
 
 References
 ~~~~~~~~~~
+
+.. |plot of chunk nh_safety_validation| image:: ./figure/nh_safety_validation-1.png
+.. |image1| image:: ./figure/nh_safety_validation-2.png

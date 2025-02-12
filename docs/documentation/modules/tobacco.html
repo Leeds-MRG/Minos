@@ -25,8 +25,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Introduction" href="interventions.html" />
-    <link rel="prev" title="Replenishment" href="replenishment.html" /> 
+    <link rel="next" title="Ageing" href="ageing.html" />
+    <link rel="prev" title="Nutrition" href="nutrition.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -55,21 +55,27 @@
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Modules</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="modules_intro.html">Introduction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="household_income.html">Household Disposable Income</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
 <li class="toctree-l3"><a class="reference internal" href="housing.html">Housing Quality</a></li>
 <li class="toctree-l3"><a class="reference internal" href="loneliness.html">Loneliness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="labour.html">Labour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="labour.html#transition-model">Transition Model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mortality.html">Mortality</a></li>
-<li class="toctree-l3"><a class="reference internal" href="education.html">Education</a></li>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html#neighbourhood-1">Neighbourhood</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Tobacco</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#transition-model">Transition Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#validation">Validation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="ageing.html">Ageing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ageing.html#child-ages">Child Ages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ageing.html#references">References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mortality.html">Mortality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="education.html">Education</a></li>
+<li class="toctree-l3"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="interventions.html">Introduction</a></li>
@@ -128,7 +134,7 @@ illnesses including anxiety (Lawrence et al. 2010).</p>
 <figure class="align-default" id="id1">
 <img alt="plot of chunk tobacco_data" src="../../_images/tobacco_data-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 13 </span><span class="caption-text">plot of chunk tobacco_data</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 18 </span><span class="caption-text">plot of chunk tobacco_data</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">obs_no_zero</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">obs</span><span class="p">[</span><span class="n">obs</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="m">0</span><span class="p">]</span><span class="w">  </span><span class="c1"># remove zero values to look at counts only for smokers</span>
@@ -138,7 +144,7 @@ illnesses including anxiety (Lawrence et al. 2010).</p>
 <figure class="align-default" id="id2">
 <img alt="plot of chunk tobacco_data" src="../../_images/tobacco_data-2.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 14 </span><span class="caption-text">plot of chunk tobacco_data</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 19 </span><span class="caption-text">plot of chunk tobacco_data</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <section id="transition-model">
@@ -157,7 +163,7 @@ This is modelled using the <code class="docutils literal notranslate"><span clas
 package in R.</p>
 <p>Formula:</p>
 <div class="math notranslate nohighlight">
-\[ncigs ~ ncigs\_last + age + sex + ethnicity + region + education\_state + housing\_quality + neighbourhood\_safety + loneliness + nutrition\_quality + hh\_income + SF\_12 + behind\_on\_bills + financial\_situation | ncigs\_last + I(ncigs_last&gt;0) + ethnicity + housing\_quality + neighbourhood\_safety + loneliness + nutrition\_quality + job\_sec + hh\_income + SF\_12 + behind\_on\_bills + financial\_situation\]</div>
+\[\begin{split}ncigs \sim ncigs\_last + age + sex + ethnicity + region + education\_state + housing\_quality + \\neighbourhood\_safety + loneliness + nutrition\_quality + \\hh\_income + SF\_12 + behind\_on\_bills + financial\_situation \\|\\ ncigs\_last + I(ncigs_last&gt;0) + ethnicity + housing\_quality + \\neighbourhood\_safety + loneliness + nutrition\_quality + job\_sec + \\hh\_income + SF\_12 + behind\_on\_bills + financial\_situation\end{split}\]</div>
 <p>NOTE: The syntax seen above <code class="docutils literal notranslate"><span class="pre">I(ncigs&gt;0)</span></code> represents a binary flag for
 whether a person smoked previously (<code class="docutils literal notranslate"><span class="pre">ncigs</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>).</p>
 <p>Two set of variables are needed for the logistic and poisson parts of
@@ -386,10 +392,44 @@ labour_state. whether a person is employed or not. job_sec job quality</p>
 </pre></div>
 </div>
 </section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h2>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">handover_boxplots</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk ncigs_validation" src="../../_images/ncigs_validation-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 20 </span><span class="caption-text">plot of chunk ncigs_validation</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">handover_lineplots</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.</span>
+<span class="c1">## ℹ Please use `all_of()` or `any_of()` instead.</span>
+<span class="c1">##   # Was:</span>
+<span class="c1">##   data %&gt;% select(var)</span>
+<span class="c1">##</span>
+<span class="c1">##   # Now:</span>
+<span class="c1">##   data %&gt;% select(all_of(var))</span>
+<span class="c1">##</span>
+<span class="c1">## See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</span>
+<span class="c1">## This warning is displayed once every 8 hours.</span>
+<span class="c1">## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id4">
+<img alt="plot of chunk ncigs_validation" src="../../_images/ncigs_validation-2.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 21 </span><span class="caption-text">plot of chunk ncigs_validation</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
 <section id="results">
 <h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
-<p>Almost all coefficients significant. Particularly prevous consumption of
-cigarettes. Good estimation of the number of non-smokers in the
+<p>Almost all coefficients significant. Particularly previous consumption
+of cigarettes. Good estimation of the number of non-smokers in the
 population at around 55%. Counts of smoking are underdispersed and fail
 to estimate consumption over 20 cigarettes.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in density(preds, from = quants[1], to = max(quants[2])): object &#39;preds&#39; not found</span>
@@ -413,8 +453,8 @@ from the Australian Survey of Mental Health and Wellbeing.”
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="replenishment.html" class="btn btn-neutral float-left" title="Replenishment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="interventions.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="nutrition.html" class="btn btn-neutral float-left" title="Nutrition" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ageing.html" class="btn btn-neutral float-right" title="Ageing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

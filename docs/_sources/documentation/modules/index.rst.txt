@@ -5,13 +5,14 @@ Modules
 
     modules_intro
     household_income
+    mental_well_being
     housing
     loneliness
     labour
     neighbourhood
-    mental_well_being
+    nutrition
+    tobacco
+    ageing
     mortality
     education
-    nutrition
     replenishment
-    tobacco

@@ -19,7 +19,7 @@ render_rmd:
 	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/education.md" -o "docsrc/documentation/modules/education.rst"
 	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/replenishment.md" -o "docsrc/documentation/modules/replenishment.rst"
 	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/modules_intro.md" -o "docsrc/documentation/modules/modules_intro.rst"
-	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/nutrition.md" -o "docsrc/documentation/modules/nutrition.rst"
+	#pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/nutrition.md" -o "docsrc/documentation/modules/nutrition.rst"
 	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/mortality.md" -o "docsrc/documentation/modules/mortality.rst"
 
 	# Render R notebooks for each MINOS module. Any media outputs are saved to doscrc/figure.
@@ -41,6 +41,8 @@ render_rmd:
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)loneliness.Rmd" "$(NOTEBOOKOUTPUTDIR)loneliness.rst" 1
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)neighbourhood.Rmd" "$(NOTEBOOKOUTPUTDIR)neighbourhood.rst" 1
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)tobacco.Rmd" "$(NOTEBOOKOUTPUTDIR)tobacco.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)nutrition.Rmd" "$(NOTEBOOKOUTPUTDIR)nutrition.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)ageing.Rmd" "$(NOTEBOOKOUTPUTDIR)ageing.rst" 1
 
 	# Knitr outputs figures for the documentation in a folder /figure at the top repo level.
 	# I couldn't figure out how change where to output them so manually move them instead..

@@ -1,0 +1,65 @@
+---
+title: "Ageing"
+output: html_document
+bibliography: 
+  - "`r here::here('docsrc', 'refs.bib')`" # finally figure out how to combine these for debugging and actual 
+---
+
+```{r load_data, include=FALSE}
+library(here)
+library(tidyverse)
+library(lme4)
+source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
+model_path <- here::here("data", "transitions", "hh_income", "glmm", "hh_income_new_GLMM.rds")
+model <- readRDS(model_path)
+
+obs <- model@frame$hh_income
+preds <- predict(model, type='response')
+v <- "age"
+
+### Read data in for handovers plots
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.dat <- raw.dat %>%
+  filter(weight > 0)
+
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
+
+# cut off any years of raw data AFTER start year of simulation
+if (min(base.dat$time) <= max(raw.dat$time)) {
+  raw.dat <- raw.dat %>%
+    filter(time <= min(base.dat$time))
+}
+
+# assign to age_bucket in raw data
+cut_bins <- c(-1, 15, 19, 24, 29, 44, 59, 74, 200)
+cut_labels <- c("0to15", "16to19", "20to24", "25to29", "30to44", "45to59", "60to74", "75plus")
+
+raw.dat$age_bucket <- cut(raw.dat$age, 
+                          breaks = cut_bins, 
+                          labels = cut_labels)
+```
+
+# Ageing
+
+Ageing is an obvious process and doesn't really warrant any documentation, but I thought this could also be a good place to put some information relating to the age structure of the population as well as some information on how child ages are updated in the module. (For the record, the age of each individual is incremented by 1 each wave of simulation).
+
+```{r age_structure}
+handover_ordinal(raw.dat, base.dat, var = 'age_bucket')
+```
+
+# Child Ages
+
+Something else that happens in the ageing module is that child ages are also incremented. Child ages are held in a single string column in the interest of reducing the data size. For example, a `child_ages` value of `2_4_7` indicates a household with 3 children aged 2, 4, and 7. The function `Ageing.update_child_ages()` increments ages in these strings each time step.
+
+```{r child_ages_plot}
+child_ages_lineplot(raw.dat, base.dat)
+```
+
+# References

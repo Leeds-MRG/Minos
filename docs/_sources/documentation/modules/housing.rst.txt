@@ -64,7 +64,7 @@ package in R to estimate transitions for this variable.
 
 Formula:
 
-.. math::   housing\_quality \sim housing\_quality\_last + age + sex + ethnicity + region + education\_state + neighbourhood\_safety + loneliness + nutrition\_quality + ncigs + hh\_income + housing\_tenure + behind\_on\_bills + financial\_situation  
+.. math::   housing\_quality \sim housing\_quality\_last + age + sex + ethnicity + region + education\_state + \\neighbourhood\_safety + loneliness + nutrition\_quality + ncigs + hh\_income + \\housing\_tenure + behind\_on\_bills + financial\_situation  
 
 -  age: Age at time of interview.
 -  sex: Individual’s biological sex.
@@ -99,6 +99,15 @@ Formula:
 
    plot of chunk housing_model_summary
 
+Validation
+~~~~~~~~~~
+
+.. code:: r
+
+   handover_ordinal(raw.dat, base.dat, v)
+
+|plot of chunk housing_validation|\ |image1|
+
 Results
 ~~~~~~~
 
@@ -114,3 +123,6 @@ in the resulting model.
 
 References
 ~~~~~~~~~~
+
+.. |plot of chunk housing_validation| image:: ./figure/housing_validation-1.png
+.. |image1| image:: ./figure/housing_validation-2.png

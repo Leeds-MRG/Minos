@@ -49,7 +49,7 @@ package in R.
 
 Formula:
 
-.. math::   hh\_income\_next \sim hh\_income\_last + age + age^2 +  age^3 + sex + ethnicity + region + education\_state + job\_sec + SF\_12 + labour\_state + (1\|pidp)
+.. math::   hh\_income\_next \sim hh\_income\_last + age + age^2 +  age^3 + sex + ethnicity + region + \\education\_state + job\_sec + SF\_12 + labour\_state + (1|pidp)
 
 Each variable included is defined as follows. Each variable with
 discrete values is defined in the data tables section of this
@@ -319,6 +319,18 @@ available in the Special Licence and Secure Access datasets. Instead of
 reported deductions, we have simulated the amount of council tax each
 household is paying by taking a random uniform draw for each household
 within the confines of their band.
+
+Validation
+~~~~~~~~~~
+
+.. code:: r
+
+   handover_boxplots(raw.dat, base.dat, v)
+
+.. figure:: ./figure/hh_income_validation-1.png
+   :alt: plot of chunk hh_income_validation
+
+   plot of chunk hh_income_validation
 
 Results
 ~~~~~~~

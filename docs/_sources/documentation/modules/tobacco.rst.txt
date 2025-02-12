@@ -44,7 +44,7 @@ package in R.
 
 Formula:
 
-.. math::   ncigs ~ ncigs\_last + age + sex + ethnicity + region + education\_state + housing\_quality + neighbourhood\_safety + loneliness + nutrition\_quality + hh\_income + SF\_12 + behind\_on\_bills + financial\_situation | ncigs\_last + I(ncigs_last>0) + ethnicity + housing\_quality + neighbourhood\_safety + loneliness + nutrition\_quality + job\_sec + hh\_income + SF\_12 + behind\_on\_bills + financial\_situation  
+.. math::   ncigs \sim ncigs\_last + age + sex + ethnicity + region + education\_state + housing\_quality + \\neighbourhood\_safety + loneliness + nutrition\_quality + \\hh\_income + SF\_12 + behind\_on\_bills + financial\_situation \\|\\ ncigs\_last + I(ncigs_last>0) + ethnicity + housing\_quality + \\neighbourhood\_safety + loneliness + nutrition\_quality + job\_sec + \\hh\_income + SF\_12 + behind\_on\_bills + financial\_situation  
 
 NOTE: The syntax seen above ``I(ncigs>0)`` represents a binary flag for
 whether a person smoked previously (``ncigs > 0``).
@@ -278,11 +278,46 @@ labour_state. whether a person is employed or not. job_sec job quality
    ## Number of iterations in BFGS optimization: 71 
    ## Log-likelihood: -250.2 on 93 Df
 
+Validation
+~~~~~~~~~~
+
+.. code:: r
+
+   handover_boxplots(raw.dat, base.dat, v)
+
+.. figure:: ./figure/ncigs_validation-1.png
+   :alt: plot of chunk ncigs_validation
+
+   plot of chunk ncigs_validation
+
+.. code:: r
+
+   handover_lineplots(raw.dat, base.dat, v)
+
+::
+
+   ## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
+   ## ℹ Please use `all_of()` or `any_of()` instead.
+   ##   # Was:
+   ##   data %>% select(var)
+   ## 
+   ##   # Now:
+   ##   data %>% select(all_of(var))
+   ## 
+   ## See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
+   ## This warning is displayed once every 8 hours.
+   ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
+
+.. figure:: ./figure/ncigs_validation-2.png
+   :alt: plot of chunk ncigs_validation
+
+   plot of chunk ncigs_validation
+
 Results
 ~~~~~~~
 
-Almost all coefficients significant. Particularly prevous consumption of
-cigarettes. Good estimation of the number of non-smokers in the
+Almost all coefficients significant. Particularly previous consumption
+of cigarettes. Good estimation of the number of non-smokers in the
 population at around 55%. Counts of smoking are underdispersed and fail
 to estimate consumption over 20 cigarettes.
 
