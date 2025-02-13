@@ -209,10 +209,11 @@
         <span class="n">housing_prob_df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">index</span>
 
         <span class="c1"># convert numeric prediction into string factors (low, medium, high)</span>
-        <span class="c1"># NOTE: These strings obviously do not match with the numbers, but when switching to the rfo model</span>
-        <span class="n">housing_factor_dict</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;Medium&#39;</span><span class="p">,</span>
+        <span class="c1"># NOTE: These strings obviously do not match with the numbers, but when switching to the rfo model the factor</span>
+        <span class="c1">#       levels are being jumbled up for some reason. Don&#39;t know why but this fixes it.</span>
+        <span class="n">housing_factor_dict</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;High&#39;</span><span class="p">,</span>
                                <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;Low&#39;</span><span class="p">,</span>
-                               <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;High&#39;</span><span class="p">}</span>
+                               <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;Medium&#39;</span><span class="p">}</span>
         <span class="n">housing_prob_df</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s1">&#39;housing_quality&#39;</span><span class="p">:</span> <span class="n">housing_factor_dict</span><span class="p">},</span>
                                 <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 

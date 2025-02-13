@@ -111,8 +111,38 @@ Almost all coefficients significant. Particularly previous consumption of cigare
 
 ```{r tobacco_output, echo=FALSE}
 options(width=120)
-continuous_densities(obs, preds, "ncigs")
-#zip_density(model, 'ncigs')
+#continuous_densities(obs, preds, "ncigs")
+
+zip_density <- function (zip_model, v){
+  # Density plot for zip models.
+  # zip model outputs two sets of predictors.
+  #
+  # First is probability of non-zero event. 
+  # For sample n this is a length n vector of values between 0 and 1 containing probabilities.
+  # E.g. probability a person smokes anything. 
+  #
+  # Second is count values given non-zero event.
+  # E.g. if a person smokes what is their predicted consumption.
+  #
+  # Combine these two together to get an estimated count density for the whole population.
+  # Randomly sample if individuals have a non-zero even using probabilities.
+  # If they have an event assign them the corresponding count else 0.
+  
+  # get obs/preds
+  #zip_model <- readRDS(data_path)
+  obs <- zip_model[[v]]
+  # predict probability of zero value and counts of non-zero value..
+  probs <- predict(zip_model, type='zero')
+  counts <- predict(zip_model, type='count')
+  # randomly assign 0 values to individuals based on probability of zero status.
+  preds <- (runif(length(probs)) >= probs) * counts
+  # density plot for obs and preds lines.
+  plot(density(preds, from=0), lty=1, col='red')
+  lines(density(obs, from=0), col='blue', lty=2)
+  legend('topright', legend=c("Predicted", "Real"), col=c("red", "blue"), lty=1:2)
+}
+
+zip_density(model, 'ncigs')
 ```
 
 ## References

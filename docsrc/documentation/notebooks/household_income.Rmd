@@ -96,6 +96,7 @@ In the UKHLS main release data, [council tax](https://www.understandingsociety.a
 
 ```{r hh_income_validation}
 handover_boxplots(raw.dat, base.dat, v)
+handover_lineplots(raw.dat, base.dat, v)
 ```
 
 

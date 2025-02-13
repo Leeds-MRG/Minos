@@ -163,20 +163,6 @@ Validation
 
    handover_lineplots(raw.dat, base.dat, v)
 
-::
-
-   ## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
-   ## ℹ Please use `all_of()` or `any_of()` instead.
-   ##   # Was:
-   ##   data %>% select(var)
-   ## 
-   ##   # Now:
-   ##   data %>% select(all_of(var))
-   ## 
-   ## See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
-   ## This warning is displayed once every 8 hours.
-   ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
-
 .. figure:: ./figure/nutrition_validation-2.png
    :alt: plot of chunk nutrition_validation
 

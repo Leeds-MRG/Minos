@@ -62,8 +62,10 @@
 <li class="toctree-l3"><a class="reference internal" href="neighbourhood.html#neighbourhood-1">Neighbourhood</a></li>
 <li class="toctree-l3"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tobacco.html">Tobacco</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Ageing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#child-ages">Child Ages</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Ageing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#child-ages">Child Ages</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mortality.html">Mortality</a></li>
 <li class="toctree-l3"><a class="reference internal" href="education.html">Education</a></li>
@@ -119,15 +121,14 @@
 documentation, but I thought this could also be a good place to put some
 information relating to the age structure of the population as well as
 some information on how child ages are updated in the module. (For the
-record, the age of each individual is incremented by 1 each wave of
+record, the age of each individual is incremented by 1 with each wave of
 simulation).</p>
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">handover_ordinal</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;age_bucket&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><img alt="plot of chunk age_structure" src="../../_images/age_structure-1.png" /><img alt="image1" src="../../_images/age_structure-2.png" /></p>
-</section>
 <section id="child-ages">
-<h1>Child Ages<a class="headerlink" href="#child-ages" title="Link to this heading"></a></h1>
+<h2>Child Ages<a class="headerlink" href="#child-ages" title="Link to this heading"></a></h2>
 <p>Something else that happens in the ageing module is that child ages are
 also incremented. Child ages are held in a single string column in the
 interest of reducing the data size. For example, a <code class="docutils literal notranslate"><span class="pre">child_ages</span></code> value
@@ -144,6 +145,7 @@ each time step.</p>
 <span class="c1">## ! could not find function &quot;find_mode&quot;</span>
 </pre></div>
 </div>
+</section>
 </section>
 <section id="references">
 <h1>References<a class="headerlink" href="#references" title="Link to this heading"></a></h1>

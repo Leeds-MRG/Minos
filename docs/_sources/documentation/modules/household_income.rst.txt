@@ -332,6 +332,15 @@ Validation
 
    plot of chunk hh_income_validation
 
+.. code:: r
+
+   handover_lineplots(raw.dat, base.dat, v)
+
+.. figure:: ./figure/hh_income_validation-2.png
+   :alt: plot of chunk hh_income_validation
+
+   plot of chunk hh_income_validation
+
 Results
 ~~~~~~~
 

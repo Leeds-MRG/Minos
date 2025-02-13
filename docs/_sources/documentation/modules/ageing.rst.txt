@@ -5,7 +5,7 @@ Ageing is an obvious process and doesn’t really warrant any
 documentation, but I thought this could also be a good place to put some
 information relating to the age structure of the population as well as
 some information on how child ages are updated in the module. (For the
-record, the age of each individual is incremented by 1 each wave of
+record, the age of each individual is incremented by 1 with each wave of
 simulation).
 
 .. code:: r
@@ -15,7 +15,7 @@ simulation).
 |plot of chunk age_structure|\ |image1|
 
 Child Ages
-----------
+~~~~~~~~~~
 
 Something else that happens in the ageing module is that child ages are
 also incremented. Child ages are held in a single string column in the
