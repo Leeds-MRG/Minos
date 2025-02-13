@@ -57,18 +57,18 @@ run_yearly_models <- function(transitionDir_path,
   modDefs <- file(description = modDef_path, open="r", blocking = TRUE)
   
   ## Set some factor levels because R defaults to using alphabetical ordering
-  data$housing_quality <- factor(data$housing_quality, 
-                                 levels = c('Low',
-                                            'Medium',
-                                            'High'))
-  data$S7_housing_quality <- factor(data$S7_housing_quality, 
-                                 levels = c('No to all', 
-                                            'Yes to some', 
-                                            'Yes to all'))
-  data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
-                                    levels = c('Often', 
-                                               'Some of the time', 
-                                               'Hardly ever'))
+  # data$housing_quality <- factor(data$housing_quality, 
+  #                                levels = c('Low',
+  #                                           'Medium',
+  #                                           'High'))
+  # data$S7_housing_quality <- factor(data$S7_housing_quality, 
+  #                                levels = c('No to all', 
+  #                                           'Yes to some', 
+  #                                           'Yes to all'))
+  # data$S7_neighbourhood_safety <- factor(data$S7_neighbourhood_safety,
+  #                                   levels = c('Often', 
+  #                                              'Some of the time', 
+  #                                              'Hardly ever'))
   data$S7_labour_state <- factor(data$S7_labour_state,
                                  levels = c('FT Employed',
                                             'PT Employed',
@@ -402,7 +402,7 @@ if (mode == 'cross_validation') {
     # open a dataframe for collecting up multiple batches together
     combined.data <- data.frame()
     for (j in batch.vec) {
-      batch.path <- paste0(dataDir, 'batch', j, '/')
+      batch.path <- paste0(dataDir, 'batch', j)
       batch.filelist <- list.files(batch.path,
                                    include.dirs = FALSE,
                                    full.names = TRUE,

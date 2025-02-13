@@ -597,13 +597,13 @@ handover_boxplots <- function(raw, baseline, var) {
 handover_lineplots <- function(raw, base, var, start.year=2020) {
   # GENERALISE THIS AND DOCSTRING
   raw.means <- raw %>% 
-    dplyr::select(time, var) %>%
+    dplyr::select(time, all_of(var)) %>%
     group_by(time) %>%
     summarise(summary_var = mean(.data[[var]], na.rm = TRUE)) %>%
     mutate(source = 'final_US')
   
   base.means <- base %>%
-    dplyr::select(time, var) %>%
+    dplyr::select(time, all_of(var)) %>%
     group_by(time) %>%
     summarise(summary_var = mean(!!sym(var))) %>%
     mutate(source = 'baseline_output')

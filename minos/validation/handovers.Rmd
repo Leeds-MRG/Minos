@@ -605,7 +605,10 @@ base.housing <- base.dat %>%
 
 # merge before plot
 housing <- rbind(raw.housing, base.housing)
-housing$housing_quality <- as.factor(housing$housing_quality)
+housing$housing_quality <- factor(housing$housing_quality,
+                                  levels = c('High',
+                                             'Medium',
+                                             'Low'))
 
 # Now plot
 ggplot(data = housing, mapping = aes(x = time, y = n, group = housing_quality, colour = housing_quality)) +
