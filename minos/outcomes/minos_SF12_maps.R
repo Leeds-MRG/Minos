@@ -133,21 +133,55 @@ cost_vs_gain_imd_plot <- function(data, destination_file_name, v, do_save=T) {
   if(do_save==T) {
     
     extension_contours <- "contours"
-    place <- "Rochdale"
+    place <- "Oldham"
     destination_file_name_contours <- paste0(destination, "/", extension_contours, place, file_name)
     pdf(destination_file_name_contours)
     
     contours_plot <- ggplot(data=data[which(data$LAName == place),], aes(x=intervention_cost, y=diff)) +
       geom_density2d_filled() +
-      scale_color_viridis_c()  + geom_abline(intercept = 0, slope = 1/70000) +  # green book is 70k. nice is 30k.
+      scale_color_viridis_c()  + geom_abline(intercept = 0, slope = 1/70000, color="white") +  # green book is 70k. nice is 30k.
       labs(x="Intervention Cost", y="QALY Cumulative Gain", color="LAName") + 
-      annotate("text", x=800000, y=10, label = "<- Minimum Cost-Effectivess Line \n    According to the Green Book.", color = "black", hjust=0) +
-      scale_x_continuous(labels = label_comma())
+      #annotate("text", x=100000, y=5, label = "Minimum Cost-Effectivess Line  -> \n    According to the Green Book.", color = "white", hjust=0) +
+      scale_x_continuous(labels = label_comma()) + ylim(-4,6) + xlim(0, 500000)
     
     print(contours_plot)
     
     dev.off()
-  }
+    
+    extension_contours <- "contours"
+    place <- "Manchester"
+    destination_file_name_contours <- paste0(destination, "/", extension_contours, place, file_name)
+    pdf(destination_file_name_contours)
+    
+    contours_plot <- ggplot(data=data[which(data$LAName == place),], aes(x=intervention_cost, y=diff)) +
+      geom_density2d_filled() +
+      scale_color_viridis_c()  + geom_abline(intercept = 0, slope = 1/70000, color="white") +  # green book is 70k. nice is 30k.
+      labs(x="Intervention Cost", y="QALY Cumulative Gain", color="LAName") + 
+      #annotate("text", x=400000, y=5, label = "<- Minimum Cost-Effectivess Line \n    According to the Green Book.", color = "white", hjust=0) +
+      scale_x_continuous(labels = label_comma()) + ylim(-4,6) + xlim(0, 3000000)
+    
+    print(contours_plot)
+    
+    dev.off()  
+    
+    extension_contours <- "contours"
+    place <- "Tameside"
+    destination_file_name_contours <- paste0(destination, "/", extension_contours, place, file_name)
+    pdf(destination_file_name_contours)
+    
+    contours_plot <- ggplot(data=data[which(data$LAName == place),], aes(x=intervention_cost, y=diff)) +
+      geom_density2d_filled() +
+      scale_color_viridis_c()  + geom_abline(intercept = 0, slope = 1/70000, color="white") +  # green book is 70k. nice is 30k.
+      labs(x="Intervention Cost", y="QALY Cumulative Gain", color="LAName") + 
+      #annotate("text", x=100000, y=6, label = "Minimum Cost-Effectivess Line  -> \n    According to the Green Book.", color = "white", hjust=0) +
+      scale_x_continuous(labels = label_comma())  + ylim(-4,6) + xlim(0, 500000)
+
+    
+    print(contours_plot)
+    
+    dev.off()
+    
+    }
   
   
   else {

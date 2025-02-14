@@ -73,6 +73,7 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     #TODO: CHANGE TO TAG
     ax = sns.lineplot(data=data, x='year', y="ICER", hue='Intervention',style='Intervention', markers=True, palette='Set2')
     ax.set(ylabel="ICER (log10 scale) (QALY/£)")
+    next(ax._get_lines.prop_cycler)  # python 2 or 3
 
     file_name = prefix + ".pdf"
     file_name = os.path.join(destination, file_name)
@@ -151,6 +152,7 @@ def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
     # plot.
     f=plt.figure()
     #TODO: CHANGE TO TAG
+
     ax = sns.lineplot(data=plot_data, x='year', y="ICER", hue='Quintile',style='Quintile', markers=True, palette='Set2')
     ax.set(ylabel="ICER (log10 scale) (QALY/£)")
 
