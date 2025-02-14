@@ -70,10 +70,12 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     data['Intervention'] = data['tag']
     # plot.
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
-    
-    f=plt.figure()
+
+    f, ax = plt.subplots()
+    # skip first color
+    next(ax._get_lines.prop_cycler)
     #TODO: CHANGE TO TAG
-    ax = sns.lineplot(data=data, x='year', y="ICER", hue='Intervention',style='Intervention', markers=True, palette='Set2')
+    sns.lineplot(data=data, x='year', y="ICER", hue='Intervention',style='Intervention', markers=True, palette='Set2')
     ax.set(ylabel="ICER (log10 scale) (QALY/£)")
 
     file_name = prefix + ".pdf"
