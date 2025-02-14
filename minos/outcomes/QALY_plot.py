@@ -165,6 +165,7 @@ def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
     plt.savefig(file_name)
     print("ICER plot done.")
 
+    print(ax.lines[0].get_data())
 
 
 def main(mode, interventions):
