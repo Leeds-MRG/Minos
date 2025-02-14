@@ -80,7 +80,6 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
 
     file_name = prefix + ".pdf"
     file_name = os.path.join(destination, file_name)
-    plt.gca().set_color_cycle(colors[1:4])
     plt.tight_layout()
     plt.savefig(file_name)
     print("ICER plot done.")
