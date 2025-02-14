@@ -69,7 +69,7 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
 
     data['Intervention'] = data['tag']
     # plot.
-    colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    colors = sns.color_palette("Set2")
 
     f=plt.figure()
 
