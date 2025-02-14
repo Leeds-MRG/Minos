@@ -22,7 +22,7 @@ import os
 from uuid import uuid4
 from rpy2.robjects.packages import importr
 
-import US_utils
+from minos.data_generation import US_utils
 from minos.modules import r_utils
 from multiprocessing import Pool
 from itertools import repeat
