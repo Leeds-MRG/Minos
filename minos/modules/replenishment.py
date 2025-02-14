@@ -2,12 +2,22 @@
 File for adding new cohorts from Understanding Society data to the population
 """
 
+import sys
+import os
+from os.path import dirname as up
 import pandas as pd
 import numpy as np
 import logging
 from minos.modules.base_module import Base
-import os
+# import minos.data_generation.generate_repl_pop as grp
+import minos.data_generation.US_utils as uut
 
+PERSISTENT_DIR = os.path.join(up(up(up(__file__))), 'persistent_data')
+PROJECTIONS_DEFAULT = 'age-sex-ethnic_projections_2008-2061.csv'
+REPL_AGE_DEFAULT = 16
+SAMPLE_AGES_DEFAULT = [16, 17, 18]
+DATA_PATH = os.path.join(up(up(up(__file__))), 'data')
+TRANSITIONS_PATH = os.path.join(DATA_PATH, 'transitions')
 
 # suppressing a warning that isn't a problem
 # pd.options.mode.chained_assignment = None  # default='warn' #supress SettingWithCopyWarning
@@ -477,3 +487,365 @@ class NoReplenishment(Base):
 
     def __repr__(self):
         return "NoReplenishment()"
+
+
+# HR 09/02/25 Return Euclidean distance between two vectors
+def euclidean(v1, v2):
+    d = np.sqrt(np.sum((v1 - v2) ** 2))
+    return d
+
+
+# HR 09/02/25 Objective function for simulated annealing function - used as measure of convergence
+def objective_function(df, target_dict):
+
+    PENALTY_VALUE = 10.0  # Setting this >0 avoids samples with empty categories being produced
+
+    obj = 0.0
+    for v, t in target_dict.items():
+        if isinstance(t, (int, float)):  # For int/float
+            m = df[v].mean()
+            new_val = euclidean(m, t)
+        elif isinstance(t, dict):  # For categoricals
+
+            vc = df[v].value_counts(normalize=True)
+
+            # Must check all categories in target are present; if not, add zero value to avoid ValueError
+            if set(t) != set(df[v]):
+                not_present = set(t) - set(df[v])
+                for _np in not_present:
+                    vc.loc[_np] = PENALTY_VALUE
+
+            vec = np.array(vc.sort_index())
+            t_sorted = ([v for (k, v) in sorted(t.items())])
+
+            new_val = euclidean(vec, t_sorted)
+        else:
+            new_val = PENALTY_VALUE
+        obj += new_val
+    return obj
+
+
+def sample_with_constraints(df,
+                            target_dict,
+                            frac=0.1,
+                            n=None,
+                            delta_threshold=0.002,  # Convergence threshold
+                            subfrac=0.005,  # Relative size of subsample to replace
+                            T_0=1000.0,  # Initial temperature
+                            alpha=0.99,  # Cooling rate
+                            ):
+    """
+    Returns a fractional sample of the input dataframe with a set of values close to the target set.
+    Uses simulated annealing to find the sample.
+
+    Parameters:
+    df (pandas.DataFrame): The input dataframe
+    target_dict (dict): The target set of values
+    frac (float): The size of the sample to be returned, expressed as a fraction of the input dataframe
+
+    Returns:
+    pandas.DataFrame: A fractional sample of the input dataframe with a mean value close to the target values
+    """
+    # Get size of sample to create -> this prioritises n if it is specified
+    if n is not None and isinstance(n, (int, float, )):
+        frac = n / len(df)
+
+    # Initialise variables
+    oversample = frac > 1.0  # Only allow for duplicates per sample if requested size bigger than repl source pop
+    current_sample = df.sample(frac=frac, replace=oversample)
+    current_obj = objective_function(current_sample, target_dict)  # Objective of current sample
+    T = T_0
+
+    # Run simulated annealing loop
+    i = 0
+
+    # while T > 1.0:
+    while current_obj > delta_threshold:
+
+        # 1. Get subsample to be used as replacement
+        n_replace = int(subfrac * frac * len(df))
+        to_replace = df.sample(n=n_replace)
+
+        # 2. Replace random rows in current sample with subsample
+        new_sample = current_sample.sample(frac=1)[:-n_replace]  # Shuffle then drop last n rows
+        new_sample = pd.concat([new_sample, to_replace])
+
+        # 3. Calculate objective of proposed sample
+        new_obj = objective_function(new_sample, target_dict)
+        diff = new_obj - current_obj
+
+        # 4. If proposed sample better than current sample, keep it; otherwise discard
+        # Accept or reject the new sample based on the Metropolis criterion
+        # if diff < 0 or np.exp(-diff / T) > np.random.rand():
+        if diff < 0:
+            current_sample = new_sample
+            current_obj = new_obj
+
+        # Cool down the system
+        T *= alpha
+        sys.stdout.write('\rIteration no. {} (obj: {:.6f}), N = {}'.format(i, current_obj, len(current_sample)))
+
+        # # Check if the current sample is close enough to the target mean
+        # if abs(current_obj - target) < delta_threshold:
+        #     break
+
+        i += 1
+
+    print('\r')
+    return current_sample, current_obj
+
+
+def get_age_fraction_by_year_newethpop(_path, _file, ages):
+    if isinstance(ages, (int, )):
+        ages = [ages]
+    pop = pd.read_csv(os.path.join(_path, _file))
+
+    age_frac_by_year = {}
+    for age in ages:
+        age_frac_by_year[age] = pop.groupby('year').apply(
+            lambda x: x.loc[x['age'] == age]['count'].sum() / x['count'].sum()).to_dict()
+    return age_frac_by_year
+
+
+def get_ethnicity_by_year_newethpop(_path, _file, ages):
+    if isinstance(ages, (int, )):
+        ages = [ages]
+    pop = pd.read_csv(os.path.join(_path, _file))
+
+    eth_by_year = {}
+    for age in ages:
+        sub = pop.loc[pop['age'] == age]
+        eth_by_year[age] = sub.groupby('year').apply(
+            lambda x: x.groupby('ethnicity')['count'].sum() / x['count'].sum()).T.to_dict()
+    return eth_by_year
+
+
+def get_sex_by_year_newethpop(_path, _file, ages):
+    if isinstance(ages, (int, )):
+        ages = [ages]
+    pop = pd.read_csv(os.path.join(_path, _file))
+
+    eth_by_year = {}
+    for age in ages:
+        sub = pop.loc[pop['age'] == age]
+        eth_by_year[age] = sub.groupby('year').apply(
+            lambda x: x.groupby('sex')['count'].sum() / x['count'].sum()).T.to_dict()
+    return eth_by_year
+
+
+# HR 10/02/25 Get size of cohort required to give certain proportion of total population
+def get_cohort_size_by_proportion(target_proportion, pop_size):
+    cohort_size = pop_size / ((1.0 / target_proportion) - 1.0)
+    return cohort_size
+
+
+# HR 13/02/25 Correct all time variables in repl cohort; this reproduces functionality in generate_repl_pop.expand_repl
+def correct_temporal_variables(pop, repl_year, current_year):
+
+    year_increment = current_year - repl_year
+    pop['time'] = current_year
+    pop['birth_year'] = pop['birth_year'] + year_increment
+    pop['hh_int_y'] = pop['hh_int_y'].astype(int) + year_increment
+    pop = uut.generate_interview_date_var(pop)
+
+    return pop
+
+
+# HR 12/02/25 Wrapper for creating repl pop at runtime or offline
+def create_replenishing_population(pop_size,
+                                   target_year,
+                                   repl_year=2019,
+                                   source_pop=None,
+                                   sample_ages=SAMPLE_AGES_DEFAULT,
+                                   repl_age=REPL_AGE_DEFAULT,
+                                   delta_threshold=0.02,
+                                   ):
+
+    if source_pop is None:
+        source_path = os.path.join(DATA_PATH, 'scaled_gb_US')
+        source_file = f'{repl_year}_US_cohort.csv'
+        source_pop = pd.read_csv(os.path.join(source_path, source_file))
+
+    # Get reference values to match
+    ref_deets = (PERSISTENT_DIR, PROJECTIONS_DEFAULT)
+    afrac = get_age_fraction_by_year_newethpop(*ref_deets, ages = 16)
+    aeth = get_ethnicity_by_year_newethpop(*ref_deets, ages = 16)
+    asex = get_sex_by_year_newethpop(*ref_deets, ages = 16)
+
+    # Get sex and ethnicity fractions to be used as targets in simulated annealing algorithm + sample size
+    sex_target = asex[repl_age][target_year]
+    eth_target = aeth[repl_age][target_year]
+    af = afrac[repl_age][target_year]
+    repl_size = get_cohort_size_by_proportion(af, pop_size)
+
+    # Filter source population for valid values only; avoids missing value issues during simulated annealing
+    source_filtered = source_pop.loc[(source_pop['sex'].isin(sex_target)) &
+                                     (source_pop['ethnicity'].isin(eth_target)) &
+                                     (source_pop['age'].isin(sample_ages)),
+    ]
+
+    repl_pop, obj = sample_with_constraints(source_filtered,
+                                            target_dict={'sex': sex_target,
+                                                         'ethnicity': eth_target,
+                                                         },
+                                            delta_threshold=delta_threshold,
+                                            n=repl_size,
+                                            )
+
+    # 1. Correct ages and times/dates; need to do [age, birth_year, hh_int_y, time]; function for Date is in US_utils
+    repl_pop.loc[repl_pop['age'] != REPL_AGE_DEFAULT, 'age'] = REPL_AGE_DEFAULT  # Accounts for possibility of drawing repl from ages other than 16yos
+    repl_pop = correct_temporal_variables(repl_pop, repl_year=2019, current_year=target_year)
+
+    # 2. Predict max_educ variable (uses transition model); function is in generate_repl_pop
+    repl_pop.loc[repl_pop['education_state'] > 2, 'education_state'] = 2
+    # repl_pop = grp.predict_education(repl_pop, TRANSITIONS_PATH)  # Not doing for now as transition model seems to need additional variables
+
+    return repl_pop
+
+
+# HR 13/02/25 Class specifically for use with individual-level GB synthpop
+# Main difference to Replenishment (from which it inherits) are:
+# 1. Replenishing population is created at runtime from the synthpop; this uses the same projections as Replenishment
+# but repl pop size is specified explicitly, rather than through weights
+# 2. As a result, the on_time_step method is vastly simpler
+class ReplenishmentIndividual(Replenishment):
+
+    @property
+    def name(self):
+        return "ReplenishmentIndividual"
+
+    def __repr__(self):
+        return "ReplenishmentIndividual()"
+
+    def on_time_step(self, event):
+        """ On time step add new simulants to the module.
+        New simulants to be added must be 16 years old, the number and ethnicity/sex distribution matched to
+        population projections
+
+        Parameters
+        ----------
+        event : vivarium.population.PopulationEvent
+            The `event` that triggered the function call.
+        """
+
+        logging.info("REPLENISHMENT (INDIVIDUAL LEVEL FOR GB SYNTHPOP)")
+        print('Running replenishment for GB synthpop...')
+
+        population = self.population_view.get(event.index, query="alive == 'alive'")
+        print('Pop. size:', len(population))
+        current_year = event.time.year
+        new_wave = create_replenishing_population(pop_size=len(population),
+                                                  target_year=current_year,
+                                                  )
+        cohort_size = len(new_wave)
+        print('Repl cohort size:', cohort_size)
+
+        # 3. Reset index to avoid Pandas ValueErrors due to duplicate indices in current and repl pops
+        m = max(population.index)
+        new_wave.index = range(m, m + cohort_size)
+
+        # Populate repl config, to be passed to simulant_creater
+        new_cohort_config = {'sim_state': 'time_step',
+                             'creation_time': event.time,
+                             'new_cohort': new_wave,
+                             'cohort_type': "replenishment",
+                             'cohort_size': cohort_size}
+
+        # Create simulants, which adds repl pop to population
+        self.simulant_creater(cohort_size, population_configuration=new_cohort_config)
+        logging.info(f"\tTotal new 16 year olds added to the model: {cohort_size}")
+
+
+# HR 14/02/25 All examples below are tested and show various ways to use simulated annealing algorithm
+if __name__ == "__main__":
+
+    # # 1. Simple mean value example using 2019 US data
+    # y = 2019
+    # pathy = os.path.join(DATA_PATH, f"final_US/{y}_US_cohort.csv")
+    # dy = pd.read_csv(pathy)
+    # # samp, mu = sample_with_constraints(dy, target_dict={'age': 40})
+    #
+    # # 2. Second simple example with mean-value target and distribution-type target
+    # sex_target = {'Female': 0.55, 'Male': 0.45}
+    # dy_filt = dy.loc[dy['sex'].isin(sex_target)]
+    # # samp, mu = sample_with_constraints(dy_filt, target_dict={'sex': sex_target, 'age': 48})
+    #
+    # # 3. Another distribution example... ethnicity simplified
+    # eth_dist = {'WBI': 0.8, 'WHO': 0.1, 'BAN': 0.05, 'BLA': 0.05}
+    # deth = dy.loc[(dy['ethnicity'].isin(eth_dist)) & (dy['sex'].isin(sex_target))]
+    #
+    # # samp, obj = sample_with_constraints(deth, target_dict={'ethnicity': eth_dist,
+    # #                                                        # 'sex': sex_target,
+    # #                                                        },
+    # #                                     delta_threshold=0.01)
+    #
+    # # 4. Full runtime-equivalent example using wrapper function, as at runtime, for one year (2015 but can be anything)
+    # # s15 = create_replenishing_population(pop_size=500000, target_year=2015, delta_threshold=0.03)
+    #
+    # # 5. Code for offline generation of repl using GB synthpop - not used now but leaving here for posterity
+    # # However! The repl cohort sizes are only approximately correct as they don't account for mortality and fertility
+    # sp_path = os.path.join(DATA_PATH, 'scaled_gb_US')
+    # sp_file = '2019_US_cohort.csv'
+    # sp_data = pd.read_csv(os.path.join(sp_path, sp_file))
+    #
+    # repl_path = os.path.join(DATA_PATH, 'replenishing_scaled_GB')
+    # if not os.path.isdir(repl_path):
+    #     os.makedirs(repl_path)
+    #
+    # repl_pop = {}
+    # for y in range(2015, 2019+1):  # Example range; can be anything
+    #     repl_pop[y] = create_replenishing_population(pop_size=len(sp_data),
+    #                                                  target_year=y,
+    #                                                  source_pop=sp_data,
+    #                                                  delta_threshold=0.03,
+    #                                                  )
+    #
+    #     # Save for runtime
+    #     repl_out = os.path.join(repl_path, f'{y}_repl_GB_cohort.csv')
+    #     print('Saving to: {}'.format(repl_out))
+    #     repl_pop[y].to_csv(repl_out)
+
+    # # 6. Example to look at degree of convergence between repl pop and target distributions
+    # # Get reference values to match
+    # repl_age = 16
+    # sample_ages = [16, 17, 18]
+    # ref_deets = (PERSISTENT_DIR, PROJECTIONS_DEFAULT)
+    # afrac = get_age_fraction_by_year_newethpop(*ref_deets, ages = repl_age)
+    # aeth = get_ethnicity_by_year_newethpop(*ref_deets, ages = repl_age)
+    # asex = get_sex_by_year_newethpop(*ref_deets, ages = repl_age)
+    #
+    # years = [2015, 2025, 2035]
+    # thres = 0.02
+    # for y in years:
+    #
+    #     # Get sex and ethnicity fractions to be used as targets in simulated annealing algorithm + sample size
+    #     sex_target = asex[repl_age][y]
+    #     eth_target = aeth[repl_age][y]
+    #     af = afrac[repl_age][y]
+    #     repl_size = get_cohort_size_by_proportion(af, len(sp_data))
+    #
+    #     sp_filtered = sp_data.loc[(sp_data['sex'].isin(sex_target)) &
+    #                               (sp_data['ethnicity'].isin(eth_target)) &
+    #                               (sp_data['age'].isin(sample_ages)),
+    #     ]
+    #     samp, obj = sample_with_constraints(sp_filtered,
+    #                                         target_dict={'ethnicity': eth_target,
+    #                                                      'sex': sex_target,
+    #                                                      },
+    #                                         delta_threshold=thres)
+    #
+    #     print('## Running for year {} with convergence threshold {}'.format(y, thres))
+    #
+    #     comparison_sex = pd.concat([samp['sex'].value_counts(normalize=True).to_frame(), pd.Series(sex_target)], axis=1)
+    #     comparison_sex.columns = ['target', 'sample']
+    #     comparison_sex['relative diff'] = np.sqrt(np.abs(comparison_sex['target']**2 - comparison_sex['sample']**2)) / comparison_sex['target']
+    #     print(comparison_sex)
+    #     print('Mean relative difference in sex: {}'.format(comparison_sex['relative diff'].mean()))
+    #
+    #     comparison_eth = pd.concat([samp['ethnicity'].value_counts(normalize=True).to_frame(), pd.Series(eth_target)], axis=1)
+    #     comparison_eth.columns = ['target', 'sample']
+    #     comparison_eth['relative diff'] = np.sqrt(np.abs(comparison_eth['target']**2 - comparison_eth['sample']**2)) / comparison_eth['target']
+    #     print(comparison_eth)
+    #     print('Mean relative difference in ethnicity: {}'.format(comparison_eth['relative diff'].mean()))
+
+    pass
