@@ -57,6 +57,7 @@ class Ageing(Base):
 
         # update new population.
         logging.info(f"Aged population to year {event.time.year}")
+        population['nkids'] = population['nkids'].astype('int64')  # HR 14/02/25 Grr
         self.population_view.update(population[['age', 'time',
                                                 'nkids', 'nkids_ind',
                                                 'child_ages', 'child_ages_ind']])
@@ -129,7 +130,7 @@ class Ageing(Base):
         pop[['child_ages', 'nkids_delta']] = updated_ages.tolist()
         pop['nkids'] -= pop['nkids_delta']
         pop['child_ages'] = pop['child_ages'].astype('int64')
-        pop['nkids'] = pop['nkids'].astype('float64')
+        pop['nkids'] = pop['nkids'].astype('int64')
         return pop
 
     def update_binary_child_ages_ind(self, pop):
