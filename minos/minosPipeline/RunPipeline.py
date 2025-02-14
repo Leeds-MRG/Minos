@@ -11,7 +11,7 @@ import minos.utils as utils
 
 from minos.modules.ageing import Ageing
 from minos.modules.mortality import Mortality
-from minos.modules.replenishment import Replenishment
+from minos.modules.replenishment import Replenishment, ReplenishmentIndividual
 from minos.modules.replenishment import NoReplenishment
 #from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
@@ -212,6 +212,7 @@ intervention_kwargs_dict = {
 
 replenishment_components_map = {
     "Replenishment()": Replenishment(),
+    "ReplenishmentIndividual()": ReplenishmentIndividual(),
     "NoReplenishment()": NoReplenishment(),
     #"ReplenishmentNowcast()": ReplenishmentNowcast(),
     "ReplenishmentScotland()": ReplenishmentScotland(),
