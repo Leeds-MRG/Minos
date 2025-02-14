@@ -42,7 +42,7 @@ def QALY_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     print("QALY plot done.")
 
     for line in ax.lines:
-        line.get_data()
+        print(line.get_data())
 
 
 def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
