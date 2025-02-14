@@ -81,7 +81,7 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
 
     #TODO: CHANGE TO TAG
     ax = sns.lineplot(data=data, x='year', y="ICER", hue='Intervention',style='Intervention',
-                      markers=True, palette= colors[1:])# palette='Set2')
+                      markers=[1,2,3], palette= colors[1:])# palette='Set2')
     ax.set(ylabel="ICER (log10 scale) (QALY/£)")
 
     file_name = prefix + ".pdf"
