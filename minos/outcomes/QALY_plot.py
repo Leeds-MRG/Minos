@@ -75,12 +75,15 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
 
     data['Intervention'] = data['tag']
     # plot.
-    colors = sns.color_palette("Set2")[:3]
+    colors = sns.color_palette("Set2")[:4]
     f=plt.figure()
 
+    linestyles = {"EPCG" : '--',
+                  "WHS": ':',
+                  "EPCG and WHS": "-."}
     #TODO: CHANGE TO TAG
     ax = sns.lineplot(data=data, x='year', y="ICER", hue='Intervention',
-                      style='Intervention', dashes=['--', ':', '-.'],
+                      style='Intervention', dashes=linestyles,#dashes=['--', ':', '-.'],
                       markers=["X", "s", "P"], #markers=True,
                       palette= colors[1:])# palette='Set2')
     ax.set(ylabel="ICER (log10 scale) (QALY/£)")
