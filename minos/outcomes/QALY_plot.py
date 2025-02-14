@@ -73,7 +73,6 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
 
     f, ax = plt.subplots()
     # skip first color
-    next(ax._get_lines.prop_cycler)
     #TODO: CHANGE TO TAG
     sns.lineplot(data=data, x='year', y="ICER", hue='Intervention',style='Intervention', markers=True, palette='Set2')
     ax.set(ylabel="ICER (log10 scale) (QALY/£)")
