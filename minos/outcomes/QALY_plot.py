@@ -69,14 +69,16 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
 
     data['Intervention'] = data['tag']
     # plot.
+    colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    
     f=plt.figure()
     #TODO: CHANGE TO TAG
     ax = sns.lineplot(data=data, x='year', y="ICER", hue='Intervention',style='Intervention', markers=True, palette='Set2')
     ax.set(ylabel="ICER (log10 scale) (QALY/£)")
-    next(ax._get_lines.prop_cycler)  # python 2 or 3
 
     file_name = prefix + ".pdf"
     file_name = os.path.join(destination, file_name)
+    plt.gca().set_color_cycle(colors[1:4])
     plt.tight_layout()
     plt.savefig(file_name)
     print("ICER plot done.")
