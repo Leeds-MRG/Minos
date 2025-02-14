@@ -354,7 +354,7 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     df.reset_index(drop=True, inplace=True)
 
     f = plt.figure()
-    sns.lineplot(data=df, x='Year', y=v, hue='Intervention', style='Intervention', markers=True, palette='Set2')
+    ax = sns.lineplot(data=df, x='Year', y=v, hue='Intervention', style='Intervention', markers=True, palette='Set2')
     if prefix:
         file_name = f"{prefix}_{v}_aggs_by_year.pdf"
     else:
@@ -393,6 +393,9 @@ def aggregate_lineplot(df, destination, prefix, v, method):
     df.rename(columns={"Year": "year",
                        "Legend": "tag"},
               inplace=True)
+
+    out_data = np.hstack((line.get_data() for line in ax.lines))
+    pd.DataFrame(out_data).to_csv("plots/" + f"{prefix}_{v}_aggs_by_year" + "data.csv")
 
 
 def quintiles_lineplot(df, destination, prefix, v, method):
