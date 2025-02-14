@@ -23,7 +23,8 @@ cross_validation: FALSE
 synthetic: TRUE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
-components: [nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(), Replenishment()]
+#components: [nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(), Replenishment()]
+components: [nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(), ReplenishmentIndividual()]
 
 scale_rates:
     method: "constant"
