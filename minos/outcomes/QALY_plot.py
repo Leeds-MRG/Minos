@@ -41,7 +41,7 @@ def QALY_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     plt.savefig(file_name)
     print("QALY plot done.")
 
-    out_data = np.vstack((line.get_data() for line in ax.lines))
+    out_data = np.hstack((line.get_data() for line in ax.lines))
     pd.to_csv(out_data, file= prefix + "data.csv")
 
 def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
