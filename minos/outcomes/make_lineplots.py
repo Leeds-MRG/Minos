@@ -394,8 +394,11 @@ def aggregate_lineplot(df, destination, prefix, v, method):
                        "Legend": "tag"},
               inplace=True)
 
-    out_data = np.hstack((line.get_data() for line in ax.lines))
-    pd.DataFrame(out_data).to_csv("plots/" + f"{prefix}_{v}_aggs_by_year" + "data.csv")
+    out_data = np.vstack((collection.get_paths()[0].vertices for collection in ax.collections))
+    pd.DataFrame(out_data).to_csv("plots/" +  f"{prefix}_{v}_aggs_by_year" + "confint_data.csv")
+
+    out_data = np.vstack([pd.DataFrame(line.get_data()) for line in ax.lines[:len(df['Intervention'].unique())]])
+    pd.DataFrame(out_data).to_csv("plots/" +  f"{prefix}_{v}_aggs_by_year" + "line_data.csv")
 
 
 def quintiles_lineplot(df, destination, prefix, v, method):

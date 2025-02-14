@@ -41,8 +41,11 @@ def QALY_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     plt.savefig(file_name)
     print("QALY plot done.")
 
-    out_data = np.hstack((line.get_data() for line in ax.lines))
-    pd.DataFrame(out_data).to_csv("plots/" + prefix + "data.csv")
+    out_data = np.vstack((collection.get_paths()[0].vertices for collection in ax.collections))
+    pd.DataFrame(out_data).to_csv("plots/" + prefix + "confint_data.csv")
+
+    out_data = np.vstack([pd.DataFrame(line.get_data()) for line in ax.lines[:len(data['Intervention'].unique())]])
+    pd.DataFrame(out_data).to_csv("plots/" + prefix + "line_data.csv")
 
 def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
 
@@ -87,8 +90,11 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     plt.savefig(file_name)
     print("ICER plot done.")
 
-    out_data = np.hstack((line.get_data() for line in ax.lines))
-    pd.DataFrame(out_data).to_csv("plots/" + prefix + "data.csv")
+    out_data = np.vstack((collection.get_paths()[0].vertices for collection in ax.collections))
+    pd.DataFrame(out_data).to_csv("plots/" + prefix + "confint_data.csv")
+
+    out_data = np.vstack([pd.DataFrame(line.get_data()) for line in ax.lines[:len(data['Intervention'].unique())]])
+    pd.DataFrame(out_data).to_csv("plots/" + prefix + "line_data.csv")
 
 def QALY_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseline", group='simd'):
     # sort by time and run id.
@@ -126,8 +132,11 @@ def QALY_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
     plt.savefig(file_name)
     print("QALY plot done.")
 
-    out_data = np.hstack((line.get_data() for line in ax.lines))
-    pd.DataFrame(out_data).to_csv("plots/" + prefix + "data.csv")
+    out_data = np.vstack((collection.get_paths()[0].vertices for collection in ax.collections))
+    pd.DataFrame(out_data).to_csv("plots/" + prefix + "confint_data.csv")
+
+    out_data = np.vstack([pd.DataFrame(line.get_data()) for line in ax.lines[:5]])
+    pd.DataFrame(out_data).to_csv("plots/" + prefix + "line_data.csv")
 
 def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseline", group='simd'):
 
@@ -173,10 +182,11 @@ def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
     plt.savefig(file_name)
     print("ICER plot done.")
 
-    print(ax.lines[0].get_data())
+    out_data = np.vstack((collection.get_paths()[0].vertices for collection in ax.collections))
+    pd.DataFrame(out_data).to_csv("plots/" + prefix + "confint_data.csv")
 
-    out_data = np.hstack((line.get_data() for line in ax.lines))
-    pd.DataFrame(out_data).to_csv("plots/" + prefix + "data.csv")
+    out_data = np.vstack([pd.DataFrame(line.get_data()) for line in ax.lines[:5]])
+    pd.DataFrame(out_data).to_csv("plots/" + prefix + "line_data.csv")
 
 def main(mode, interventions):
     # downlaod three qaly datasets
