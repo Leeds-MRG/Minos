@@ -88,7 +88,7 @@ def ICER_lineplot(data, prefix, destination="plots/", baseline="Baseline"):
     print("ICER plot done.")
 
     out_data = np.hstack((line.get_data() for line in ax.lines))
-    pd.DataFrame(out_data).to_csv("plots/" + f"{prefix}_{v}_aggs_by_year" + "data.csv")
+    pd.DataFrame(out_data).to_csv("plots/" + prefix + "data.csv")
 
 def QALY_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseline", group='simd'):
     # sort by time and run id.
@@ -127,7 +127,7 @@ def QALY_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
     print("QALY plot done.")
 
     out_data = np.hstack((line.get_data() for line in ax.lines))
-    pd.DataFrame(out_data).to_csv("plots/" + f"{prefix}_{v}_aggs_by_year" + "data.csv")
+    pd.DataFrame(out_data).to_csv("plots/" + prefix + "data.csv")
 
 def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseline", group='simd'):
 
@@ -176,7 +176,7 @@ def ICER_quintiles_lineplot(data, prefix, destination="plots/", baseline="Baseli
     print(ax.lines[0].get_data())
 
     out_data = np.hstack((line.get_data() for line in ax.lines))
-    pd.DataFrame(out_data).to_csv("plots/" + f"{prefix}_{v}_aggs_by_year" + "data.csv")
+    pd.DataFrame(out_data).to_csv("plots/" + prefix + "data.csv")
 
 def main(mode, interventions):
     # downlaod three qaly datasets
