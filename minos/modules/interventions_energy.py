@@ -91,6 +91,7 @@ class EPCG(Base):
             # scale energy spending such that the mean yearly bill is 3000 pounds.
             # multiplicative scaling was used via capping of energy pricing per kWh.
             pop['intervention_cost'] = pop['yearly_energy'] * (1- (EPCG_market_cap/energy_mean))
+            pop['intervention_cost'] = pop['intervention_cost'].clip(lower=0) # stop negative moneycoming off.
             pop['income_boosted'] = (pop['intervention_cost'] != 0)
             pop['boost_amount'] = pop['intervention_cost']
             pop['yearly_energy'] -= pop['intervention_cost']
@@ -1112,8 +1113,8 @@ class EPCGandGBIS(Base):
         self.EPCG_year = min(event.time.year, 2025)
         pop = self.apply_GBIS(pop)
         pop = self.apply_EPCG(pop)
-        pop['intervention_cost'] = pop['EPCG_intervention_cost'] + pop['GBIS_intervention_cost']
-        pop['income_boosted'] = (pop['EPCG_income_boosted'] | pop['GBIS_income_boosted'])
+        pop['intervention_cost'] = (pop['EPCG_intervention_cost'] + pop['GBIS_intervention_cost'])
+        pop['income_boosted'] = (pop['EPCG_income_boosted'] + pop['GBIS_income_boosted'])
         self.population_view.update(pop[['heating', 'housing_quality', 'hh_income', 'yearly_energy',
                                          "GBIS_income_boosted", "EPCG_income_boosted",
                                          'GBIS_intervention_cost', 'EPCG_intervention_cost',
@@ -1236,6 +1237,7 @@ class EPCGandGBIS(Base):
             # scale energy spending such that the mean yearly bill is 3000 pounds.
             # multiplicative scaling was used via capping of energy pricing per kWh.
             pop['EPCG_intervention_cost'] = pop['yearly_energy'] * (1 - (EPCG_market_cap / energy_mean))
+            pop['EPCG_intervention_cost'] = pop['EPCG_intervention_cost'].clip(lower=0) # stop negative moneycoming off.
             pop['EPCG_income_boosted'] = (pop['EPCG_intervention_cost'] != 0)
             pop['EPCG_boost_amount'] = pop['EPCG_intervention_cost']
             # pop['intervention_cost'] = (energy_mean-3000)
@@ -1250,3 +1252,24 @@ class EPCGandGBIS(Base):
         #    pop[['hh_income', 'income_boosted', 'boost_amount', 'intervention_cost', 'yearly_energy']])
 
         return pop
+
+
+    """
+    energy_mean = np.median(pop.groupby(by='hidp')['yearly_energy'].median())
+
+    EPCG_market_cap = EPCG_cap_dict[min(event.time.year, 2025)]
+
+    if energy_mean > EPCG_market_cap:  # energy cap only active when the mean consumption is over 3500.
+        # scale energy spending such that the mean yearly bill is 3000 pounds.
+        # multiplicative scaling was used via capping of energy pricing per kWh.
+        pop['intervention_cost'] = pop['yearly_energy'] * (1 - (EPCG_market_cap / energy_mean))
+        pop['income_boosted'] = (pop['intervention_cost'] != 0)
+        pop['boost_amount'] = pop['intervention_cost']
+        pop['yearly_energy'] -= pop['intervention_cost']
+    else:
+        pop['intervention_cost'] = 0
+        pop['boost_amount'] = 0
+    print(f"Boost amount mean{np.mean(pop['intervention_cost'])}")
+    self.population_view.update(
+        pop[['hh_income', 'income_boosted', 'boost_amount', 'intervention_cost', 'yearly_energy']])
+    """
