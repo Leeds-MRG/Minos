@@ -129,7 +129,7 @@ setup_scotland_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 syn
 
 setup_uk_scaled: install data synthetic_uk_data transitions_default synthetic_uk_repl
 
-setup_gb_scaled: install data synthetic_gb_data transitions_default synthetic_gb_repl
+setup_gb_scaled: install data synthetic_gb_data transitions_default
 
 setup_uk_scaled_S7: install synthetic_uk_data transitions_SIPHER7 synthetic_uk_repl
 
