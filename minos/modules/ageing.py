@@ -52,11 +52,13 @@ class Ageing(Base):
         # do this by getting the oldest ALIVE member of a household and give everyone in the household that age chain.
         population['child_ages'] = population.groupby('hidp')['child_ages'].transform("first")
         # update children age chains.
+        nkids_type = population['nkids'].dtype  # Grab type before modification to avoid Vivarium PopulationError
         population = self.update_binary_child_ages(population)
         population = self.update_binary_child_ages_ind(population)
 
         # update new population.
         logging.info(f"Aged population to year {event.time.year}")
+        population['nkids'] = population['nkids'].astype(nkids_type)  # HR 14/02/25 Grr
         self.population_view.update(population[['age', 'time',
                                                 'nkids', 'nkids_ind',
                                                 'child_ages', 'child_ages_ind']])
@@ -129,7 +131,7 @@ class Ageing(Base):
         pop[['child_ages', 'nkids_delta']] = updated_ages.tolist()
         pop['nkids'] -= pop['nkids_delta']
         pop['child_ages'] = pop['child_ages'].astype('int64')
-        pop['nkids'] = pop['nkids'].astype('float64')
+        pop['nkids'] = pop['nkids'].astype('int64')
         return pop
 
     def update_binary_child_ages_ind(self, pop):
