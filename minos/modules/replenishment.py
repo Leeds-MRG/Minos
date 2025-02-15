@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import logging
 from minos.modules.base_module import Base
-# import minos.data_generation.generate_repl_pop as grp
+import minos.data_generation.generate_repl_pop as grp
 import minos.data_generation.US_utils as uut
 
 PERSISTENT_DIR = os.path.join(up(up(up(__file__))), 'persistent_data')
@@ -698,7 +698,8 @@ def create_replenishing_population(pop_size,
 
     # 2. Predict max_educ variable (uses transition model); function is in generate_repl_pop
     repl_pop.loc[repl_pop['education_state'] > 2, 'education_state'] = 2
-    # repl_pop = grp.predict_education(repl_pop, TRANSITIONS_PATH)  # Not doing for now as transition model seems to need additional variables
+    repl_pop.reset_index(drop=True, inplace=True)  # Avoids issue with transition model (duplicate index values)
+    repl_pop = grp.predict_education(repl_pop, TRANSITIONS_PATH)
 
     return repl_pop
 
@@ -780,7 +781,7 @@ if __name__ == "__main__":
     # #                                     delta_threshold=0.01)
     #
     # # 4. Full runtime-equivalent example using wrapper function, as at runtime, for one year (2015 but can be anything)
-    # # s15 = create_replenishing_population(pop_size=500000, target_year=2015, delta_threshold=0.03)
+    s15 = create_replenishing_population(pop_size=500000, target_year=2015, delta_threshold=0.03)
     #
     # # 5. Code for offline generation of repl using GB synthpop - not used now but leaving here for posterity
     # # However! The repl cohort sizes are only approximately correct as they don't account for mortality and fertility
