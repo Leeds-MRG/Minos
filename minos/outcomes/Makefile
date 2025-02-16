@@ -784,6 +784,34 @@ all_energy_QALY_private_and_UC: QALY_baseline_private_and_UC QALY_EPCG_private_a
 all_energy_QALY_private_and_UC_plot:
 	python3 minos/outcomes/QALY_quintiles_private_and_UC_plot.py
 
+QALY_baseline_heating: INTERVENTION=baseline
+QALY_baseline_heating:
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_poor_heating
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+
+QALY_EPCG_heating: INTERVENTION=EPCG
+QALY_EPCG_heating:
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_poor_heating
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+
+QALY_GBIS_heating: INTERVENTION=GBIS
+QALY_GBIS_heating:
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_boosted
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION)  -s who_private_rental_and_UC
+
+QALY_EPCG_AND_GBIS_heating: INTERVENTION=EPCGandGBIS
+QALY_EPCG_AND_GBIS_heating:
+	sbatch scripts/aire_single_qaly_lineplot_script.sh -m $(MODE) -i $(INTERVENTION) -s who_GBIS_boosted
+	#python minos/outcomes/QALY_calculation.py -m $(MODE) -i $(INTERVENTION) -s who_private_rental_and_UC
+
+all_energy_QALY_heating: MODE=energy_manchester_scaled
+all_energy_QALY_heating: QALY_baseline_heating QALY_EPCG_heating QALY_GBIS_heating QALY_EPCG_AND_GBIS_heating
+
+all_energy_QALY_heating_plot:
+	python3 minos/outcomes/QALY_heating_plot.py
+
+
+
 # run this first. crunches data into small qaly csvs used for plotting. does this in batches on AIRE hpc.
 all_qaly_plots1: all_energy_QALY all_energy_QALY_private_and_UC all_energy_QALY_quintiles
 # run this command second. does all the actual plotting.
