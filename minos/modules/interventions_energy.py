@@ -1117,6 +1117,7 @@ class EPCGandGBIS(Base):
         pop['income_boosted'] = (pop['EPCG_income_boosted'] + pop['GBIS_income_boosted'])
         self.population_view.update(pop[['heating', 'housing_quality', 'hh_income', 'yearly_energy',
                                          "GBIS_income_boosted", "EPCG_income_boosted",
+                                         "income_boosted",
                                          'GBIS_intervention_cost', 'EPCG_intervention_cost',
                                          'GBIS_boost_amount', 'EPCG_boost_amount',
                                          'intervention_cost']])
