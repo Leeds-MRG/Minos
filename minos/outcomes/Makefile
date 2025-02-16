@@ -516,6 +516,10 @@ aggregate_minos_manchester_private_rental_combined:
 	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "GHD_EPCG_GBIS_private_rental_combined" "SF_12_MCS"
 	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_private_rental_combined" "SF_12_MCS"
 
+aggregate_minos_manchester_heating_combined:
+	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "GHD_EPCG_GBIS_combined_heating" "SF_12_MCS"
+	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_private_rental_combined" "SF_12_MCS"
+
 aggregate_minos_manchester_combined_private_rental:
 	python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined_who_private_rental" "SF_12_MCS"
 
@@ -589,6 +593,10 @@ aggregate_minos_manchester_combined_PCS:
 
 aggregate_minos_manchester_combined_private_rental_PCS:
 	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "GHD_EPCG_GBIS_private_rental_combined" "SF_12_PCS"
+	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_PCS"
+
+aggregate_minos_manchester_combined_heating_PCS:
+	sbatch scripts/aire_single_lineplot_script.sh "energy_manchester_scaled" "GHD_EPCG_GBIS_combined_heating" "SF_12_PCS"
 	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_PCS"
 
 aggregate_minos_manchester_combined_PCS_private_rental:
