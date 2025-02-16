@@ -5,6 +5,7 @@ import pandas as pd
 
 pd.options.mode.chained_assignment = None  # default='warn'
 def dynamic_subset_function(data, subset_chain_string=None, mode='default_config', drop_dead=True):
+def dynamic_subset_function(data, subset_chain_string=None, mode='default_config', drop_dead=True):
 
     if subset_chain_string is None:
         function_string = "who_alive"
@@ -481,7 +482,7 @@ def get_region_lsoas(region):
     return pd.read_csv(lsoas_file_path)
 
 def who_poor_heating(df):
-    return df.query("heating == 0.")
+    return df.query("heating == 0")
 
 
 def who_owned_outright(df):
