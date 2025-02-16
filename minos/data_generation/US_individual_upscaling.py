@@ -7,7 +7,8 @@ import pandas as pd
 import numpy as np
 import os
 from os.path import dirname as up
-import US_utils
+from minos.utils import add_spatial_attributes as asa
+from minos.data_generation import US_utils
 import argparse
 
 
@@ -102,6 +103,21 @@ def take_sample(data,
     return sample_data
 
 
+# HR 15/02/25 Update region column, i.e overwrite US region with synthpop region
+def correct_region(pop):
+
+    # Add spatial columns - ward, etc.
+    pop = asa(pop)
+    region_col = [el for el in pop.columns if el.startswith('RGN') and el.endswith('NM')]
+    pop['region'] = pop[region_col]  # Overwrite with correct regions mapped from synthpop LSOAs
+
+    # Get unused spatial columns and drop - should be everything above LSOA (ward, LA, region)
+    cols_to_drop = [el for el in pop.columns if el.startswith(('WD', 'LAD', 'RGN'))]
+    pop.drop(columns=cols_to_drop, inplace=True)
+
+    return pop
+
+
 def main(region=REGION_DEFAULT,
          bootstrapping=False,
          priority_sub=False,
@@ -179,8 +195,9 @@ def main(region=REGION_DEFAULT,
                 multi = take_sample(sp, percentage)
                 merged_multi = merge_with_synthpop(multi, us_data)
 
-                # Scramble pidp
+                # Scramble pidp and correct region
                 merged_multi['pidp'] = merged_multi.reset_index().index
+                merged_multi = correct_region(merged_multi)
 
                 file_multi = os.path.join(DATA_DIR, f'scaled_{region}_US_{i+1}/')
                 US_utils.save_file(merged_multi, file_multi, '', year)
@@ -197,8 +214,9 @@ def main(region=REGION_DEFAULT,
         prop = 100*n_overlap/n_total
         print('Degree of overlap b/t synthpop and US data: {}/{} ({}%)'.format(n_overlap, n_total, prop))
 
-        # Scramble pidp
+        # Scramble pidp and correct region
         merged['pidp'] = merged.reset_index().index
+        merged = correct_region(merged)
 
         if priority_sub:
             # file_dest = os.path.join(DATA_DIR, f'{region}_priority_sub/')

@@ -781,7 +781,7 @@ if __name__ == "__main__":
     # #                                     delta_threshold=0.01)
     #
     # # 4. Full runtime-equivalent example using wrapper function, as at runtime, for one year (2015 but can be anything)
-    s15 = create_replenishing_population(pop_size=500000, target_year=2015, delta_threshold=0.03)
+    # s15 = create_replenishing_population(pop_size=500000, target_year=2015, delta_threshold=0.03)
     #
     # # 5. Code for offline generation of repl using GB synthpop - not used now but leaving here for posterity
     # # However! The repl cohort sizes are only approximately correct as they don't account for mortality and fertility
