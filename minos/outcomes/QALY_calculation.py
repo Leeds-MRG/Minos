@@ -44,18 +44,12 @@ def aggregate_csv(filename, intervention, year, start_year, subset_func_string=N
     if intervention != "baseline":
         keep_columns += ['intervention_cost', "income_boosted"]
 
-    print(keep_columns)
-
     df = pd.read_csv(filename, usecols= keep_columns, low_memory=False)
     if subset_func_string:
         df = dynamic_subset_function(df, subset_func_string, mode)
         #print(f"For substring chain {subset_func_string} there are {df.shape[0]} eligible individuals in the dataset.")
         #debug print checking subset containts any people at all.
     # get the run_id from the filename and attach to the dataset (if batch run)
-
-    if "GBIS_boosted" in subset_func_string:
-        print(sum(df["GBIS_income_boosted"]))
-        print(sum(df['income_boosted']))
 
     filename_nopath = filename.split(sep='/')[-1]
     if filename_nopath.count('_') == 0:
