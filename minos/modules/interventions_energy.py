@@ -1212,9 +1212,10 @@ class EPCGandGBIS(Base):
         # two waves for cavity/solid insulation?
 
         # adding people boosted on this wave to overall population of previously boosted households.
-        pop['GBIS_boost_amount'] += pop['new_income_boosted']
-        pop['GBIS_income_boosted'] = (pop['GBIS_boost_amount'] > 0)
+        pop['GBIS_income_boosted'] += pop['new_income_boosted']
 
+        #pop['GBIS_new_income_boosted'] = (pop['GBIS_boost_amount'] > 0)
+        #pop["GBIS_income_boosted"] += pop['GBIS_new_income_boosted']
         # update population
         #self.population_view.update(pop[['GBIS_intervention_cost', 'GBIS_income_boosted', "boost_amount",
         #                                 'heating', 'yearly_energy', 'housing_quality']])
