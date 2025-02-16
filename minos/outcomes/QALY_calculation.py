@@ -165,7 +165,7 @@ def main(mode, intervention, subset_func_string=None):
     print(f"Starting QALY calculation for {batch_source} runs...")
     combined_output = pd.DataFrame()
     # use multiprocessing to read in files and aggregating
-    for year in years:
+    for year in years[1:]:
         files = glob.glob(os.path.join(batch_source, f"*{year}.csv"))  # grab all files at source with suffix year.csv.
 
         # aggregate the files using multiprocessing
