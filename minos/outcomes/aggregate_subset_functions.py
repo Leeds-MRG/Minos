@@ -273,6 +273,9 @@ def get_required_intervention_variables(subset_function_string):
     if "energy" in subset_function_string:
         default_variables += ["yearly_energy"]
 
+    if "GBIS" in subset_function_string:
+        default_variables += ["GBIS_income_boosted"]
+
     if "living_wage" in subset_function_string:
         default_variables += ["region", "hourly_wage", "age", "job_hours"]
 
