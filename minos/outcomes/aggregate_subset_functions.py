@@ -251,7 +251,7 @@ def get_required_intervention_variables(subset_function_string):
                          "neighbourhood_safety", "nkids", "loneliness", 'yearly_energy', 'heating', 'housing_sector', "universal_credit"]
 
     if "boosted" in subset_function_string:
-        default_variables += ["income_boosted", "boost_amount"] #boost_amount
+        default_variables += ["income_boosted"]#, "boost_amount"] #boost_amount
 
     if "decile" in subset_function_string or "quintile" in subset_function_string:
         default_variables += ["ZoneID", "simd_decile"]
