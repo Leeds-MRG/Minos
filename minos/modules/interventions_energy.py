@@ -98,6 +98,8 @@ class EPCG(Base):
         else:
             pop['intervention_cost'] = 0
             pop['boost_amount'] = 0
+            pop['income_boosted'] = False
+
         print(f"Boost amount mean{np.mean(pop['intervention_cost'])}")
         self.population_view.update(pop[['hh_income', 'income_boosted', 'boost_amount', 'intervention_cost', 'yearly_energy']])
 
@@ -1089,14 +1091,14 @@ class EPCGandGBIS(Base):
 
 
     def on_initialize_simulants(self, pop_data):
-        pop_update = pd.DataFrame({'GBIS_income_boosted': False,  # who boosted?,
-                                   'EPCG_income_boosted': False,  #
-                                   'GBIS_intervention_cost': 0., # intervention costs.
-                                   'EPCG_intervention_cost': 0.,
-                                   'GBIS_boost_amount': 0., # how much do household receive.
-                                   'EPCG_boost_amount': 0.,  #
-                                   'intervention_cost': 0.,
-                                   'income_boosted': False},
+        pop_update = pd.DataFrame({'GBIS_income_boosted': False,
+                                       'GBIS_intervention_cost': 0.,
+                                       'GBIS_boost_amount': 0.,
+                                       'EPCG_income_boosted': False,
+                                       'EPCG_intervention_cost': 0.,
+                                       'EPCG_boost_amount': 0.,
+                                       'intervention_cost': 0.,
+                                       'income_boosted': False},
                                     index=pop_data.index)
 
 
@@ -1111,16 +1113,17 @@ class EPCGandGBIS(Base):
         pop = self.population_view.get(event.index, query="alive =='alive'")
         self.year = event.time.year
         self.EPCG_year = min(event.time.year, 2025)
+
+        pop['yearly_energy'] += pop['EPCG_intervention_cost']
+
         pop = self.apply_GBIS(pop)
         pop = self.apply_EPCG(pop)
         pop['intervention_cost'] = (pop['EPCG_intervention_cost'] + pop['GBIS_intervention_cost'])
         pop['income_boosted'] = (pop['EPCG_income_boosted'] + pop['GBIS_income_boosted'])
         self.population_view.update(pop[['heating', 'housing_quality', 'hh_income', 'yearly_energy',
-                                         "GBIS_income_boosted", "EPCG_income_boosted",
-                                         "income_boosted",
-                                         'GBIS_intervention_cost', 'EPCG_intervention_cost',
-                                         'GBIS_boost_amount', 'EPCG_boost_amount',
-                                         'intervention_cost']])
+                                         "GBIS_income_boosted", 'GBIS_intervention_cost', 'GBIS_boost_amount',
+                                         "EPCG_income_boosted", 'EPCG_intervention_cost', 'EPCG_boost_amount',
+                                         "income_boosted", 'intervention_cost']])
         print("Intervention Done.")
 
     def apply_GBIS(self, pop):
@@ -1189,11 +1192,6 @@ class EPCGandGBIS(Base):
         pop['yearly_energy'] -= pop['GBIS_boost_amount']
         # pop['GBIS_income_boosted'] = pop['hh_income']<0.6*np.median(pop['hh_income'])
 
-        # adjust by rural/urban?
-
-        # adjust income variables
-        # pop['yearly_energy'] -= pop['GBIS_boost_amount']
-
         # how much does it cost?
         pop['GBIS_intervention_cost'] = pop['new_income_boosted'] * 7500.  # get cost. adjust by household etc. as abiove.
         # adjust cost by dwelling type.
@@ -1213,42 +1211,38 @@ class EPCGandGBIS(Base):
 
         # adding people boosted on this wave to overall population of previously boosted households.
         pop['GBIS_income_boosted'] += pop['new_income_boosted']
-
         #pop['GBIS_new_income_boosted'] = (pop['GBIS_boost_amount'] > 0)
         #pop["GBIS_income_boosted"] += pop['GBIS_new_income_boosted']
-        # update population
-        #self.population_view.update(pop[['GBIS_intervention_cost', 'GBIS_income_boosted', "boost_amount",
-        #                                 'heating', 'yearly_energy', 'housing_quality']])
-
         return pop
 
 
     def apply_EPCG(self, pop):
         # TODO probably a faster way to do this than resetting the whole column.
         # pop['hh_income'] -= pop['intervention_cost']
+        # pop['yearly_energy'] += pop['EPCG_intervention_cost']
         # reset boost amount to 0 before calculating next uplift
-        pop['yearly_energy'] += pop['EPCG_intervention_cost']
         # TODO some fine tuning around kwh and non-elec/gas use.
         # TODO check uniform household energy bills and intervention applied.
         # scale energy bill
         # https://policyinpractice.co.uk/energy-price-guarantee-low-income-households-will-still-struggle-this-winter/
-        energy_mean = np.median(pop.groupby(by='hidp')['yearly_energy'].median())
+        energy_mean = np.median(pop.loc[pop["GBIS_income_boosted"]==False, ].groupby(by='hidp')['yearly_energy'].median())
         EPCG_market_cap = EPCG_cap_dict[self.EPCG_year]
+
+        pop['EPCG_intervention_cost'] = 0
+        pop['EPCG_boost_amount'] = 0
+        pop['EPCG_income_boosted'] = False
 
         if energy_mean > EPCG_market_cap:  # energy cap only active when the mean consumption is over 3500.
             # scale energy spending such that the mean yearly bill is 3000 pounds.
             # multiplicative scaling was used via capping of energy pricing per kWh.
-            pop['EPCG_intervention_cost'] = pop['yearly_energy'] * (1 - (EPCG_market_cap / energy_mean))
+            pop.loc[pop["GBIS_income_boosted"]==False, 'EPCG_intervention_cost'] = pop['yearly_energy'] * (1 - (EPCG_market_cap / energy_mean))
             pop['EPCG_intervention_cost'] = pop['EPCG_intervention_cost'].clip(lower=0) # stop negative moneycoming off.
             pop['EPCG_income_boosted'] = (pop['EPCG_intervention_cost'] != 0)
             pop['EPCG_boost_amount'] = pop['EPCG_intervention_cost']
-            # pop['intervention_cost'] = (energy_mean-3000)
             pop['yearly_energy'] -= pop['EPCG_intervention_cost']
-        else:
-            pop['EPCG_intervention_cost'] = 0
-            pop['EPCG_boost_amount'] = 0
 
-        print(f"Boost amount mean{np.mean(pop['EPCG_intervention_cost'])}")
+
+        #print(f"Boost amount mean{np.mean(pop['EPCG_intervention_cost'])}")
 
         #self.population_view.update(
         #    pop[['hh_income', 'income_boosted', 'boost_amount', 'intervention_cost', 'yearly_energy']])
