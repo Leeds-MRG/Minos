@@ -38,6 +38,11 @@ def aggregate_csv(filename, intervention, year, start_year, subset_func_string=N
 
     keep_columns = ["SF_12_MCS", "SF_12_PCS", "alive", "weight", "hidp", "pidp", "universal_credit",
                     "housing_sector", "simd_decile", "hh_income", "heating"]
+    if "boosted" in subset_func_string:
+        keep_columns += "income_boosted"
+    if "GBIS" in subset_func_string:
+        keep_columns += "GBIS_income_boosted"
+        
     if intervention != "baseline":
         keep_columns += ['intervention_cost', "income_boosted"]
     df = pd.read_csv(filename, usecols= keep_columns, low_memory=False)
