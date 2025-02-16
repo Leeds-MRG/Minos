@@ -685,7 +685,7 @@ string_to_lineplot_function_args = {
                                 "who_private_rental_and_UC"]],
     "GHD_EPCG_GBIS_combined_heating": [["baseline", "EPCG", "GBIS", "EPCGandGBIS"],
                                ["Baseline", "EPCG", "WHS", "EPCG and WHS"],
-                               ["who_poor_heating", "who_boosted", "who_boosted", "who_boosted"]],
+                               ["who_poor_heating", "who_poor_heating", "who_boosted", "who_GBIS_boosted"]],
     "GHD_EPCG_GBIS_combined_who_private_rental": [["baseline", "goodHeatingDummy", "EPCG", "GBIS"],
                                ["Baseline", "Good Heating Dummy", "EPCG", "GBIS"],
                                ["who_private_rental", "who_private_rental", "who_private_rental", "who_private_rental"]],

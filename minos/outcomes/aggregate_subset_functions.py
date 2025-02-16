@@ -14,6 +14,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      # Original intervention subgroups.
                      "who_alive": [who_alive],
                      "who_boosted": [who_alive, who_boosted],
+                     "who_GBIS_boosted": [who_alive, who_GBIS_boosted],
                      "who_below_living_wage": [who_alive, who_below_living_wage],
                      "who_kids": [who_alive, who_kids],
                      "who_below_poverty_line": [who_alive, who_below_poverty_line],
@@ -349,6 +350,9 @@ def who_boosted(df):
     # Get anyone who receives an income boost..
     return df.query("`income_boosted` == True")
 
+def who_GBIS_boosted(df):
+    # Get anyone who receives an income boost..
+    return df.query("`GBIS_income_boosted` == True")
 
 def who_disabled(df):
     return df.query("`S7_labour_state` == 'Sick/Disabled'")
