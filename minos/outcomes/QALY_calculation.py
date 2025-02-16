@@ -53,9 +53,10 @@ def aggregate_csv(filename, intervention, year, start_year, subset_func_string=N
         #debug print checking subset containts any people at all.
     # get the run_id from the filename and attach to the dataset (if batch run)
 
-    print(df.shape)
-    print(df['alive'])
-    
+    if "GBIS_boosted" in subset_func_string:
+        print(sum(df["GBIS_income_boosted"]))
+        print(sum(df['income_boosted']))
+
     filename_nopath = filename.split(sep='/')[-1]
     if filename_nopath.count('_') == 0:
         # If no underscore in filename, this is not a batch run and run_id can be set to 1

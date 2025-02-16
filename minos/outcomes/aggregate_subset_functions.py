@@ -353,6 +353,10 @@ def who_boosted(df):
     # Get anyone who receives an income boost..
     return df.query("`income_boosted` == True")
 
+def who_boosted(df):
+    # Get anyone who receives an income boost..
+    return df.query("`income_boosted` == True")
+
 def who_GBIS_boosted(df):
     # Get anyone who receives an income boost..
     return df.query("`GBIS_income_boosted` == True")
