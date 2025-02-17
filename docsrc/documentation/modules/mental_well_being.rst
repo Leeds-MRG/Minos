@@ -56,147 +56,147 @@ Formula:
    ## 
    ## Scaled residuals: 
    ##     Min      1Q  Median      3Q     Max 
-   ## -56.385  -0.245   0.097   0.386  16.960 
+   ## -56.577  -0.245   0.098   0.388  16.055 
    ## 
    ## Random effects:
    ##  Groups   Name        Variance Std.Dev.
-   ##  pidp     (Intercept) 0.007167 0.08466 
-   ##  Residual             0.002422 0.04921 
-   ## Number of obs: 53940, groups:  pidp, 28030
+   ##  pidp     (Intercept) 0.006622 0.08138 
+   ##  Residual             0.002256 0.04750 
+   ## Number of obs: 54222, groups:  pidp, 28092
    ## 
    ## Fixed effects:
    ##                                                                     Estimate
-   ## (Intercept)                                                        5.2397331
-   ## time                                                              -0.0006733
-   ## scale(SF_12_last)                                                  0.1144965
-   ## scale(age)                                                         0.0214391
-   ## factor(sex)Male                                                    0.0203990
-   ## relevel(factor(ethnicity), ref = "WBI")BAN                         0.0004421
-   ## relevel(factor(ethnicity), ref = "WBI")BLA                         0.0305918
-   ## relevel(factor(ethnicity), ref = "WBI")BLC                         0.0181985
-   ## relevel(factor(ethnicity), ref = "WBI")CHI                         0.0163969
-   ## relevel(factor(ethnicity), ref = "WBI")IND                         0.0002626
-   ## relevel(factor(ethnicity), ref = "WBI")MIX                        -0.0042839
-   ## relevel(factor(ethnicity), ref = "WBI")OAS                        -0.0009285
-   ## relevel(factor(ethnicity), ref = "WBI")OBL                        -0.0003878
-   ## relevel(factor(ethnicity), ref = "WBI")OTH                        -0.0694297
-   ## relevel(factor(ethnicity), ref = "WBI")PAK                         0.0049871
-   ## relevel(factor(ethnicity), ref = "WBI")WHO                         0.0154492
-   ## relevel(factor(region), ref = "Scotland")East Midlands             0.0110873
-   ## relevel(factor(region), ref = "Scotland")East of England           0.0049586
-   ## relevel(factor(region), ref = "Scotland")London                    0.0004213
-   ## relevel(factor(region), ref = "Scotland")North East               -0.0047024
-   ## relevel(factor(region), ref = "Scotland")North West                0.0006363
-   ## relevel(factor(region), ref = "Scotland")Northern Ireland         -0.0001035
-   ## relevel(factor(region), ref = "Scotland")South East                0.0011843
-   ## relevel(factor(region), ref = "Scotland")South West               -0.0026575
-   ## relevel(factor(region), ref = "Scotland")Wales                    -0.0053164
-   ## relevel(factor(region), ref = "Scotland")West Midlands            -0.0012968
-   ## relevel(factor(region), ref = "Scotland")Yorkshire and The Humber  0.0008975
-   ## relevel(factor(education_state), ref = "1")0                      -0.0083117
-   ## relevel(factor(education_state), ref = "1")2                       0.0030260
-   ## relevel(factor(education_state), ref = "1")3                      -0.0001873
-   ## relevel(factor(education_state), ref = "1")5                       0.0095867
-   ## relevel(factor(education_state), ref = "1")6                       0.0014439
-   ## relevel(factor(education_state), ref = "1")7                      -0.0004484
-   ## scale(hh_income)                                                   0.0058742
-   ## factor(housing_quality)Low                                        -0.0328952
-   ## factor(housing_quality)Medium                                     -0.0037926
-   ## factor(neighbourhood_safety)2                                      0.0040650
-   ## factor(neighbourhood_safety)3                                      0.0161708
-   ## factor(loneliness)2                                               -0.0765887
-   ## factor(loneliness)3                                               -0.2656038
-   ## scale(nutrition_quality)                                           0.0092193
-   ## scale(ncigs)                                                      -0.0062644
-   ## I(factor(ncigs > 0))TRUE                                          -0.0138892
+   ## (Intercept)                                                        4.9130360
+   ## time                                                              -0.0005121
+   ## scale(SF_12_last)                                                  0.1147985
+   ## scale(age)                                                         0.0213196
+   ## factor(sex)Male                                                    0.0201720
+   ## relevel(factor(ethnicity), ref = "WBI")BAN                         0.0003187
+   ## relevel(factor(ethnicity), ref = "WBI")BLA                         0.0292479
+   ## relevel(factor(ethnicity), ref = "WBI")BLC                         0.0182469
+   ## relevel(factor(ethnicity), ref = "WBI")CHI                         0.0156511
+   ## relevel(factor(ethnicity), ref = "WBI")IND                        -0.0006695
+   ## relevel(factor(ethnicity), ref = "WBI")MIX                        -0.0035134
+   ## relevel(factor(ethnicity), ref = "WBI")OAS                        -0.0014412
+   ## relevel(factor(ethnicity), ref = "WBI")OBL                        -0.0010133
+   ## relevel(factor(ethnicity), ref = "WBI")OTH                        -0.0698175
+   ## relevel(factor(ethnicity), ref = "WBI")PAK                         0.0055012
+   ## relevel(factor(ethnicity), ref = "WBI")WHO                         0.0153347
+   ## relevel(factor(region), ref = "Scotland")East Midlands             0.0111865
+   ## relevel(factor(region), ref = "Scotland")East of England           0.0051782
+   ## relevel(factor(region), ref = "Scotland")London                    0.0015323
+   ## relevel(factor(region), ref = "Scotland")North East               -0.0045409
+   ## relevel(factor(region), ref = "Scotland")North West                0.0017339
+   ## relevel(factor(region), ref = "Scotland")Northern Ireland          0.0007918
+   ## relevel(factor(region), ref = "Scotland")South East                0.0018979
+   ## relevel(factor(region), ref = "Scotland")South West               -0.0022500
+   ## relevel(factor(region), ref = "Scotland")Wales                    -0.0052198
+   ## relevel(factor(region), ref = "Scotland")West Midlands            -0.0012001
+   ## relevel(factor(region), ref = "Scotland")Yorkshire and The Humber  0.0010756
+   ## relevel(factor(education_state), ref = "1")0                      -0.0077798
+   ## relevel(factor(education_state), ref = "1")2                       0.0042615
+   ## relevel(factor(education_state), ref = "1")3                       0.0007321
+   ## relevel(factor(education_state), ref = "1")5                       0.0107276
+   ## relevel(factor(education_state), ref = "1")6                       0.0025737
+   ## relevel(factor(education_state), ref = "1")7                       0.0005953
+   ## scale(hh_income)                                                   0.0058139
+   ## factor(housing_quality)Medium                                     -0.0034585
+   ## factor(housing_quality)Low                                        -0.0333141
+   ## factor(neighbourhood_safety)2                                      0.0040435
+   ## factor(neighbourhood_safety)3                                      0.0164410
+   ## factor(loneliness)2                                               -0.0767773
+   ## factor(loneliness)3                                               -0.2659751
+   ## scale(nutrition_quality)                                           0.0091674
+   ## scale(ncigs)                                                      -0.0060226
+   ## I(factor(ncigs > 0))TRUE                                          -0.0132155
    ##                                                                   Std. Error
-   ## (Intercept)                                                        0.8345248
-   ## time                                                               0.0004138
-   ## scale(SF_12_last)                                                  0.0011534
-   ## scale(age)                                                         0.0012782
-   ## factor(sex)Male                                                    0.0022973
-   ## relevel(factor(ethnicity), ref = "WBI")BAN                         0.0143677
-   ## relevel(factor(ethnicity), ref = "WBI")BLA                         0.0093296
-   ## relevel(factor(ethnicity), ref = "WBI")BLC                         0.0120887
-   ## relevel(factor(ethnicity), ref = "WBI")CHI                         0.0171940
-   ## relevel(factor(ethnicity), ref = "WBI")IND                         0.0071384
-   ## relevel(factor(ethnicity), ref = "WBI")MIX                         0.0093127
-   ## relevel(factor(ethnicity), ref = "WBI")OAS                         0.0101948
-   ## relevel(factor(ethnicity), ref = "WBI")OBL                         0.0326152
-   ## relevel(factor(ethnicity), ref = "WBI")OTH                         0.0183040
-   ## relevel(factor(ethnicity), ref = "WBI")PAK                         0.0084321
-   ## relevel(factor(ethnicity), ref = "WBI")WHO                         0.0056132
-   ## relevel(factor(region), ref = "Scotland")East Midlands             0.0059159
-   ## relevel(factor(region), ref = "Scotland")East of England           0.0055977
-   ## relevel(factor(region), ref = "Scotland")London                    0.0057530
-   ## relevel(factor(region), ref = "Scotland")North East                0.0070295
-   ## relevel(factor(region), ref = "Scotland")North West                0.0055444
-   ## relevel(factor(region), ref = "Scotland")Northern Ireland          0.0079633
-   ## relevel(factor(region), ref = "Scotland")South East                0.0052579
-   ## relevel(factor(region), ref = "Scotland")South West                0.0056919
-   ## relevel(factor(region), ref = "Scotland")Wales                     0.0072406
-   ## relevel(factor(region), ref = "Scotland")West Midlands             0.0057667
-   ## relevel(factor(region), ref = "Scotland")Yorkshire and The Humber  0.0057567
-   ## relevel(factor(education_state), ref = "1")0                       0.0085502
-   ## relevel(factor(education_state), ref = "1")2                       0.0085258
-   ## relevel(factor(education_state), ref = "1")3                       0.0089178
-   ## relevel(factor(education_state), ref = "1")5                       0.0089951
-   ## relevel(factor(education_state), ref = "1")6                       0.0086299
-   ## relevel(factor(education_state), ref = "1")7                       0.0088233
-   ## scale(hh_income)                                                   0.0011286
-   ## factor(housing_quality)Low                                         0.0040623
-   ## factor(housing_quality)Medium                                      0.0023982
-   ## factor(neighbourhood_safety)2                                      0.0025375
-   ## factor(neighbourhood_safety)3                                      0.0033714
-   ## factor(loneliness)2                                                0.0025868
-   ## factor(loneliness)3                                                0.0046211
-   ## scale(nutrition_quality)                                           0.0011070
-   ## scale(ncigs)                                                       0.0014932
-   ## I(factor(ncigs > 0))TRUE                                           0.0049971
+   ## (Intercept)                                                        0.8338147
+   ## time                                                               0.0004135
+   ## scale(SF_12_last)                                                  0.0011464
+   ## scale(age)                                                         0.0012655
+   ## factor(sex)Male                                                    0.0022776
+   ## relevel(factor(ethnicity), ref = "WBI")BAN                         0.0142276
+   ## relevel(factor(ethnicity), ref = "WBI")BLA                         0.0092479
+   ## relevel(factor(ethnicity), ref = "WBI")BLC                         0.0120408
+   ## relevel(factor(ethnicity), ref = "WBI")CHI                         0.0170623
+   ## relevel(factor(ethnicity), ref = "WBI")IND                         0.0070907
+   ## relevel(factor(ethnicity), ref = "WBI")MIX                         0.0092666
+   ## relevel(factor(ethnicity), ref = "WBI")OAS                         0.0101210
+   ## relevel(factor(ethnicity), ref = "WBI")OBL                         0.0326498
+   ## relevel(factor(ethnicity), ref = "WBI")OTH                         0.0181015
+   ## relevel(factor(ethnicity), ref = "WBI")PAK                         0.0083659
+   ## relevel(factor(ethnicity), ref = "WBI")WHO                         0.0055417
+   ## relevel(factor(region), ref = "Scotland")East Midlands             0.0058743
+   ## relevel(factor(region), ref = "Scotland")East of England           0.0055548
+   ## relevel(factor(region), ref = "Scotland")London                    0.0057055
+   ## relevel(factor(region), ref = "Scotland")North East                0.0069722
+   ## relevel(factor(region), ref = "Scotland")North West                0.0055007
+   ## relevel(factor(region), ref = "Scotland")Northern Ireland          0.0079141
+   ## relevel(factor(region), ref = "Scotland")South East                0.0052191
+   ## relevel(factor(region), ref = "Scotland")South West                0.0056514
+   ## relevel(factor(region), ref = "Scotland")Wales                     0.0071922
+   ## relevel(factor(region), ref = "Scotland")West Midlands             0.0057215
+   ## relevel(factor(region), ref = "Scotland")Yorkshire and The Humber  0.0057132
+   ## relevel(factor(education_state), ref = "1")0                       0.0084666
+   ## relevel(factor(education_state), ref = "1")2                       0.0084449
+   ## relevel(factor(education_state), ref = "1")3                       0.0088360
+   ## relevel(factor(education_state), ref = "1")5                       0.0089127
+   ## relevel(factor(education_state), ref = "1")6                       0.0085489
+   ## relevel(factor(education_state), ref = "1")7                       0.0087401
+   ## scale(hh_income)                                                   0.0011283
+   ## factor(housing_quality)Medium                                      0.0023848
+   ## factor(housing_quality)Low                                         0.0040415
+   ## factor(neighbourhood_safety)2                                      0.0025319
+   ## factor(neighbourhood_safety)3                                      0.0033646
+   ## factor(loneliness)2                                                0.0025716
+   ## factor(loneliness)3                                                0.0045929
+   ## scale(nutrition_quality)                                           0.0011009
+   ## scale(ncigs)                                                       0.0014733
+   ## I(factor(ncigs > 0))TRUE                                           0.0049761
    ##                                                                   t value
-   ## (Intercept)                                                         6.279
-   ## time                                                               -1.627
-   ## scale(SF_12_last)                                                  99.267
-   ## scale(age)                                                         16.772
-   ## factor(sex)Male                                                     8.879
-   ## relevel(factor(ethnicity), ref = "WBI")BAN                          0.031
-   ## relevel(factor(ethnicity), ref = "WBI")BLA                          3.279
-   ## relevel(factor(ethnicity), ref = "WBI")BLC                          1.505
-   ## relevel(factor(ethnicity), ref = "WBI")CHI                          0.954
-   ## relevel(factor(ethnicity), ref = "WBI")IND                          0.037
-   ## relevel(factor(ethnicity), ref = "WBI")MIX                         -0.460
-   ## relevel(factor(ethnicity), ref = "WBI")OAS                         -0.091
-   ## relevel(factor(ethnicity), ref = "WBI")OBL                         -0.012
-   ## relevel(factor(ethnicity), ref = "WBI")OTH                         -3.793
-   ## relevel(factor(ethnicity), ref = "WBI")PAK                          0.591
-   ## relevel(factor(ethnicity), ref = "WBI")WHO                          2.752
-   ## relevel(factor(region), ref = "Scotland")East Midlands              1.874
-   ## relevel(factor(region), ref = "Scotland")East of England            0.886
-   ## relevel(factor(region), ref = "Scotland")London                     0.073
-   ## relevel(factor(region), ref = "Scotland")North East                -0.669
-   ## relevel(factor(region), ref = "Scotland")North West                 0.115
-   ## relevel(factor(region), ref = "Scotland")Northern Ireland          -0.013
-   ## relevel(factor(region), ref = "Scotland")South East                 0.225
-   ## relevel(factor(region), ref = "Scotland")South West                -0.467
-   ## relevel(factor(region), ref = "Scotland")Wales                     -0.734
-   ## relevel(factor(region), ref = "Scotland")West Midlands             -0.225
-   ## relevel(factor(region), ref = "Scotland")Yorkshire and The Humber   0.156
-   ## relevel(factor(education_state), ref = "1")0                       -0.972
-   ## relevel(factor(education_state), ref = "1")2                        0.355
-   ## relevel(factor(education_state), ref = "1")3                       -0.021
-   ## relevel(factor(education_state), ref = "1")5                        1.066
-   ## relevel(factor(education_state), ref = "1")6                        0.167
-   ## relevel(factor(education_state), ref = "1")7                       -0.051
-   ## scale(hh_income)                                                    5.205
-   ## factor(housing_quality)Low                                         -8.098
-   ## factor(housing_quality)Medium                                      -1.581
-   ## factor(neighbourhood_safety)2                                       1.602
-   ## factor(neighbourhood_safety)3                                       4.796
-   ## factor(loneliness)2                                               -29.607
-   ## factor(loneliness)3                                               -57.477
+   ## (Intercept)                                                         5.892
+   ## time                                                               -1.238
+   ## scale(SF_12_last)                                                 100.137
+   ## scale(age)                                                         16.846
+   ## factor(sex)Male                                                     8.857
+   ## relevel(factor(ethnicity), ref = "WBI")BAN                          0.022
+   ## relevel(factor(ethnicity), ref = "WBI")BLA                          3.163
+   ## relevel(factor(ethnicity), ref = "WBI")BLC                          1.515
+   ## relevel(factor(ethnicity), ref = "WBI")CHI                          0.917
+   ## relevel(factor(ethnicity), ref = "WBI")IND                         -0.094
+   ## relevel(factor(ethnicity), ref = "WBI")MIX                         -0.379
+   ## relevel(factor(ethnicity), ref = "WBI")OAS                         -0.142
+   ## relevel(factor(ethnicity), ref = "WBI")OBL                         -0.031
+   ## relevel(factor(ethnicity), ref = "WBI")OTH                         -3.857
+   ## relevel(factor(ethnicity), ref = "WBI")PAK                          0.658
+   ## relevel(factor(ethnicity), ref = "WBI")WHO                          2.767
+   ## relevel(factor(region), ref = "Scotland")East Midlands              1.904
+   ## relevel(factor(region), ref = "Scotland")East of England            0.932
+   ## relevel(factor(region), ref = "Scotland")London                     0.269
+   ## relevel(factor(region), ref = "Scotland")North East                -0.651
+   ## relevel(factor(region), ref = "Scotland")North West                 0.315
+   ## relevel(factor(region), ref = "Scotland")Northern Ireland           0.100
+   ## relevel(factor(region), ref = "Scotland")South East                 0.364
+   ## relevel(factor(region), ref = "Scotland")South West                -0.398
+   ## relevel(factor(region), ref = "Scotland")Wales                     -0.726
+   ## relevel(factor(region), ref = "Scotland")West Midlands             -0.210
+   ## relevel(factor(region), ref = "Scotland")Yorkshire and The Humber   0.188
+   ## relevel(factor(education_state), ref = "1")0                       -0.919
+   ## relevel(factor(education_state), ref = "1")2                        0.505
+   ## relevel(factor(education_state), ref = "1")3                        0.083
+   ## relevel(factor(education_state), ref = "1")5                        1.204
+   ## relevel(factor(education_state), ref = "1")6                        0.301
+   ## relevel(factor(education_state), ref = "1")7                        0.068
+   ## scale(hh_income)                                                    5.153
+   ## factor(housing_quality)Medium                                      -1.450
+   ## factor(housing_quality)Low                                         -8.243
+   ## factor(neighbourhood_safety)2                                       1.597
+   ## factor(neighbourhood_safety)3                                       4.886
+   ## factor(loneliness)2                                               -29.856
+   ## factor(loneliness)3                                               -57.910
    ## scale(nutrition_quality)                                            8.328
-   ## scale(ncigs)                                                       -4.195
-   ## I(factor(ncigs > 0))TRUE                                           -2.779
+   ## scale(ncigs)                                                       -4.088
+   ## I(factor(ncigs > 0))TRUE                                           -2.656
 
 ::
 

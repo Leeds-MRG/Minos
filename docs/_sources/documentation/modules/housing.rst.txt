@@ -108,6 +108,58 @@ Validation
 
 |plot of chunk housing_validation|\ |image1|
 
+.. code:: r
+
+   hous.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                          df1.name = 'simulated', 
+                                          df2 = raw, 
+                                          df2.name = 'raw', 
+                                          var = 'housing_quality')
+
+::
+
+   ## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
+   ## ℹ Please use `all_of()` or `any_of()` instead.
+   ##   # Was:
+   ##   data %>% select(df1.name)
+   ## 
+   ##   # Now:
+   ##   data %>% select(all_of(df1.name))
+   ## 
+   ## See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
+   ## This warning is displayed once every 8 hours.
+   ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
+
+::
+
+   ## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
+   ## ℹ Please use `all_of()` or `any_of()` instead.
+   ##   # Was:
+   ##   data %>% select(df2.name)
+   ## 
+   ##   # Now:
+   ##   data %>% select(all_of(df2.name))
+   ## 
+   ## See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
+   ## This warning is displayed once every 8 hours.
+   ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
+
+.. code:: r
+
+   cv_ordinal_plots(pivoted.df = hous.pivoted, 
+                    var = 'housing_quality',
+                    save = FALSE)
+
+::
+
+   ## `summarise()` has grouped output by 'time', 'scenario'. You can override using
+   ## the `.groups` argument.
+
+.. figure:: ./figure/housing_cv-1.png
+   :alt: plot of chunk housing_cv
+
+   plot of chunk housing_cv
+
 Results
 ~~~~~~~
 

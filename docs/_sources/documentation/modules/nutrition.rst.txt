@@ -85,55 +85,55 @@ Formula:
    ## 
    ## Scaled residuals: 
    ##     Min      1Q  Median      3Q     Max 
-   ## -3.0255 -0.5686 -0.1083  0.4030 10.3602 
+   ## -3.1107 -0.5698 -0.1088  0.4053 10.4141 
    ## 
    ## Random effects:
    ##  Groups   Name        Variance Std.Dev.
-   ##  hidp     (Intercept) 2.73     1.652   
-   ##  pidp     (Intercept) 2.73     1.652   
-   ##  Residual             2.73     1.652   
-   ## Number of obs: 71054, groups:  hidp, 50106; pidp, 29363
+   ##  hidp     (Intercept) 2.542    1.594   
+   ##  pidp     (Intercept) 2.542    1.594   
+   ##  Residual             2.542    1.594   
+   ## Number of obs: 70487, groups:  hidp, 49936; pidp, 29227
    ## 
    ## Fixed effects:
-   ##                                                Estimate Std. Error t value
-   ## (Intercept)                                  16.7777764  0.2699381  62.154
-   ## scale(age)                                    0.6060477  0.0360846  16.795
-   ## factor(sex)Male                              -1.3954227  0.0648867 -21.506
-   ## relevel(factor(ethnicity), ref = "WBI")BAN   -1.4565355  0.4427054  -3.290
-   ## relevel(factor(ethnicity), ref = "WBI")BLA   -0.6508614  0.2919993  -2.229
-   ## relevel(factor(ethnicity), ref = "WBI")BLC   -0.9301406  0.3661440  -2.540
-   ## relevel(factor(ethnicity), ref = "WBI")CHI    0.3147231  0.4786396   0.658
-   ## relevel(factor(ethnicity), ref = "WBI")IND   -0.8920800  0.2145810  -4.157
-   ## relevel(factor(ethnicity), ref = "WBI")MIX   -0.1020393  0.2725847  -0.374
-   ## relevel(factor(ethnicity), ref = "WBI")OAS    0.7394536  0.3105643   2.381
-   ## relevel(factor(ethnicity), ref = "WBI")OBL    0.7382279  0.9522457   0.775
-   ## relevel(factor(ethnicity), ref = "WBI")OTH    0.5721686  0.4993300   1.146
-   ## relevel(factor(ethnicity), ref = "WBI")PAK   -2.1172783  0.2658275  -7.965
-   ## relevel(factor(ethnicity), ref = "WBI")WHO    1.5266685  0.1610739   9.478
-   ## factor(region)East of England                 0.0004248  0.1552909   0.003
-   ## factor(region)London                          0.0234354  0.1582542   0.148
-   ## factor(region)North East                     -0.2600967  0.1983900  -1.311
-   ## factor(region)North West                     -0.5042112  0.1542288  -3.269
-   ## factor(region)Northern Ireland               -1.8388319  0.2308531  -7.965
-   ## factor(region)Scotland                       -0.7264878  0.1729765  -4.200
-   ## factor(region)South East                      0.2295814  0.1455389   1.577
-   ## factor(region)South West                      0.4284066  0.1589688   2.695
-   ## factor(region)Wales                           0.6864629  0.2073224   3.311
-   ## factor(region)West Midlands                  -0.0495381  0.1606992  -0.308
-   ## factor(region)Yorkshire and The Humber       -0.5631054  0.1601854  -3.515
-   ## relevel(factor(education_state), ref = "1")0 -0.1515439  0.2474512  -0.612
-   ## relevel(factor(education_state), ref = "1")2  0.3986112  0.2463440   1.618
-   ## relevel(factor(education_state), ref = "1")3  0.9978339  0.2574642   3.876
-   ## relevel(factor(education_state), ref = "1")5  1.2248215  0.2598521   4.714
-   ## relevel(factor(education_state), ref = "1")6  2.3544895  0.2489350   9.458
-   ## relevel(factor(education_state), ref = "1")7  2.8269895  0.2544413  11.111
-   ## scale(hh_income)                              0.3559428  0.0332048  10.720
-   ## factor(behind_on_bills)2                     -1.2496936  0.1726441  -7.239
-   ## factor(behind_on_bills)3                     -2.3421004  0.6048798  -3.872
-   ## factor(financial_situation)2                 -0.4663225  0.0754836  -6.178
-   ## factor(financial_situation)3                 -0.9698255  0.0957914 -10.124
-   ## factor(financial_situation)4                 -0.9704728  0.1660731  -5.844
-   ## factor(financial_situation)5                 -1.4928310  0.2674788  -5.581
+   ##                                              Estimate Std. Error t value
+   ## (Intercept)                                  16.78023    0.27070  61.987
+   ## scale(age)                                    0.60449    0.03610  16.745
+   ## factor(sex)Male                              -1.39758    0.06502 -21.494
+   ## relevel(factor(ethnicity), ref = "WBI")BAN   -1.73670    0.44716  -3.884
+   ## relevel(factor(ethnicity), ref = "WBI")BLA   -0.67298    0.29205  -2.304
+   ## relevel(factor(ethnicity), ref = "WBI")BLC   -0.93937    0.36797  -2.553
+   ## relevel(factor(ethnicity), ref = "WBI")CHI    0.27004    0.47765   0.565
+   ## relevel(factor(ethnicity), ref = "WBI")IND   -0.91079    0.21522  -4.232
+   ## relevel(factor(ethnicity), ref = "WBI")MIX   -0.18857    0.27254  -0.692
+   ## relevel(factor(ethnicity), ref = "WBI")OAS    0.68036    0.31114   2.187
+   ## relevel(factor(ethnicity), ref = "WBI")OBL    0.82279    0.96326   0.854
+   ## relevel(factor(ethnicity), ref = "WBI")OTH    0.25522    0.50079   0.510
+   ## relevel(factor(ethnicity), ref = "WBI")PAK   -2.17457    0.26700  -8.145
+   ## relevel(factor(ethnicity), ref = "WBI")WHO    1.57690    0.16128   9.777
+   ## factor(region)East of England                 0.01102    0.15545   0.071
+   ## factor(region)London                          0.05258    0.15829   0.332
+   ## factor(region)North East                     -0.21627    0.19899  -1.087
+   ## factor(region)North West                     -0.48531    0.15445  -3.142
+   ## factor(region)Northern Ireland               -1.82361    0.23166  -7.872
+   ## factor(region)Scotland                       -0.73583    0.17327  -4.247
+   ## factor(region)South East                      0.25464    0.14566   1.748
+   ## factor(region)South West                      0.44306    0.15918   2.783
+   ## factor(region)Wales                           0.72114    0.20801   3.467
+   ## factor(region)West Midlands                  -0.05052    0.16090  -0.314
+   ## factor(region)Yorkshire and The Humber       -0.55817    0.16043  -3.479
+   ## relevel(factor(education_state), ref = "1")0 -0.15438    0.24831  -0.622
+   ## relevel(factor(education_state), ref = "1")2  0.39454    0.24710   1.597
+   ## relevel(factor(education_state), ref = "1")3  0.98968    0.25818   3.833
+   ## relevel(factor(education_state), ref = "1")5  1.21925    0.26058   4.679
+   ## relevel(factor(education_state), ref = "1")6  2.33466    0.24965   9.352
+   ## relevel(factor(education_state), ref = "1")7  2.83056    0.25511  11.095
+   ## scale(hh_income)                              0.36045    0.03334  10.813
+   ## factor(behind_on_bills)2                     -1.26618    0.17343  -7.301
+   ## factor(behind_on_bills)3                     -2.02141    0.61519  -3.286
+   ## factor(financial_situation)2                 -0.47245    0.07576  -6.236
+   ## factor(financial_situation)3                 -0.97589    0.09615 -10.150
+   ## factor(financial_situation)4                 -0.99601    0.16669  -5.975
+   ## factor(financial_situation)5                 -1.53112    0.26962  -5.679
 
 ::
 

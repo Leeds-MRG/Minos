@@ -98,75 +98,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##</span>
-<span class="c1">## Attaching package: &#39;dplyr&#39;</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## The following objects are masked from &#39;package:stats&#39;:</span>
-<span class="c1">##</span>
-<span class="c1">##     filter, lag</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## The following objects are masked from &#39;package:base&#39;:</span>
-<span class="c1">##</span>
-<span class="c1">##     intersect, setdiff, setequal, union</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">here</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## here() starts at /home/luke/Documents/WORK/MINOS/Minos</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">source</span><span class="p">(</span><span class="n">here</span><span class="o">::</span><span class="nf">here</span><span class="p">(</span><span class="s">&quot;docsrc&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;documentation&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;notebooks&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;sphinx_notebook_utils.R&quot;</span><span class="p">))</span>
-<span class="nf">source</span><span class="p">(</span><span class="n">here</span><span class="o">::</span><span class="nf">here</span><span class="p">(</span><span class="s">&#39;minos&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;utils_datain.R&#39;</span><span class="p">))</span>
-<span class="nf">source</span><span class="p">(</span><span class="n">here</span><span class="o">::</span><span class="nf">here</span><span class="p">(</span><span class="s">&#39;minos&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;utils_validation_vis.R&#39;</span><span class="p">))</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Loading required package: ggridges</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Loading required package: viridis</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning in library(package, lib.loc = lib.loc, character.only = TRUE,</span>
-<span class="c1">## logical.return = TRUE, : there is no package called &#39;viridis&#39;</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Loading required package: ggExtra</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Loading required package: scales</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##</span>
-<span class="c1">## Attaching package: &#39;scales&#39;</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## The following object is masked from &#39;package:purrr&#39;:</span>
-<span class="c1">##</span>
-<span class="c1">##     discard</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## The following object is masked from &#39;package:readr&#39;:</span>
-<span class="c1">##</span>
-<span class="c1">##     col_factor</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Loading required package: gghighlight</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Loading required package: viridis</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning in library(package, lib.loc = lib.loc, character.only = TRUE,</span>
-<span class="c1">## logical.return = TRUE, : there is no package called &#39;viridis&#39;</span>
-</pre></div>
-</div>
-<section id="validation">
+  <section id="validation">
 <h1>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h1>
 <p>For validation MINOS uses 2 methods; ‘handover’ plots and 5-fold
 cross-validation.</p>
@@ -208,7 +140,7 @@ from the underlying data.</p>
 <figure class="align-default" id="id1">
 <img alt="plot of chunk hh_income_handovers" src="../../_images/hh_income_handovers-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 24 </span><span class="caption-text">plot of chunk hh_income_handovers</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 27 </span><span class="caption-text">plot of chunk hh_income_handovers</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">handover_lineplots</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;hh_income&#39;</span><span class="p">)</span>
@@ -217,7 +149,7 @@ from the underlying data.</p>
 <figure class="align-default" id="id2">
 <img alt="plot of chunk hh_income_handovers" src="../../_images/hh_income_handovers-2.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 25 </span><span class="caption-text">plot of chunk hh_income_handovers</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 28 </span><span class="caption-text">plot of chunk hh_income_handovers</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -234,151 +166,46 @@ data before starting. We run each chunk once, starting in 2015 and
 running to 2021. This allows us to compare our simulated values to the
 true raw data over this time period, and assessing how our model is
 performing when trying to recreate real data.</p>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="c1"># out.path &lt;- here::here(&#39;output&#39;, &#39;cv&#39;)</span>
-<span class="c1"># cv1 &lt;- read_singular_local_out(here::here(out.path, &#39;default1/&#39;), &#39;baseline&#39;, drop.dead = TRUE)</span>
-<span class="c1"># cv2 &lt;- read_singular_local_out(here::here(out.path, &#39;default2/&#39;), &#39;baseline&#39;, drop.dead = TRUE)</span>
-<span class="c1"># cv3 &lt;- read_singular_local_out(here::here(out.path, &#39;default3/&#39;), &#39;baseline&#39;, drop.dead = TRUE)</span>
-<span class="c1"># cv4 &lt;- read_singular_local_out(here::here(out.path, &#39;default4/&#39;), &#39;baseline&#39;, drop.dead = TRUE)</span>
-<span class="c1"># cv5 &lt;- read_singular_local_out(here::here(out.path, &#39;default5/&#39;), &#39;baseline&#39;, drop.dead = TRUE)</span>
-
-<span class="c1"># cvlist &lt;- list(cv1, cv2, cv3, cv4, cv5)</span>
-<span class="c1"># cv &lt;- do.call(rbind, cvlist)</span>
-
-<span class="c1"># cv simulation batches</span>
-<span class="n">cv.simul.files1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">list.files</span><span class="p">(</span><span class="n">here</span><span class="o">::</span><span class="nf">here</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;final_US&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cross_validation&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;batch1&#39;</span><span class="p">),</span>
-<span class="w">                             </span><span class="n">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;[0-9]{4}_US_cohort.csv&#39;</span><span class="p">,</span>
-<span class="w">                             </span><span class="n">full.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span>
-<span class="n">raw1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">do.call</span><span class="p">(</span><span class="n">rbind</span><span class="p">,</span><span class="w"> </span><span class="nf">lapply</span><span class="p">(</span><span class="n">cv.simul.files1</span><span class="p">,</span><span class="w"> </span><span class="n">read.csv</span><span class="p">))</span>
-<span class="n">cv.simul.files2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">list.files</span><span class="p">(</span><span class="n">here</span><span class="o">::</span><span class="nf">here</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;final_US&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cross_validation&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;batch2&#39;</span><span class="p">),</span>
-<span class="w">                             </span><span class="n">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;[0-9]{4}_US_cohort.csv&#39;</span><span class="p">,</span>
-<span class="w">                             </span><span class="n">full.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span>
-<span class="n">raw2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">do.call</span><span class="p">(</span><span class="n">rbind</span><span class="p">,</span><span class="w"> </span><span class="nf">lapply</span><span class="p">(</span><span class="n">cv.simul.files2</span><span class="p">,</span><span class="w"> </span><span class="n">read.csv</span><span class="p">))</span>
-<span class="n">cv.simul.files3</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">list.files</span><span class="p">(</span><span class="n">here</span><span class="o">::</span><span class="nf">here</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;final_US&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cross_validation&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;batch3&#39;</span><span class="p">),</span>
-<span class="w">                             </span><span class="n">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;[0-9]{4}_US_cohort.csv&#39;</span><span class="p">,</span>
-<span class="w">                             </span><span class="n">full.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span>
-<span class="n">raw3</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">do.call</span><span class="p">(</span><span class="n">rbind</span><span class="p">,</span><span class="w"> </span><span class="nf">lapply</span><span class="p">(</span><span class="n">cv.simul.files3</span><span class="p">,</span><span class="w"> </span><span class="n">read.csv</span><span class="p">))</span>
-<span class="n">cv.simul.files4</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">list.files</span><span class="p">(</span><span class="n">here</span><span class="o">::</span><span class="nf">here</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;final_US&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cross_validation&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;batch4&#39;</span><span class="p">),</span>
-<span class="w">                             </span><span class="n">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;[0-9]{4}_US_cohort.csv&#39;</span><span class="p">,</span>
-<span class="w">                             </span><span class="n">full.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span>
-<span class="n">raw4</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">do.call</span><span class="p">(</span><span class="n">rbind</span><span class="p">,</span><span class="w"> </span><span class="nf">lapply</span><span class="p">(</span><span class="n">cv.simul.files4</span><span class="p">,</span><span class="w"> </span><span class="n">read.csv</span><span class="p">))</span>
-<span class="n">cv.simul.files5</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">list.files</span><span class="p">(</span><span class="n">here</span><span class="o">::</span><span class="nf">here</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;final_US&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cross_validation&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;batch5&#39;</span><span class="p">),</span>
-<span class="w">                             </span><span class="n">pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;[0-9]{4}_US_cohort.csv&#39;</span><span class="p">,</span>
-<span class="w">                             </span><span class="n">full.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span>
-<span class="n">raw5</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">do.call</span><span class="p">(</span><span class="n">rbind</span><span class="p">,</span><span class="w"> </span><span class="nf">lapply</span><span class="p">(</span><span class="n">cv.simul.files5</span><span class="p">,</span><span class="w"> </span><span class="n">read.csv</span><span class="p">))</span>
-
-<span class="n">rawlist</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">raw1</span><span class="p">,</span><span class="w"> </span><span class="n">raw2</span><span class="p">,</span><span class="w"> </span><span class="n">raw3</span><span class="p">,</span><span class="w"> </span><span class="n">raw4</span><span class="p">,</span><span class="w"> </span><span class="n">raw5</span><span class="p">)</span>
-<span class="n">raw.dat</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">do.call</span><span class="p">(</span><span class="n">rbind</span><span class="p">,</span><span class="w"> </span><span class="n">rawlist</span><span class="p">)</span>
-
-<span class="c1"># year filter</span>
-<span class="c1"># cv.years &lt;- cv %&gt;% select(time) %&gt;% unique()</span>
-<span class="c1"># cv.years &lt;- cv.years[[&#39;time&#39;]]</span>
-
-<span class="c1">#cv &lt;- cv.dat %&gt;% filter(pidp %in% both.pidps$pidp)</span>
-<span class="c1"># raw &lt;- raw.dat %&gt;% filter(time %in% cv.years)</span>
-
-<span class="c1">#rm(cv.pidps, raw.pidps, both.pidps, cv.years)</span>
-<span class="c1"># rm(cv.years)</span>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">cv.mean.plots</span><span class="p">(</span><span class="n">cv1</span><span class="p">,</span><span class="w"> </span><span class="n">cv2</span><span class="p">,</span><span class="w"> </span><span class="n">cv3</span><span class="p">,</span><span class="w"> </span><span class="n">cv4</span><span class="p">,</span><span class="w"> </span><span class="n">cv5</span><span class="p">,</span><span class="w"> </span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;SF_12&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">cv.mean.plots</span><span class="p">(</span><span class="n">cv1</span><span class="p">,</span><span class="w"> </span><span class="n">cv2</span><span class="p">,</span><span class="w"> </span><span class="n">cv3</span><span class="p">,</span><span class="w"> </span><span class="n">cv4</span><span class="p">,</span><span class="w"> </span><span class="n">cv5</span><span class="p">,</span><span class="w"> </span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;hh_income&#39;</span><span class="p">)</span>
+<p><img alt="plot of chunk cv_hh_income_vis" src="../../_images/cv_hh_income_vis-1.png" /><img alt="image1" src="../../_images/cv_hh_income_vis-2.png" /></p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">multi_year_boxplots</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;SF_12&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in filter(., .data[[var]] != -9): object &#39;cv1&#39; not found</span>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk cv_hh_income_vis" src="../../_images/cv_hh_income_vis-3.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 29 </span><span class="caption-text">plot of chunk cv_hh_income_vis</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">snapshot_OP_plots</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;SF_12&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">target.years</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">2015</span><span class="p">,</span><span class="w"> </span><span class="m">2017</span><span class="p">,</span><span class="w"> </span><span class="m">2019</span><span class="p">,</span><span class="w"> </span><span class="m">2021</span><span class="p">))</span>
 </pre></div>
 </div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">multi_year_boxplots</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;hh_income&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning: Use of .data in tidyselect expressions was deprecated in tidyselect 1.2.0.</span>
+<span class="c1">## ℹ Please use `all_of(var)` (or `any_of(var)`) instead of `.data[[var]]`</span>
+<span class="c1">## This warning is displayed once every 8 hours.</span>
+<span class="c1">## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in UseMethod(&quot;select&quot;): no applicable method for &#39;select&#39; applied to an object of class &quot;function&quot;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning in MASS::cov.trob(data[, vars]): Probable convergence failure</span>
 </pre></div>
 </div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">snapshot_OP_plots</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;hh_income&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">target.years</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">2015</span><span class="p">,</span><span class="w"> </span><span class="m">2017</span><span class="p">,</span><span class="w"> </span><span class="m">2019</span><span class="p">,</span><span class="w"> </span><span class="m">2021</span><span class="p">))</span>
+<figure class="align-default" id="id4">
+<img alt="plot of chunk cv_hh_income_vis" src="../../_images/cv_hh_income_vis-4.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 30 </span><span class="caption-text">plot of chunk cv_hh_income_vis</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">q_q_comparison</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;SF_12&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in select(., pidp, time, all_of(var)): object &#39;cv&#39; not found</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">q_q_comparison</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;hh_income&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in UseMethod(&quot;select&quot;): no applicable method for &#39;select&#39; applied to an object of class &quot;function&quot;</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">inc.14</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">marg_dist_densigram_plot_oneyear</span><span class="p">(</span><span class="n">observed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">raw</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">predicted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;hh_income&#39;</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">target.year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2015</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in UseMethod(&quot;filter&quot;): no applicable method for &#39;filter&#39; applied to an object of class &quot;function&quot;</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">print</span><span class="p">(</span><span class="n">inc.14</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in print(inc.14): object &#39;inc.14&#39; not found</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">inc.16</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">marg_dist_densigram_plot_oneyear</span><span class="p">(</span><span class="n">observed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">raw</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">predicted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;hh_income&#39;</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">target.year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2017</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in UseMethod(&quot;filter&quot;): no applicable method for &#39;filter&#39; applied to an object of class &quot;function&quot;</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">print</span><span class="p">(</span><span class="n">inc.16</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in print(inc.16): object &#39;inc.16&#39; not found</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">inc.18</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">marg_dist_densigram_plot_oneyear</span><span class="p">(</span><span class="n">observed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">raw</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">predicted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;hh_income&#39;</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">target.year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2019</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in UseMethod(&quot;filter&quot;): no applicable method for &#39;filter&#39; applied to an object of class &quot;function&quot;</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">print</span><span class="p">(</span><span class="n">inc.18</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in print(inc.18): object &#39;inc.18&#39; not found</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">inc.20</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">marg_dist_densigram_plot_oneyear</span><span class="p">(</span><span class="n">observed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">raw</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">predicted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;hh_income&#39;</span><span class="p">,</span>
-<span class="w">                                 </span><span class="n">target.year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2021</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in UseMethod(&quot;filter&quot;): no applicable method for &#39;filter&#39; applied to an object of class &quot;function&quot;</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">print</span><span class="p">(</span><span class="n">inc.20</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in print(inc.20): object &#39;inc.20&#39; not found</span>
-</pre></div>
-</div>
-<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">rm</span><span class="p">(</span><span class="n">inc.14</span><span class="p">,</span><span class="w"> </span><span class="n">inc.16</span><span class="p">,</span><span class="w"> </span><span class="n">inc.18</span><span class="p">,</span><span class="w"> </span><span class="n">inc.20</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning in rm(inc.14, inc.16, inc.18, inc.20): object &#39;inc.14&#39; not found</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning in rm(inc.14, inc.16, inc.18, inc.20): object &#39;inc.16&#39; not found</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning in rm(inc.14, inc.16, inc.18, inc.20): object &#39;inc.18&#39; not found</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning in rm(inc.14, inc.16, inc.18, inc.20): object &#39;inc.20&#39; not found</span>
-</pre></div>
-</div>
+<figure class="align-default" id="id5">
+<img alt="plot of chunk cv_hh_income_vis" src="../../_images/cv_hh_income_vis-5.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 31 </span><span class="caption-text">plot of chunk cv_hh_income_vis</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>

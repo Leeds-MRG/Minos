@@ -706,3 +706,120 @@ child_ages_lineplot <- function(raw.dat, base.dat) {
   print(p2)
   print(p3)
 }
+
+
+
+### Mortality Plots
+# Average age at death
+# Proportion of sample still alive
+mortality_plots <- function(base.dead) {
+  base.alive <- base.dead %>%
+    group_by(time, alive) %>%
+    summarise(n = n()) %>%
+    ungroup() %>%
+    group_by(time) %>%
+    mutate(prop = n / sum(n)) %>%
+    filter(alive == 'dead')
+  
+  p1 <- ggplot(base.alive, aes(x = time, y = prop)) +
+    geom_line() +
+    geom_point() +
+    labs(title = 'Proportion of sample still alive') +
+    xlab('Year') +
+    ylab('Proportion')
+  
+  base.lifeexp <- base.dead %>%
+    filter(alive == "dead") %>%
+    group_by(time) %>%
+    summarise(avg_life_exp = mean(age, na.rm = TRUE))
+  
+  p2 <- ggplot(base.lifeexp, aes(x = time, y = avg_life_exp)) +
+    geom_line() +
+    geom_point() +
+    labs(title = 'Average Age at Death') +
+    xlab('Year') +
+    ylab('Age')
+  
+  print(p1)
+  print(p2)
+}
+
+### Cross validation plots
+
+# Function to combine two dataframes and pivot_longer for further processing 
+# with ggplot or ttests. Must be either simulation output or raw files
+combine_and_pivot_long <- function(df1, df1.name, df2, df2.name, var) {
+  # get only the columns we want a rename
+  df1 <- df1 %>%
+    select('pidp', 'time', all_of(var)) %>%
+    set_names(c('pidp', 'time', df1.name))
+  df2 <- df2 %>%
+    select('pidp', 'time', all_of(var)) %>%
+    set_names(c('pidp', 'time', df2.name))
+  # merge on pidp and time
+  merged <- merge(df1, df2, by = c('pidp', 'time'), all=TRUE)
+  pivoted <- pivot_longer(data = merged,
+                          cols = df1.name:df2.name,
+                          names_to = 'scenario',
+                          values_to = var)
+  return(pivoted)
+}
+
+# Function to plot both count and proportion comparisons between raw and 
+# simulated data using cross-validation outputs.
+cv_ordinal_plots <- function(pivoted.df, var, save=FALSE, save.path) {
+  df <- pivoted.df %>%
+    group_by(time, scenario, .data[[var]]) %>%
+    summarise(n = n())
+  
+  df$scenario <- factor(df$scenario)
+  df[[var]] <- factor(df[[var]])
+  
+  df <- df %>% filter(.data[[var]] != -9)
+  
+  p1 <- ggplot(data = df, aes(x = time, y = n, group = interaction(scenario, .data[[var]]), color = .data[[var]], linetype = scenario)) +
+    geom_line() + 
+    geom_point() +
+    labs(title = paste0('Cross-Validation: ', var), subtitle = 'Count') +
+    xlab('Year') +
+    ylab('Count')
+  
+  print(p1)
+  
+  if(save) {
+    if(is.null(save.path)) {
+      stop('ERROR: save.path must be defined when saving the plot')
+    }
+    save.filename <- paste0('cv_', var, '_count.png')
+    ggsave(filename = save.filename,
+           plot = p1,
+           path = save.path,
+           width = 9,
+           height = 5)
+  }
+  
+  # df <- df %>%
+  #   group_by(time, scenario) %>%
+  #   mutate(prop = n / sum(n))
+  # 
+  # p2 <- ggplot(data = df, aes(x = time, y = prop, group = interaction(scenario, .data[[var]]), color = .data[[var]], linetype = scenario)) +
+  #   geom_line() + 
+  #   geom_point() +
+  #   labs(title = paste0('Cross-Validation: ', var), subtitle = 'Proportion') +
+  #   xlab('Year') +
+  #   ylab('Proportion')
+  # 
+  # print(p2)
+  # 
+  # if(save) {
+  #   if(is.null(save.path)) {
+  #     stop('ERROR: save.path must be defined when saving the plot')
+  #   }
+  #   save.filename <- paste0('cv_', var, '_proportion.png')
+  #   ggsave(filename = save.filename,
+  #          plot = p2,
+  #          path = save.path,
+  #          width = 9,
+  #          height = 5)
+  # }
+}

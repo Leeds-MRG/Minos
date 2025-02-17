@@ -220,6 +220,20 @@ var.norm <- merged %>%
 ```
 
 
+## Deaths
+
+```{r}
+base.dead <- read_singular_local_out(out.path,
+                                     scenario = 'baseline',
+                                     drop.dead = FALSE,
+                                     drop.zero.weight = FALSE)
+
+mortality_plots(base.dead)
+
+rm(base.dead)
+```
+
+
 ## Population Counts
 
 ### Total Pop

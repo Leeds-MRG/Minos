@@ -18,6 +18,10 @@ model_path <- here::here("data", "transitions", "housing_quality", "rfo", "housi
 model <- readRDS(model_path)
 
 data <- read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
+data$housing_quality <- factor(data$housing_quality,
+                               levels = c("High",
+                                          "Medium",
+                                          "Low"))
 obs <- data$housing_quality
 data$housing_quality_last <- data$housing_quality
 
@@ -26,6 +30,9 @@ column_names <- colnames(preds)
 preds <-glmnet::rmult(preds)
 preds <- plyr::mapvalues(preds, from=c(1,2,3), to= column_names)
 v <- "housing_quality"
+
+
+
 
 ### Read data in for handovers plots
 # Read raw datafiles in
@@ -48,6 +55,52 @@ if (min(base.dat$time) <= max(raw.dat$time)) {
 # cut missing data for key variable
 raw.dat <- raw.dat %>%
   filter(!.data[[v]] %in% miss.values)
+
+
+### Read data in for cross-val plots
+out.path <- here::here('output', 'cv')
+cv1 <- read_singular_local_out(here::here(out.path, 'default1/'), 'baseline', drop.dead = TRUE)
+cv2 <- read_singular_local_out(here::here(out.path, 'default2/'), 'baseline', drop.dead = TRUE)
+cv3 <- read_singular_local_out(here::here(out.path, 'default3/'), 'baseline', drop.dead = TRUE)
+cv4 <- read_singular_local_out(here::here(out.path, 'default4/'), 'baseline', drop.dead = TRUE)
+cv5 <- read_singular_local_out(here::here(out.path, 'default5/'), 'baseline', drop.dead = TRUE)
+
+cvlist <- list(cv1, cv2, cv3, cv4, cv5)
+cv <- do.call(rbind, cvlist)
+
+# cv simulation batches
+cv.simul.files1 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch1'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw1 <- do.call(rbind, lapply(cv.simul.files1, read.csv))
+cv.simul.files2 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch2'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw2 <- do.call(rbind, lapply(cv.simul.files2, read.csv))
+cv.simul.files3 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch3'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw3 <- do.call(rbind, lapply(cv.simul.files3, read.csv))
+cv.simul.files4 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch4'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw4 <- do.call(rbind, lapply(cv.simul.files4, read.csv))
+cv.simul.files5 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch5'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw5 <- do.call(rbind, lapply(cv.simul.files5, read.csv))
+
+rawlist <- list(raw1, raw2, raw3, raw4, raw5)
+raw.dat <- do.call(rbind, rawlist)
+
+# year filter
+cv.years <- cv %>% select(time) %>% unique()
+cv.years <- cv.years[['time']]
+
+#  cv <- cv.dat %>% filter(pidp %in% both.pidps$pidp)
+raw <- raw.dat %>% filter(time %in% cv.years)
+
+rm(cv.years)
 ```
 
 # Housing Quality
@@ -115,6 +168,18 @@ plot_rfo_importance(model)
 
 ```{r housing_validation}
 handover_ordinal(raw.dat, base.dat, v)
+```
+
+```{r housing_cv}
+hous.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw, 
+                                       df2.name = 'raw', 
+                                       var = 'housing_quality')
+
+cv_ordinal_plots(pivoted.df = hous.pivoted, 
+                 var = 'housing_quality',
+                 save = FALSE)
 ```
 
 ## Results

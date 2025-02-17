@@ -182,7 +182,7 @@ groupings:</p>
 <figure class="align-default" id="id1">
 <img alt="plot of chunk housing_barchart" src="../../_images/housing_barchart-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">plot of chunk housing_barchart</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 8 </span><span class="caption-text">plot of chunk housing_barchart</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <section id="transition-model">
@@ -224,7 +224,7 @@ mental-wellbeing.</p></li>
 <figure class="align-default" id="id2">
 <img alt="plot of chunk housing_model_summary" src="../../_images/housing_model_summary-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 7 </span><span class="caption-text">plot of chunk housing_model_summary</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 9 </span><span class="caption-text">plot of chunk housing_model_summary</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -234,6 +234,54 @@ mental-wellbeing.</p></li>
 </pre></div>
 </div>
 <p><img alt="plot of chunk housing_validation" src="../../_images/housing_validation-1.png" /><img alt="image1" src="../../_images/housing_validation-2.png" /></p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">hous.pivoted</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">combine_and_pivot_long</span><span class="p">(</span><span class="n">df1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span>
+<span class="w">                                       </span><span class="n">df1.name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;simulated&#39;</span><span class="p">,</span>
+<span class="w">                                       </span><span class="n">df2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">raw</span><span class="p">,</span>
+<span class="w">                                       </span><span class="n">df2.name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;raw&#39;</span><span class="p">,</span>
+<span class="w">                                       </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;housing_quality&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.</span>
+<span class="c1">## ℹ Please use `all_of()` or `any_of()` instead.</span>
+<span class="c1">##   # Was:</span>
+<span class="c1">##   data %&gt;% select(df1.name)</span>
+<span class="c1">##</span>
+<span class="c1">##   # Now:</span>
+<span class="c1">##   data %&gt;% select(all_of(df1.name))</span>
+<span class="c1">##</span>
+<span class="c1">## See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</span>
+<span class="c1">## This warning is displayed once every 8 hours.</span>
+<span class="c1">## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.</span>
+<span class="c1">## ℹ Please use `all_of()` or `any_of()` instead.</span>
+<span class="c1">##   # Was:</span>
+<span class="c1">##   data %&gt;% select(df2.name)</span>
+<span class="c1">##</span>
+<span class="c1">##   # Now:</span>
+<span class="c1">##   data %&gt;% select(all_of(df2.name))</span>
+<span class="c1">##</span>
+<span class="c1">## See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</span>
+<span class="c1">## This warning is displayed once every 8 hours.</span>
+<span class="c1">## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</span>
+</pre></div>
+</div>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">cv_ordinal_plots</span><span class="p">(</span><span class="n">pivoted.df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hous.pivoted</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;housing_quality&#39;</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">save</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## `summarise()` has grouped output by &#39;time&#39;, &#39;scenario&#39;. You can override using</span>
+<span class="c1">## the `.groups` argument.</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk housing_cv" src="../../_images/housing_cv-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 10 </span><span class="caption-text">plot of chunk housing_cv</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="results">
 <h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
@@ -241,10 +289,10 @@ mental-wellbeing.</p></li>
 summary like some other models can, so instead we will look at plots of
 observed vs predicted values as well as the importance of each variable
 in the resulting model.</p>
-<figure class="align-default" id="id3">
+<figure class="align-default" id="id4">
 <img alt="plot of chunk housing_output" src="../../_images/housing_output-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 8 </span><span class="caption-text">plot of chunk housing_output</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 11 </span><span class="caption-text">plot of chunk housing_output</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

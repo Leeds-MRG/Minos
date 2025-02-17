@@ -90,215 +90,215 @@ documentation
    ##    Data: data
    ## 
    ##       AIC       BIC    logLik  deviance  df.resid 
-   ##  615185.3  615705.6 -307542.6  615085.3    244291 
+   ##  613008.8  613529.0 -306454.4  612908.8    243509 
    ## 
    ## Scaled residuals: 
    ##      Min       1Q   Median       3Q      Max 
-   ## -24.4404  -0.3194  -0.0358   0.2882  13.8460 
+   ## -24.4319  -0.3191  -0.0358   0.2879  13.8735 
    ## 
    ## Random effects:
-   ##  Groups   Name        Variance Std.Dev.
-   ##  pidp     (Intercept) 0.000414 0.02035 
-   ##  Residual             0.001674 0.04091 
-   ## Number of obs: 244341, groups:  pidp, 45218
+   ##  Groups   Name        Variance  Std.Dev.
+   ##  pidp     (Intercept) 0.0004164 0.02041 
+   ##  Residual             0.0016751 0.04093 
+   ## Number of obs: 243559, groups:  pidp, 44786
    ## 
    ## Fixed effects:
    ##                                                                     Estimate
-   ## (Intercept)                                                        2.8993384
-   ## scale(hh_income)                                                   0.0161330
-   ## scale(age)                                                         0.0120801
-   ## I(scale(age)^2)                                                    0.0011894
-   ## I(scale(age)^3)                                                   -0.0033103
-   ## factor(sex)Male                                                    0.0005210
-   ## relevel(factor(ethnicity), ref = "WBI")BAN                        -0.0138111
-   ## relevel(factor(ethnicity), ref = "WBI")BLA                        -0.0168078
-   ## relevel(factor(ethnicity), ref = "WBI")BLC                        -0.0132551
-   ## relevel(factor(ethnicity), ref = "WBI")CHI                        -0.0027026
-   ## relevel(factor(ethnicity), ref = "WBI")IND                        -0.0055084
-   ## relevel(factor(ethnicity), ref = "WBI")MIX                        -0.0071087
-   ## relevel(factor(ethnicity), ref = "WBI")OAS                        -0.0125302
-   ## relevel(factor(ethnicity), ref = "WBI")OBL                        -0.0091845
-   ## relevel(factor(ethnicity), ref = "WBI")OTH                        -0.0100708
-   ## relevel(factor(ethnicity), ref = "WBI")PAK                        -0.0123893
-   ## relevel(factor(ethnicity), ref = "WBI")WHO                        -0.0035166
-   ## factor(region)East of England                                      0.0017831
-   ## factor(region)London                                               0.0034875
-   ## factor(region)North East                                          -0.0031138
-   ## factor(region)North West                                           0.0006368
-   ## factor(region)Northern Ireland                                     0.0018572
-   ## factor(region)Scotland                                             0.0018503
-   ## factor(region)South East                                           0.0040047
-   ## factor(region)South West                                           0.0005561
-   ## factor(region)Wales                                               -0.0008582
-   ## factor(region)West Midlands                                        0.0016249
-   ## factor(region)Yorkshire and The Humber                            -0.0011430
-   ## relevel(factor(education_state), ref = "1")0                      -0.0031482
-   ## relevel(factor(education_state), ref = "1")2                       0.0031436
-   ## relevel(factor(education_state), ref = "1")3                       0.0072619
-   ## relevel(factor(education_state), ref = "1")5                       0.0078787
-   ## relevel(factor(education_state), ref = "1")6                       0.0147230
-   ## relevel(factor(education_state), ref = "1")7                       0.0183995
-   ## relevel(factor(job_sec), ref = "3")0                              -0.0039234
-   ## relevel(factor(job_sec), ref = "3")1                               0.0054748
-   ## relevel(factor(job_sec), ref = "3")2                               0.0047179
-   ## relevel(factor(job_sec), ref = "3")4                              -0.0025015
-   ## relevel(factor(job_sec), ref = "3")5                              -0.0052788
-   ## relevel(factor(job_sec), ref = "3")6                              -0.0031744
-   ## relevel(factor(job_sec), ref = "3")7                              -0.0049089
-   ## relevel(factor(job_sec), ref = "3")8                              -0.0051268
-   ## scale(SF_12)                                                       0.0013832
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")Family Care  -0.0105363
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")FT Education -0.0069073
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")Job Seeking  -0.0095454
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")Not Working  -0.0096224
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")PT Employed  -0.0042999
+   ## (Intercept)                                                        2.8979520
+   ## scale(hh_income)                                                   0.0160822
+   ## scale(age)                                                         0.0120929
+   ## I(scale(age)^2)                                                    0.0012216
+   ## I(scale(age)^3)                                                   -0.0033154
+   ## factor(sex)Male                                                    0.0005396
+   ## relevel(factor(ethnicity), ref = "WBI")BAN                        -0.0136153
+   ## relevel(factor(ethnicity), ref = "WBI")BLA                        -0.0168486
+   ## relevel(factor(ethnicity), ref = "WBI")BLC                        -0.0129549
+   ## relevel(factor(ethnicity), ref = "WBI")CHI                        -0.0032698
+   ## relevel(factor(ethnicity), ref = "WBI")IND                        -0.0056127
+   ## relevel(factor(ethnicity), ref = "WBI")MIX                        -0.0074509
+   ## relevel(factor(ethnicity), ref = "WBI")OAS                        -0.0125539
+   ## relevel(factor(ethnicity), ref = "WBI")OBL                        -0.0097935
+   ## relevel(factor(ethnicity), ref = "WBI")OTH                        -0.0103571
+   ## relevel(factor(ethnicity), ref = "WBI")PAK                        -0.0124615
+   ## relevel(factor(ethnicity), ref = "WBI")WHO                        -0.0035002
+   ## factor(region)East of England                                      0.0018300
+   ## factor(region)London                                               0.0035819
+   ## factor(region)North East                                          -0.0030824
+   ## factor(region)North West                                           0.0007767
+   ## factor(region)Northern Ireland                                     0.0018609
+   ## factor(region)Scotland                                             0.0018760
+   ## factor(region)South East                                           0.0040448
+   ## factor(region)South West                                           0.0005513
+   ## factor(region)Wales                                               -0.0007271
+   ## factor(region)West Midlands                                        0.0017096
+   ## factor(region)Yorkshire and The Humber                            -0.0011342
+   ## relevel(factor(education_state), ref = "1")0                      -0.0031670
+   ## relevel(factor(education_state), ref = "1")2                       0.0031113
+   ## relevel(factor(education_state), ref = "1")3                       0.0073201
+   ## relevel(factor(education_state), ref = "1")5                       0.0078578
+   ## relevel(factor(education_state), ref = "1")6                       0.0146968
+   ## relevel(factor(education_state), ref = "1")7                       0.0183334
+   ## relevel(factor(job_sec), ref = "3")0                              -0.0039326
+   ## relevel(factor(job_sec), ref = "3")1                               0.0054402
+   ## relevel(factor(job_sec), ref = "3")2                               0.0047022
+   ## relevel(factor(job_sec), ref = "3")4                              -0.0025526
+   ## relevel(factor(job_sec), ref = "3")5                              -0.0052549
+   ## relevel(factor(job_sec), ref = "3")6                              -0.0033454
+   ## relevel(factor(job_sec), ref = "3")7                              -0.0049347
+   ## relevel(factor(job_sec), ref = "3")8                              -0.0052046
+   ## scale(SF_12)                                                       0.0013967
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")PT Employed  -0.0042774
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")Job Seeking  -0.0094277
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")FT Education -0.0069735
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")Family Care  -0.0104980
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")Not Working  -0.0095974
    ##                                                                   Std. Error
-   ## (Intercept)                                                        0.0010620
-   ## scale(hh_income)                                                   0.0001105
-   ## scale(age)                                                         0.0003153
-   ## I(scale(age)^2)                                                    0.0001568
-   ## I(scale(age)^3)                                                    0.0001208
-   ## factor(sex)Male                                                    0.0002845
-   ## relevel(factor(ethnicity), ref = "WBI")BAN                         0.0011092
-   ## relevel(factor(ethnicity), ref = "WBI")BLA                         0.0009740
-   ## relevel(factor(ethnicity), ref = "WBI")BLC                         0.0010234
-   ## relevel(factor(ethnicity), ref = "WBI")CHI                         0.0020174
-   ## relevel(factor(ethnicity), ref = "WBI")IND                         0.0007275
-   ## relevel(factor(ethnicity), ref = "WBI")MIX                         0.0010081
-   ## relevel(factor(ethnicity), ref = "WBI")OAS                         0.0011395
-   ## relevel(factor(ethnicity), ref = "WBI")OBL                         0.0033619
-   ## relevel(factor(ethnicity), ref = "WBI")OTH                         0.0021406
-   ## relevel(factor(ethnicity), ref = "WBI")PAK                         0.0008037
-   ## relevel(factor(ethnicity), ref = "WBI")WHO                         0.0006784
-   ## factor(region)East of England                                      0.0006436
-   ## factor(region)London                                               0.0006409
-   ## factor(region)North East                                           0.0008313
-   ## factor(region)North West                                           0.0006284
-   ## factor(region)Northern Ireland                                     0.0007615
-   ## factor(region)Scotland                                             0.0006929
-   ## factor(region)South East                                           0.0006034
-   ## factor(region)South West                                           0.0006549
-   ## factor(region)Wales                                                0.0007543
-   ## factor(region)West Midlands                                        0.0006527
-   ## factor(region)Yorkshire and The Humber                             0.0006579
-   ## relevel(factor(education_state), ref = "1")0                       0.0009258
-   ## relevel(factor(education_state), ref = "1")2                       0.0009314
-   ## relevel(factor(education_state), ref = "1")3                       0.0009717
-   ## relevel(factor(education_state), ref = "1")5                       0.0009944
-   ## relevel(factor(education_state), ref = "1")6                       0.0009534
-   ## relevel(factor(education_state), ref = "1")7                       0.0009871
-   ## relevel(factor(job_sec), ref = "3")0                               0.0004000
-   ## relevel(factor(job_sec), ref = "3")1                               0.0006001
-   ## relevel(factor(job_sec), ref = "3")2                               0.0004880
-   ## relevel(factor(job_sec), ref = "3")4                               0.0003883
-   ## relevel(factor(job_sec), ref = "3")5                               0.0004581
-   ## relevel(factor(job_sec), ref = "3")6                               0.0005083
-   ## relevel(factor(job_sec), ref = "3")7                               0.0003712
-   ## relevel(factor(job_sec), ref = "3")8                               0.0004573
-   ## scale(SF_12)                                                       0.0001064
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")Family Care   0.0005240
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")FT Education  0.0005810
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")Job Seeking   0.0005103
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")Not Working   0.0003953
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")PT Employed   0.0003311
+   ## (Intercept)                                                        0.0010673
+   ## scale(hh_income)                                                   0.0001109
+   ## scale(age)                                                         0.0003157
+   ## I(scale(age)^2)                                                    0.0001576
+   ## I(scale(age)^3)                                                    0.0001210
+   ## factor(sex)Male                                                    0.0002856
+   ## relevel(factor(ethnicity), ref = "WBI")BAN                         0.0011174
+   ## relevel(factor(ethnicity), ref = "WBI")BLA                         0.0009813
+   ## relevel(factor(ethnicity), ref = "WBI")BLC                         0.0010300
+   ## relevel(factor(ethnicity), ref = "WBI")CHI                         0.0020226
+   ## relevel(factor(ethnicity), ref = "WBI")IND                         0.0007316
+   ## relevel(factor(ethnicity), ref = "WBI")MIX                         0.0010118
+   ## relevel(factor(ethnicity), ref = "WBI")OAS                         0.0011458
+   ## relevel(factor(ethnicity), ref = "WBI")OBL                         0.0033721
+   ## relevel(factor(ethnicity), ref = "WBI")OTH                         0.0021535
+   ## relevel(factor(ethnicity), ref = "WBI")PAK                         0.0008084
+   ## relevel(factor(ethnicity), ref = "WBI")WHO                         0.0006811
+   ## factor(region)East of England                                      0.0006461
+   ## factor(region)London                                               0.0006437
+   ## factor(region)North East                                           0.0008351
+   ## factor(region)North West                                           0.0006310
+   ## factor(region)Northern Ireland                                     0.0007644
+   ## factor(region)Scotland                                             0.0006955
+   ## factor(region)South East                                           0.0006056
+   ## factor(region)South West                                           0.0006574
+   ## factor(region)Wales                                                0.0007573
+   ## factor(region)West Midlands                                        0.0006554
+   ## factor(region)Yorkshire and The Humber                             0.0006606
+   ## relevel(factor(education_state), ref = "1")0                       0.0009311
+   ## relevel(factor(education_state), ref = "1")2                       0.0009364
+   ## relevel(factor(education_state), ref = "1")3                       0.0009768
+   ## relevel(factor(education_state), ref = "1")5                       0.0009995
+   ## relevel(factor(education_state), ref = "1")6                       0.0009584
+   ## relevel(factor(education_state), ref = "1")7                       0.0009921
+   ## relevel(factor(job_sec), ref = "3")0                               0.0004014
+   ## relevel(factor(job_sec), ref = "3")1                               0.0006015
+   ## relevel(factor(job_sec), ref = "3")2                               0.0004893
+   ## relevel(factor(job_sec), ref = "3")4                               0.0003893
+   ## relevel(factor(job_sec), ref = "3")5                               0.0004595
+   ## relevel(factor(job_sec), ref = "3")6                               0.0005098
+   ## relevel(factor(job_sec), ref = "3")7                               0.0003723
+   ## relevel(factor(job_sec), ref = "3")8                               0.0004588
+   ## scale(SF_12)                                                       0.0001068
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")PT Employed   0.0003318
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")Job Seeking   0.0005120
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")FT Education  0.0005826
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")Family Care   0.0005256
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")Not Working   0.0003963
    ##                                                                    t value
-   ## (Intercept)                                                       2730.051
-   ## scale(hh_income)                                                   146.042
-   ## scale(age)                                                          38.312
-   ## I(scale(age)^2)                                                      7.584
-   ## I(scale(age)^3)                                                    -27.402
-   ## factor(sex)Male                                                      1.831
-   ## relevel(factor(ethnicity), ref = "WBI")BAN                         -12.452
-   ## relevel(factor(ethnicity), ref = "WBI")BLA                         -17.256
-   ## relevel(factor(ethnicity), ref = "WBI")BLC                         -12.952
-   ## relevel(factor(ethnicity), ref = "WBI")CHI                          -1.340
-   ## relevel(factor(ethnicity), ref = "WBI")IND                          -7.572
-   ## relevel(factor(ethnicity), ref = "WBI")MIX                          -7.052
-   ## relevel(factor(ethnicity), ref = "WBI")OAS                         -10.996
-   ## relevel(factor(ethnicity), ref = "WBI")OBL                          -2.732
-   ## relevel(factor(ethnicity), ref = "WBI")OTH                          -4.705
-   ## relevel(factor(ethnicity), ref = "WBI")PAK                         -15.416
-   ## relevel(factor(ethnicity), ref = "WBI")WHO                          -5.183
-   ## factor(region)East of England                                        2.771
-   ## factor(region)London                                                 5.441
-   ## factor(region)North East                                            -3.746
-   ## factor(region)North West                                             1.013
-   ## factor(region)Northern Ireland                                       2.439
-   ## factor(region)Scotland                                               2.670
-   ## factor(region)South East                                             6.637
-   ## factor(region)South West                                             0.849
-   ## factor(region)Wales                                                 -1.138
-   ## factor(region)West Midlands                                          2.489
-   ## factor(region)Yorkshire and The Humber                              -1.737
-   ## relevel(factor(education_state), ref = "1")0                        -3.401
-   ## relevel(factor(education_state), ref = "1")2                         3.375
-   ## relevel(factor(education_state), ref = "1")3                         7.473
-   ## relevel(factor(education_state), ref = "1")5                         7.923
-   ## relevel(factor(education_state), ref = "1")6                        15.443
-   ## relevel(factor(education_state), ref = "1")7                        18.641
-   ## relevel(factor(job_sec), ref = "3")0                                -9.808
-   ## relevel(factor(job_sec), ref = "3")1                                 9.123
-   ## relevel(factor(job_sec), ref = "3")2                                 9.668
-   ## relevel(factor(job_sec), ref = "3")4                                -6.442
-   ## relevel(factor(job_sec), ref = "3")5                               -11.524
-   ## relevel(factor(job_sec), ref = "3")6                                -6.246
-   ## relevel(factor(job_sec), ref = "3")7                               -13.224
-   ## relevel(factor(job_sec), ref = "3")8                               -11.212
-   ## scale(SF_12)                                                        12.999
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")Family Care   -20.108
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")FT Education  -11.888
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")Job Seeking   -18.707
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")Not Working   -24.343
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")PT Employed   -12.987
+   ## (Intercept)                                                       2715.174
+   ## scale(hh_income)                                                   145.019
+   ## scale(age)                                                          38.304
+   ## I(scale(age)^2)                                                      7.753
+   ## I(scale(age)^3)                                                    -27.409
+   ## factor(sex)Male                                                      1.889
+   ## relevel(factor(ethnicity), ref = "WBI")BAN                         -12.185
+   ## relevel(factor(ethnicity), ref = "WBI")BLA                         -17.170
+   ## relevel(factor(ethnicity), ref = "WBI")BLC                         -12.577
+   ## relevel(factor(ethnicity), ref = "WBI")CHI                          -1.617
+   ## relevel(factor(ethnicity), ref = "WBI")IND                          -7.672
+   ## relevel(factor(ethnicity), ref = "WBI")MIX                          -7.364
+   ## relevel(factor(ethnicity), ref = "WBI")OAS                         -10.957
+   ## relevel(factor(ethnicity), ref = "WBI")OBL                          -2.904
+   ## relevel(factor(ethnicity), ref = "WBI")OTH                          -4.809
+   ## relevel(factor(ethnicity), ref = "WBI")PAK                         -15.415
+   ## relevel(factor(ethnicity), ref = "WBI")WHO                          -5.139
+   ## factor(region)East of England                                        2.832
+   ## factor(region)London                                                 5.565
+   ## factor(region)North East                                            -3.691
+   ## factor(region)North West                                             1.231
+   ## factor(region)Northern Ireland                                       2.434
+   ## factor(region)Scotland                                               2.697
+   ## factor(region)South East                                             6.679
+   ## factor(region)South West                                             0.839
+   ## factor(region)Wales                                                 -0.960
+   ## factor(region)West Midlands                                          2.608
+   ## factor(region)Yorkshire and The Humber                              -1.717
+   ## relevel(factor(education_state), ref = "1")0                        -3.402
+   ## relevel(factor(education_state), ref = "1")2                         3.323
+   ## relevel(factor(education_state), ref = "1")3                         7.494
+   ## relevel(factor(education_state), ref = "1")5                         7.861
+   ## relevel(factor(education_state), ref = "1")6                        15.334
+   ## relevel(factor(education_state), ref = "1")7                        18.480
+   ## relevel(factor(job_sec), ref = "3")0                                -9.798
+   ## relevel(factor(job_sec), ref = "3")1                                 9.045
+   ## relevel(factor(job_sec), ref = "3")2                                 9.611
+   ## relevel(factor(job_sec), ref = "3")4                                -6.558
+   ## relevel(factor(job_sec), ref = "3")5                               -11.436
+   ## relevel(factor(job_sec), ref = "3")6                                -6.562
+   ## relevel(factor(job_sec), ref = "3")7                               -13.254
+   ## relevel(factor(job_sec), ref = "3")8                               -11.343
+   ## scale(SF_12)                                                        13.083
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")PT Employed   -12.890
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")Job Seeking   -18.415
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")FT Education  -11.969
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")Family Care   -19.972
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")Not Working   -24.215
    ##                                                                   Pr(>|z|)    
    ## (Intercept)                                                        < 2e-16 ***
    ## scale(hh_income)                                                   < 2e-16 ***
    ## scale(age)                                                         < 2e-16 ***
-   ## I(scale(age)^2)                                                   3.34e-14 ***
+   ## I(scale(age)^2)                                                   8.98e-15 ***
    ## I(scale(age)^3)                                                    < 2e-16 ***
-   ## factor(sex)Male                                                   0.067063 .  
+   ## factor(sex)Male                                                   0.058881 .  
    ## relevel(factor(ethnicity), ref = "WBI")BAN                         < 2e-16 ***
    ## relevel(factor(ethnicity), ref = "WBI")BLA                         < 2e-16 ***
    ## relevel(factor(ethnicity), ref = "WBI")BLC                         < 2e-16 ***
-   ## relevel(factor(ethnicity), ref = "WBI")CHI                        0.180354    
-   ## relevel(factor(ethnicity), ref = "WBI")IND                        3.67e-14 ***
-   ## relevel(factor(ethnicity), ref = "WBI")MIX                        1.77e-12 ***
+   ## relevel(factor(ethnicity), ref = "WBI")CHI                        0.105964    
+   ## relevel(factor(ethnicity), ref = "WBI")IND                        1.69e-14 ***
+   ## relevel(factor(ethnicity), ref = "WBI")MIX                        1.78e-13 ***
    ## relevel(factor(ethnicity), ref = "WBI")OAS                         < 2e-16 ***
-   ## relevel(factor(ethnicity), ref = "WBI")OBL                        0.006296 ** 
-   ## relevel(factor(ethnicity), ref = "WBI")OTH                        2.54e-06 ***
+   ## relevel(factor(ethnicity), ref = "WBI")OBL                        0.003681 ** 
+   ## relevel(factor(ethnicity), ref = "WBI")OTH                        1.51e-06 ***
    ## relevel(factor(ethnicity), ref = "WBI")PAK                         < 2e-16 ***
-   ## relevel(factor(ethnicity), ref = "WBI")WHO                        2.18e-07 ***
-   ## factor(region)East of England                                     0.005593 ** 
-   ## factor(region)London                                              5.28e-08 ***
-   ## factor(region)North East                                          0.000180 ***
-   ## factor(region)North West                                          0.310841    
-   ## factor(region)Northern Ireland                                    0.014732 *  
-   ## factor(region)Scotland                                            0.007575 ** 
-   ## factor(region)South East                                          3.20e-11 ***
-   ## factor(region)South West                                          0.395824    
-   ## factor(region)Wales                                               0.255270    
-   ## factor(region)West Midlands                                       0.012795 *  
-   ## factor(region)Yorkshire and The Humber                            0.082357 .  
-   ## relevel(factor(education_state), ref = "1")0                      0.000672 ***
-   ## relevel(factor(education_state), ref = "1")2                      0.000738 ***
-   ## relevel(factor(education_state), ref = "1")3                      7.83e-14 ***
-   ## relevel(factor(education_state), ref = "1")5                      2.32e-15 ***
+   ## relevel(factor(ethnicity), ref = "WBI")WHO                        2.76e-07 ***
+   ## factor(region)East of England                                     0.004622 ** 
+   ## factor(region)London                                              2.63e-08 ***
+   ## factor(region)North East                                          0.000223 ***
+   ## factor(region)North West                                          0.218351    
+   ## factor(region)Northern Ireland                                    0.014919 *  
+   ## factor(region)Scotland                                            0.006993 ** 
+   ## factor(region)South East                                          2.41e-11 ***
+   ## factor(region)South West                                          0.401696    
+   ## factor(region)Wales                                               0.337018    
+   ## factor(region)West Midlands                                       0.009096 ** 
+   ## factor(region)Yorkshire and The Humber                            0.086005 .  
+   ## relevel(factor(education_state), ref = "1")0                      0.000670 ***
+   ## relevel(factor(education_state), ref = "1")2                      0.000892 ***
+   ## relevel(factor(education_state), ref = "1")3                      6.67e-14 ***
+   ## relevel(factor(education_state), ref = "1")5                      3.80e-15 ***
    ## relevel(factor(education_state), ref = "1")6                       < 2e-16 ***
    ## relevel(factor(education_state), ref = "1")7                       < 2e-16 ***
    ## relevel(factor(job_sec), ref = "3")0                               < 2e-16 ***
    ## relevel(factor(job_sec), ref = "3")1                               < 2e-16 ***
    ## relevel(factor(job_sec), ref = "3")2                               < 2e-16 ***
-   ## relevel(factor(job_sec), ref = "3")4                              1.18e-10 ***
+   ## relevel(factor(job_sec), ref = "3")4                              5.47e-11 ***
    ## relevel(factor(job_sec), ref = "3")5                               < 2e-16 ***
-   ## relevel(factor(job_sec), ref = "3")6                              4.22e-10 ***
+   ## relevel(factor(job_sec), ref = "3")6                              5.30e-11 ***
    ## relevel(factor(job_sec), ref = "3")7                               < 2e-16 ***
    ## relevel(factor(job_sec), ref = "3")8                               < 2e-16 ***
    ## scale(SF_12)                                                       < 2e-16 ***
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")Family Care   < 2e-16 ***
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")FT Education  < 2e-16 ***
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")Job Seeking   < 2e-16 ***
-   ## relevel(factor(S7_labour_state), ref = "FT Employed")Not Working   < 2e-16 ***
    ## relevel(factor(S7_labour_state), ref = "FT Employed")PT Employed   < 2e-16 ***
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")Job Seeking   < 2e-16 ***
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")FT Education  < 2e-16 ***
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")Family Care   < 2e-16 ***
+   ## relevel(factor(S7_labour_state), ref = "FT Employed")Not Working   < 2e-16 ***
    ## ---
    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -327,19 +327,37 @@ Validation
 
    handover_boxplots(raw.dat, base.dat, v)
 
-.. figure:: ./figure/hh_income_validation-1.png
-   :alt: plot of chunk hh_income_validation
+.. figure:: ./figure/hh_income_handovers-1.png
+   :alt: plot of chunk hh_income_handovers
 
-   plot of chunk hh_income_validation
+   plot of chunk hh_income_handovers
 
 .. code:: r
 
    handover_lineplots(raw.dat, base.dat, v)
 
-.. figure:: ./figure/hh_income_validation-2.png
-   :alt: plot of chunk hh_income_validation
+.. figure:: ./figure/hh_income_handovers-2.png
+   :alt: plot of chunk hh_income_handovers
 
-   plot of chunk hh_income_validation
+   plot of chunk hh_income_handovers
+
+.. code:: r
+
+   multi_year_boxplots(raw, cv, 'hh_income')
+
+.. figure:: ./figure/hh_income_cv-1.png
+   :alt: plot of chunk hh_income_cv
+
+   plot of chunk hh_income_cv
+
+.. code:: r
+
+   q_q_comparison(raw, cv, 'hh_income')
+
+.. figure:: ./figure/hh_income_cv-2.png
+   :alt: plot of chunk hh_income_cv
+
+   plot of chunk hh_income_cv
 
 Results
 ~~~~~~~
