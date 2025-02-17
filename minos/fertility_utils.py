@@ -340,6 +340,7 @@ def plot_gb_data(data_by_area, col_to_plot=None, boundaries_file=None, outfile=N
     boundaries = gpd.read_file(boundaries_file).to_crs(epsg=4326)
 
     # Filter for GB (i.e. exclude NI) and merge with data
+    boundries = boundaries.loc[boundaries['LAD22CD'].str[0].isin(('E', 'S', 'W'))]
     if col_to_plot is None:
         col_to_plot = 'random_number'  # Create random variable for testing
         boundaries[col_to_plot] = random.sample(range(1, 2 * len(boundaries)), len(boundaries))
