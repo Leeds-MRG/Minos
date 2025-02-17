@@ -20,14 +20,14 @@ from os.path import dirname as up
 from minos.utils import get_nearest
 
 
-LAD_to_region_code = load_json(os.path.join(up(up(up(__file__))), "persistent_data/JSON/"), "LAD_to_region_code.json")
-LAD_to_region_name = load_json(os.path.join(up(up(up(__file__))), "persistent_data/JSON/"), "LAD_to_region_name.json")
-
 PERSISTENT_DATA_DIR = os.path.join(up(up(up(__file__))), "persistent_data/")
 FERT_DIR_DEFAULT = os.path.join(PERSISTENT_DATA_DIR, "Fertility")
 FERT_STUBS = ["Fertility", "_LEEDS1_2.csv"]
 MORT_DIR_DEFAULT = os.path.join(PERSISTENT_DATA_DIR, "Mortality")
 MORT_STUBS = ["Mortality", "_LEEDS1_2.csv"]
+
+LAD_to_region_code = load_json(os.path.join(PERSISTENT_DATA_DIR, 'JSON/'), "LAD_to_region_code.json")
+LAD_to_region_name = load_json(os.path.join(PERSISTENT_DATA_DIR, 'JSON/'), "LAD_to_region_name.json")
 
 YEAR_RANGE_DEFAULT = None
 VARS_TO_GROUP_DEFAULT = ("REGION.name", "ETH.group")  # Must be tuple, not list! Mutable default argument problem!
