@@ -4,15 +4,19 @@
 import os
 from os.path import dirname as up
 import pandas as pd
+import geopandas as gpd
 import yaml
 import matplotlib.pyplot as plt
-import utils
+from minos import utils
+import random
 
 CURR_DIR = up(__file__)
 PERSISTENT_PATH = os.path.join(up(CURR_DIR), 'persistent_data')
 FERT_REF_PATH = os.path.join(PERSISTENT_PATH, 'fertility_reference')
 OUTPUT_DEFAULT = os.path.join(up(CURR_DIR), 'output')
 METRICS_FILE = 'metrics.csv'
+LA_BOUNDARIES_FILES = {2022: 'Local_Authority_Districts_December_2022_UK_BFE_V2_-6894743385278129679.geojson',
+                       }
 
 # COLUMNS_TO_READ = ['alive', 'ethnicity', 'pidp', 'time', 'age', 'sex',
 #                    'nnewborn', 'nnewborn_hh', 'nkids_ind', 'nkids', 'nresp', 'child_ages',
@@ -323,21 +327,51 @@ def plot_metrics(data,
     fig.savefig(fig_full, bbox_inches='tight')
 
 
+# HR 17/02/25 Basic plotter for fertility data using LA boundaries
+def plot_gb_data(data_by_area, col_to_plot=None, boundaries_file=None, outfile=None, outformat='pdf', _save=True):
+
+    if boundaries_file is None:
+        boundaries_file = os.path.join(PERSISTENT_PATH, 'spatial_data', LA_BOUNDARIES_FILES[2022])
+
+    if outfile is None:
+        outfile = os.path.join(OUTPUT_DEFAULT, 'fertility_by_area.' + outformat)
+
+    # Convert to WSG 84/EPSG4326, else breaks plotting
+    boundaries = gpd.read_file(boundaries_file).to_crs(epsg=4326)
+
+    # Filter for GB (i.e. exclude NI) and merge with data
+    if col_to_plot is None:
+        col_to_plot = 'random_number'  # Create random variable for testing
+        boundaries[col_to_plot] = random.sample(range(1, 2 * len(boundaries)), len(boundaries))
+
+    merged = boundaries.merge(data_by_area, right_index=True, left_on='LAD22CD')
+
+    # Plot and save
+    merged.plot(column=col_to_plot, edgecolor='black', legend=True, linewidth=0.1)
+    plt.tight_layout()
+    plt.axis('off')
+
+    if _save:
+        # Dump to file
+        print('Saving to {}'.format(outfile))
+        plt.savefig(outfile, bbox_inches='tight', pad_inches=0.01)
+
+
 if __name__ == '__main__':
 
-    ref_data = get_fertility_reference_data()
-
-    ''' Plot up mort and fert metrics with and without synthpop and parity '''
-    m1 = get_metrics_post(parity=False, synthpop=False)
-    m2 = get_metrics_post(parity=True, synthpop=False)
-    m3 = get_metrics_post(parity=False, synthpop=True)
-    m4 = get_metrics_post(parity=True, synthpop=True)
-
-    data = [m1, m2, m3, m4]
-
-    plot_metrics(data=data,
-                 ref_data=ref_data,
-                 outfile='metrics_all.jpg')
+    # ref_data = get_fertility_reference_data()
+    #
+    # ''' Plot up mort and fert metrics with and without synthpop and parity '''
+    # m1 = get_metrics_post(parity=False, synthpop=False)
+    # m2 = get_metrics_post(parity=True, synthpop=False)
+    # m3 = get_metrics_post(parity=False, synthpop=True)
+    # m4 = get_metrics_post(parity=True, synthpop=True)
+    #
+    # data = [m1, m2, m3, m4]
+    #
+    # plot_metrics(data=data,
+    #              ref_data=ref_data,
+    #              outfile='metrics_all.jpg')
 
     # ''' Get latest data '''
     # d1 = get_latest_data(parity=False, synthpop=False)
@@ -393,3 +427,13 @@ if __name__ == '__main__':
     #
     #
     # # By parity
+
+
+    # HR 17/02/25 Get some synthpop fertility data and plot up
+    y = 2025
+    data = get_latest_data_by_year(year=y, synthpop=True, parity=False)
+    spatial = utils.add_spatial_attributes(data)  # Add wards, LAs and regions
+    fert_data_by_la = data.groupby('LAD22CD').apply(lambda x: get_metrics(x, y)).to_frame()[0].apply(pd.Series)  # Get mort/fert data by LA
+    # fert_data_by_region = data.groupby('RGN22CD').apply(lambda x: get_metrics(x, y)).to_frame()[0].apply(pd.Series)  # Get mort/fert data by region
+
+    plot_gb_data(data_by_area=fert_data_by_la, col_to_plot='gfr')
