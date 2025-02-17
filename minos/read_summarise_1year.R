@@ -332,6 +332,98 @@ UC_men_illness_risk_families_summarise <- function(data) {
     mutate(prop = count / sum(count))
 }
 
+UC_MIR_families_sex_summarise <- function(data) {
+  data <- data %>%
+    filter(weight > 0,
+           universal_credit == 1,
+           nkids > 0) %>%
+    mutate(mental_health_risk = (SF_12 < 45.6)) %>%  # IS THIS VALUE CORRECT??
+    group_by(run_id, mental_health_risk, sex) %>%
+    summarise(count = n()) %>%
+    ungroup() %>%
+    group_by(run_id) %>%
+    mutate(prop = count / sum(count))
+}
+
+UC_MIR_families_lone_parent_summarise <- function(data) {
+  data <- data %>%
+    group_by(hidp, run_id) %>%
+    mutate(
+      num_adults = n(),  # Calculate the total number of individuals in the household
+      lone_parent = ifelse(num_adults == 1 & nkids > 0, 1, 0) # Lone parent flag
+    ) %>%
+    ungroup()
+  
+  data <- data %>%
+    filter(weight > 0,
+           universal_credit == 1,
+           nkids > 0) %>%
+    mutate(mental_health_risk = (SF_12 < 45.6)) %>%  # IS THIS VALUE CORRECT??
+    group_by(run_id, mental_health_risk, lone_parent) %>%
+    summarise(count = n()) %>%
+    ungroup() %>%
+    group_by(run_id) %>%
+    mutate(prop = count / sum(count))
+}
+
+UC_MIR_families_ethnicity_summarise <- function(data) {
+  data <- data %>%
+    filter(weight > 0,
+           universal_credit == 1,
+           nkids > 0) %>%
+    mutate(ethnic_minority = (ethnicity != 'WBI')) %>%
+    mutate(mental_health_risk = (SF_12 < 45.6)) %>%  # IS THIS VALUE CORRECT??
+    group_by(run_id, mental_health_risk, ethnic_minority) %>%
+    summarise(count = n()) %>%
+    ungroup() %>%
+    group_by(run_id) %>%
+    mutate(prop = count / sum(count))
+}
+
+UC_MIR_families_three_plus_children_summarise <- function(data) {
+  data <- data %>%
+    filter(weight > 0,
+           universal_credit == 1,
+           nkids > 0) %>%
+    mutate(three_plus_children = nkids_ind >= 3) %>%
+    mutate(mental_health_risk = (SF_12 < 45.6)) %>%  # IS THIS VALUE CORRECT??
+    group_by(run_id, mental_health_risk, tpc_flag) %>%
+    summarise(count = n()) %>%
+    ungroup() %>%
+    group_by(run_id) %>%
+    mutate(prop = count / sum(count))
+}
+
+UC_MIR_families_mother_under_25_summarise <- function(data) {
+  data <- data %>%
+    filter(weight > 0,
+           universal_credit == 1,
+           nkids > 0) %>%
+    mutate(mother_under_25 = (age < 25) & (nkids_ind > 0)) %>%
+    mutate(mental_health_risk = (SF_12 < 45.6)) %>%  # IS THIS VALUE CORRECT??
+    group_by(run_id, mental_health_risk, mother_under_25) %>%
+    summarise(count = n()) %>%
+    ungroup() %>%
+    group_by(run_id) %>%
+    mutate(prop = count / sum(count))
+}
+
+UC_MIR_families_disabled_family_summarise <- function(data) {
+  data <- data %>%
+    filter(weight > 0,
+           universal_credit == 1,
+           nkids > 0) %>%
+    group_by(hidp, run_id) %>%
+    mutate(disabled_family = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)) %>%
+    ungroup() %>%
+    mutate(mental_health_risk = (SF_12 < 45.6)) %>%  # IS THIS VALUE CORRECT??
+    group_by(run_id, mental_health_risk, disabled_family) %>%
+    summarise(count = n()) %>%
+    ungroup() %>%
+    group_by(run_id) %>%
+    mutate(prop = count / sum(count))
+}
+
 UC_men_illness_risk_higher_summarise <- function(data) {
   data <- data %>%
     filter(weight > 0,
@@ -604,9 +696,35 @@ priority_summarise_ethnicity <- function(data) {
   return(data)
 }
 
+priority_summarise_ethnicity_UC <- function(data) {
+  data <- data %>%
+    filter(ethnicity != 'WBI') %>%
+    filter(universal_credit == 1) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  #TODO: Add number households affected by interventions and other stats
+  return(data)
+}
+
 priority_summarise_child_under_one <- function(data) {
   data <- data %>%
     filter(substr(child_ages, 1, 1) == 0) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  #TODO: Add number households affected by interventions and other stats
+  return(data)
+}
+
+priority_summarise_child_under_one_UC <- function(data) {
+  data <- data %>%
+    filter(substr(child_ages, 1, 1) == 0) %>%
+    filter(universal_credit == 1) %>%
     summarise(count = n(),
               hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
@@ -628,9 +746,35 @@ priority_summarise_three_plus_children <- function(data) {
   return(data)
 }
 
+priority_summarise_three_plus_children_UC <- function(data) {
+  data <- data %>%
+    filter(nkids >= 3) %>%
+    filter(universal_credit == 1) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  #TODO: Add number households affected by interventions and other stats
+  return(data)
+}
+
 priority_summarise_mother_under_25 <- function(data) {
   data <- data %>%
     filter((age < 25) & (nkids_ind > 0)) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  #TODO: Add number households affected by interventions and other stats
+  return(data)
+}
+
+priority_summarise_mother_under_25_UC <- function(data) {
+  data <- data %>%
+    filter((age < 25) & (nkids_ind > 0)) %>%
+    filter(universal_credit == 1) %>%
     summarise(count = n(),
               hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
@@ -645,6 +789,21 @@ priority_summarise_disabled <- function(data) {
     group_by(hidp, run_id) %>%
     mutate(disabled_flag = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)) %>%
     filter(disabled_flag == TRUE) %>%
+    summarise(count = n(),
+              hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
+              SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
+              total_cost = sum(boost_amount),
+              mean_cost = mean(boost_amount))
+  #TODO: Add number households affected by interventions and other stats
+  return(data)
+}
+
+priority_summarise_disabled_UC <- function(data) {
+  data <- data %>%
+    group_by(hidp, run_id) %>%
+    mutate(disabled_flag = ifelse(any(S7_labour_state == 'disabled'), TRUE, FALSE)) %>%
+    filter(disabled_flag == TRUE) %>%
+    filter(universal_credit == 1) %>%
     summarise(count = n(),
               hh_income = weighted.mean(hh_income, w=weight, na.rm=TRUE),
               SF_12 = weighted.mean(SF_12, w=weight, na.rm=TRUE),
@@ -882,34 +1041,52 @@ scen.path <- here::here(out.path, scen)
 scen.path <- get_latest_runtime_subdirectory(scen.path)
 
 # Create named list of summary functions to go through
-summary_funcs <- c(UC_kids = UC_kids_summarise)
-# summary_funcs <- c(whole_pop = whole_pop_summarise,
-#                    whole_pop_income_quint = whole_pop_income_quint_summarise,
-#                    families = families_summarise,
-#                    families_income_quint = families_income_quint_summarise,
-#                    UC = UC_summarise,
-#                    UC_rel_pov = UC_rel_pov_summarise,
-#                    UC_init_rel_pov = UC_init_rel_pov_summarise,
-#                    UC_kids_rel_pov = UC_kids_rel_pov_summarise,
-#                    UC_kids_init_rel_pov = UC_kids_init_rel_pov_summarise,
-#                    UC_abs_pov = UC_abs_pov_summarise,
-#                    UC_init_abs_pov = UC_init_abs_pov_summarise,
-#                    UC_kids_abs_pov = UC_kids_abs_pov_summarise,
-#                    UC_kids_init_abs_pov = UC_kids_init_abs_pov_summarise,
-#                    UC_gender = UC_gender_summarise,
-#                    priority_any = priority_any_summarise,
-#                    men_illness_risk = men_illness_risk_summarise,
-#                    men_illness_risk_families = men_illness_risk_families_summarise,
-#                    UC_men_illness_risk = UC_men_illness_risk_summarise,
-#                    UC_families_men_illness_risk = UC_men_illness_risk_families_summarise,
-#                    UC_men_illness_risk_lower = UC_men_illness_risk_lower_summarise,
-#                    UC_families_men_illness_risk_lower = UC_men_illness_risk_lower_families_summarise,
-#                    UC_men_illness_risk_higher = UC_men_illness_risk_higher_summarise,
-#                    UC_families_men_illness_risk_higher = UC_men_illness_risk_higher_families_summarise,
-#                    priority_lone_parent = priority_lone_parent_summarise,
-#                    priority_lone_parent_UC = priority_lone_parent_UC_summarise
-# )
+summary_funcs <- c(UC = UC_summarise,
+                   UC_kids_rel_pov = UC_kids_rel_pov_summarise,
+                   UC_kids_init_rel_pov = UC_kids_init_rel_pov_summarise,
+                   UC_kids_abs_pov = UC_kids_abs_pov_summarise,
+                   UC_gender = UC_gender_summarise,
+                   UC_families_men_illness_risk = UC_men_illness_risk_families_summarise,
+                   UC_families_men_illness_risk_lower = UC_men_illness_risk_lower_families_summarise,
+                   UC_families_men_illness_risk_higher = UC_men_illness_risk_higher_families_summarise,
+                   priority_lone_parent = priority_lone_parent_summarise,
+                   priority_lone_parent_UC = priority_lone_parent_UC_summarise,
+                   priority_mother_under_25 = priority_summarise_mother_under_25,
+                   priority_mother_under_25_UC = priority_summarise_mother_under_25_UC,
+                   priority_ethnicity = priority_summarise_ethnicity,
+                   priority_ethnicity_UC = priority_summarise_ethnicity_UC,
+                   priority_child_under_one = priority_summarise_child_under_one,
+                   priority_child_under_one_UC = priority_summarise_child_under_one_UC,
+                   priority_mother_under_25 = priority_summarise_mother_under_25,
+                   priority_mother_under_25_UC = priority_summarise_mother_under_25_UC,
+                   priority_disabled = priority_summarise_disabled,
+                   priority_disabled_UC = priority_summarise_disabled_UC,
+                   UC_MIR_families_sex = UC_MIR_families_sex_summarise,
+                   UC_MIR_families_lone_parent = UC_MIR_families_lone_parent_summarise,
+                   UC_MIR_families_ethnicity = UC_MIR_families_ethnicity_summarise,
+                   UC_MIR_families_three_plus_children = UC_MIR_families_three_plus_children_summarise,
+                   UC_MIR_families_mother_under_25 = UC_MIR_families_mother_under_25_summarise,
+                   UC_MIR_families_disabled_family = UC_MIR_families_disabled_family_summarise,
+)
 
+
+#UC_kids = UC_kids_summarise
+#whole_pop = whole_pop_summarise,
+#whole_pop_income_quint = whole_pop_income_quint_summarise,
+#families = families_summarise,
+#families_income_quint = families_income_quint_summarise,
+#UC_rel_pov = UC_rel_pov_summarise,
+#UC_init_rel_pov = UC_init_rel_pov_summarise,
+#UC_abs_pov = UC_abs_pov_summarise,
+#UC_init_abs_pov = UC_init_abs_pov_summarise,
+#UC_kids_init_abs_pov = UC_kids_init_abs_pov_summarise,
+#priority_any = priority_any_summarise,
+#men_illness_risk = men_illness_risk_summarise,
+#men_illness_risk_families = men_illness_risk_families_summarise,
+#UC_men_illness_risk = UC_men_illness_risk_summarise,
+#UC_men_illness_risk_lower = UC_men_illness_risk_lower_summarise,
+#UC_men_illness_risk_higher = UC_men_illness_risk_higher_summarise,
+#priority_lone_parent = priority_lone_parent_summarise,
 
 # whole_pop = whole_pop_summarise,
 # whole_pop_income_quint = whole_pop_income_quint_summarise,
