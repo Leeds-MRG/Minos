@@ -21,7 +21,7 @@ import os
 from uuid import uuid4
 from rpy2.robjects.packages import importr
 
-import US_utils
+import minos.data_generation.US_utils as US_utils
 from minos.modules import r_utils
 
 
@@ -250,7 +250,7 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         source_year = 2020
 
 
-    # first collect and load the datafile for 2018
+    # first collect and load the datafile for source_year
     file_name = f"data/{data_source}/{source_year}_US_cohort.csv"
     data = pd.read_csv(file_name)
 
