@@ -18,7 +18,8 @@ main <- function(n_imputations, iterations_per_imputation){
   start.data <- read_all_UKHLS_waves(here::here("data/"), "composite_US") 
   start.data <- start.data[which(start.data$time>=2018),]
   
-  mice_columns <- c("age", 
+  mice_columns <- c('auditc',
+                    "age",
                     "region", 
                     "job_sec", 
                     "ncigs",
@@ -55,7 +56,6 @@ main <- function(n_imputations, iterations_per_imputation){
                     "job_sector",
                     "marital_status",
                     'hourly_wage',
-                    'auditc',
                     'active',
                     'SF_12_PCS',
                     'yearly_gas', 
@@ -63,7 +63,7 @@ main <- function(n_imputations, iterations_per_imputation){
                     'yearly_gas_electric',
                     'yearly_oil', 
                     'yearly_other_fuel',
-                    'smoker',#,
+                    'smoker',
                     "number_of_bedrooms",
                     "number_of_rooms"
                     #'has_gas', 
@@ -74,6 +74,7 @@ main <- function(n_imputations, iterations_per_imputation){
   )
   
   start.data$clinical_depression <- as.factor(start.data$clinical_depression)  
+  start.data$auditc <- as.factor(start.data$auditc)  
   start.data$S7_labour_state <- as.factor(start.data$S7_labour_state)  
   start.data$marital_status <- as.factor(start.data$marital_status)  
   
