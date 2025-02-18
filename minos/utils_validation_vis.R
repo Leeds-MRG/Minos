@@ -777,39 +777,39 @@ cv_ordinal_plots <- function(pivoted.df, var, save=FALSE, save.path) {
   
   df <- df %>% filter(.data[[var]] != -9)
   
-  p1 <- ggplot(data = df, aes(x = time, y = n, group = interaction(scenario, .data[[var]]), color = .data[[var]], linetype = scenario)) +
-    geom_line() + 
-    geom_point() +
-    labs(title = paste0('Cross-Validation: ', var), subtitle = 'Count') +
-    xlab('Year') +
-    ylab('Count')
-  
-  print(p1)
-  
-  if(save) {
-    if(is.null(save.path)) {
-      stop('ERROR: save.path must be defined when saving the plot')
-    }
-    save.filename <- paste0('cv_', var, '_count.png')
-    ggsave(filename = save.filename,
-           plot = p1,
-           path = save.path,
-           width = 9,
-           height = 5)
-  }
-  
-  # df <- df %>%
-  #   group_by(time, scenario) %>%
-  #   mutate(prop = n / sum(n))
-  # 
-  # p2 <- ggplot(data = df, aes(x = time, y = prop, group = interaction(scenario, .data[[var]]), color = .data[[var]], linetype = scenario)) +
+  # p1 <- ggplot(data = df, aes(x = time, y = n, group = interaction(scenario, .data[[var]]), color = .data[[var]], linetype = scenario)) +
   #   geom_line() + 
   #   geom_point() +
-  #   labs(title = paste0('Cross-Validation: ', var), subtitle = 'Proportion') +
+  #   labs(title = paste0('Cross-Validation: ', var), subtitle = 'Count') +
   #   xlab('Year') +
-  #   ylab('Proportion')
+  #   ylab('Count')
   # 
-  # print(p2)
+  # print(p1)
+  # 
+  # if(save) {
+  #   if(is.null(save.path)) {
+  #     stop('ERROR: save.path must be defined when saving the plot')
+  #   }
+  #   save.filename <- paste0('cv_', var, '_count.png')
+  #   ggsave(filename = save.filename,
+  #          plot = p1,
+  #          path = save.path,
+  #          width = 9,
+  #          height = 5)
+  # }
+  
+  df <- df %>%
+    group_by(time, scenario) %>%
+    mutate(prop = n / sum(n))
+
+  p2 <- ggplot(data = df, aes(x = time, y = prop, group = interaction(scenario, .data[[var]]), color = .data[[var]], linetype = scenario)) +
+    geom_line() +
+    geom_point() +
+    labs(title = paste0('Cross-Validation: ', var), subtitle = 'Proportion') +
+    xlab('Year') +
+    ylab('Proportion')
+
+  print(p2)
   # 
   # if(save) {
   #   if(is.null(save.path)) {
