@@ -90,7 +90,7 @@ class Alcohol(Base):
 
         ## Predict next alcohol value
         alcohol_prob_df = self.calculate_alcohol(pop)
-
+        alcohol_prob_df.columns = ['Non-drinker', 'Low Risk', 'Increased Risk', 'High Risk']
         #print(np.sum(pop.isna()))
         alcohol_prob_df["auditc"] = self.random.choice(alcohol_prob_df.index,
                                                        list(alcohol_prob_df.columns),

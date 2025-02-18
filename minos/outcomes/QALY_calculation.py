@@ -14,7 +14,7 @@ import yaml
 from multiprocessing import Pool
 from itertools import repeat
 import glob as glob
-from aggregate_subset_functions import dynamic_subset_function
+from minos.outcomes.aggregate_subset_functions import dynamic_subset_function
 
 import minos.utils as utils
 import seaborn as sns
