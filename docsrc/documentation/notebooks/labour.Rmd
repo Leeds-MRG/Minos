@@ -17,7 +17,9 @@ preds <- stats::predict(model, data, type='class')
 v <- "S7_labour_state"
 ```
 
-## Labour
+# Labour
+
+## Introduction
 
 Labour state is a measure of what an individual does. There are 8 distinctive categories including employment, unemployment, and retired. 
 The encodings of these states can be found [here]](https://leeds-mrg.github.io/Minos/documentation/data_tables.html).
@@ -27,13 +29,13 @@ discrete_barplot(obs)
 discrete_barplot2(obs, preds, "S7_labour_state")
 ```
 
-### Methods
+## Methods
 
 Labour state is a complex categorical data type. Single layer neural network is a simple way to estimate this state. Use multinom function from R's nnet package. Formula for weights included given as.
 
 $$labour\_state\_next = sex + ethnicity + age + education\_state + SF\_12 + housing\_quality + labour\_state + job\_sec + hh\_income + alcohol\_spending$$
   
-### Data
+## Data
   
 Variables used in this model. Encodings for discrete variables found in data tables.
 
@@ -48,7 +50,7 @@ Variables used in this model. Encodings for discrete variables found in data tab
 - household income. Monthly disposable income of individuals household. XXXX cite.
 - alcohol spending. How much is spent on alcohol. XXXX cite. remove.
 
-### Results
+## Results
   
   - hard to determine goodness of fit. 
   - use confusion matrix to estimate quality of fit. 
@@ -62,4 +64,4 @@ nnet_confusion_matrix(obs, preds, mode='multinom', 'S7_labour_state') # Note thi
 ```
 
 
-### References
+## References

@@ -9,8 +9,10 @@ import US_utils
 import US_missing_description
 from multiprocessing import Pool, cpu_count
 from functools import partial
-from itertools import repeat
 from scipy import interpolate
+from itertools import repeat
+
+pd.options.mode.chained_assignment = None  # default='warn'
 
 
 def applyParallelLOCF(dfGrouped, func, columns):
@@ -47,7 +49,7 @@ def ffill_groupby(pid_groupby, f_columns):
     pid_groupby : Object with forward filled variables.
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill"))
-    return pid_groupby[f_columns].infer_objects().ffill()
+    return pid_groupby[f_columns].ffill()
 
 
 def bfill_groupby(pid_groupby, b_columns):
@@ -63,7 +65,7 @@ def bfill_groupby(pid_groupby, b_columns):
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
-    return pid_groupby[b_columns].infer_objects().bfill()
+    return pid_groupby[b_columns].bfill()
 
 
 def fbfill_groupby(pid_groupby, fb_columns):
@@ -77,7 +79,7 @@ def fbfill_groupby(pid_groupby, fb_columns):
     pid_groupby : Object with forward-back filled variables.
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
-    return pid_groupby[fb_columns].infer_objects().ffill().bfill()
+    return pid_groupby[fb_columns].ffill().bfill()
 
 
 def mffill_groupby(pid_groupby, mf_columns):
@@ -250,7 +252,6 @@ def locf(data, f_columns=None, b_columns=None, fb_columns=None, mf_columns=None)
     data = data.reset_index(drop=True) # groupby messes with the index. make them unique again.
     return data
 
-
 def main(data, save=False):
 
     US_missing_description.missingness_table(data)
@@ -260,26 +261,43 @@ def main(data, save=False):
     #             "job_industry", "job_sec", "heating"]  # add more variables here.
     # define columns to be forward filled, back filled, and linearly interpolated.
     # note columns can be forward and back filled for immutables like ethnicity.
-    f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating',
-                 'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
-                 'nkids_ind_raw', 'region',  # 'ncigs', 'ndrinks']
+
+#     f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating',
+#                  'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
+#                  'nkids_ind_raw', 'region',  # 'ncigs', 'ndrinks']
+#                  'loneliness',
+#                  'burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse', 'teenagers', 'vandalism',  # nh_safety
+#                  'fruit_days', 'fruit_per_day', 'veg_days', 'veg_per_day']
+#     fb_columns = ["sex", "ethnicity", "birth_year", 'pidp', 'nkids_ind_raw', 'nresp']  # or here if they're immutable.
+#     mf_columns = ['education_state', 'nkids_ind_raw', 'pidp']
+
+    f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'ethnicity', 'sex', 'birth_year',
+                 'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',  # 'ncigs', 'ndrinks']
+                 'nkids_ind_raw', 'region',
                  'loneliness',
                  'burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse', 'teenagers', 'vandalism',  # nh_safety
                  'fruit_days', 'fruit_per_day', 'veg_days', 'veg_per_day']
     fb_columns = ["sex", "ethnicity", "birth_year", 'pidp', 'nkids_ind_raw', 'nresp']  # or here if they're immutable.
     mf_columns = ['education_state', 'nkids_ind_raw', 'pidp']
     li_columns = ["age"]
-    data = locf(data, f_columns=f_columns, fb_columns=fb_columns, mf_columns=mf_columns)
+
+    # replace missing types in all columns to be imputed with NA. put them back alter to preserve missing data types.
+    all_imputed_columns = list(set(f_columns + fb_columns + mf_columns + li_columns))
+    imputed_data = data.copy()
+    imputed_data[all_imputed_columns] = imputed_data[all_imputed_columns].replace(US_utils.missing_types, np.nan)
+
+    imputed_data = locf(imputed_data, f_columns=f_columns, fb_columns=fb_columns, mf_columns=mf_columns)
     print("After LOCF correction.")
-    US_missing_description.missingness_table(data)
-    data = interpolate(data, li_columns)
+    imputed_data = interpolate(imputed_data, li_columns)
+    US_missing_description.missingness_table(imputed_data)
     print("After interpolation of linear variables.")
-    US_missing_description.missingness_table(data)
+    # put back any values in imputed columns that are still missing.
+    imputed_data.fillna(data, inplace=True)
+    US_missing_description.missingness_table(imputed_data)
 
     if save:
-        US_utils.save_multiple_files(data, years, 'data/locf_US/', "")
-    return data
-
+        US_utils.save_multiple_files(imputed_data, years, 'data/locf_US/', "")
+    return imputed_data
 
 if __name__ == "__main__":
     # Load in data.
@@ -287,6 +305,6 @@ if __name__ == "__main__":
     years = np.arange(2009, maxyr)
     # Process data by year and pidp.
     # perform LOCF using lambda forward fill functions.
-    file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
+    file_names = [f"data/deterministic_US/{item}_US_cohort.csv" for item in years]
     data = US_utils.load_multiple_data(file_names)
     data = main(data)

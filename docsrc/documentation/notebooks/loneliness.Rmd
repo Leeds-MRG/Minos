@@ -5,7 +5,7 @@ bibliography:
   - "`r here::here('docsrc', 'refs.bib')`" # finally figure out how to combine these for debugging and actual 
 ---
 
-## Loneliness
+
 
 ```{r setup, include=FALSE}
 library(here)
@@ -29,28 +29,50 @@ v <- "loneliness"
 ```
 
 
-### Methods
+# Loneliness
 
-  What methods are used? Justification due to output data type. explanation of model output.
+A score for loneliness is taken directly from a US variable - [sclonely](https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclonely). The questions used to output levels of loneliness in Understanding Society come from the Government Statistical Service (GSS) harmonised principle of loneliness. This means the outputs are comparable with other surveys that use this principle. The GSS has a [guidance page](https://analysisfunction.civilservice.gov.uk/policy-store/loneliness-indicators/) which may be useful to understand what other data can and cannot be compared with this output.
+
+The `sclonely` variable is only available from wave 9 onwards, and is an ordinal variable with 3 levels:
+
+1 - Hardly ever or never
+2 - Some of the time
+3 - Often
+
+This means that lower scores mean "better" subjective scores of loneliness.
   
 ```{r loneliness_data}
-discrete_barplot(obs, 'loneliness')
+#discrete_barplot(obs, 'loneliness')
+order <- c(1, 2, 3)
+discrete_barplot(obs, order)
 ```
 
-### Data
+## Transition Model
   
-  What variables are included? Why is this output chosen. What explanatory variables are used and why are they chosen
-  
-### Results
-  
-  What are the results. Coefficients tables. diagnostic plots. measures of goodness of fit.
+To predict the next state of loneliness we use a Random Forest Ordinal model from the [ranger](https://www.rdocumentation.org/packages/ranger/versions/0.16.0) package in R.
+
+Formula:
+
+$$  loneliness \sim loneliness\_last + age + sex + ethnicity + region + education\_state + housing\_quality + neighbourhood\_safety + nutrition\_quality + ncigs + job\_sec + hh\_income + marital\_status + behind\_on\_bills + financial\_situation  $$
+
+Loneliness has been [linked with educational attainment](https://www.tandfonline.com/doi/full/10.1080/03601270701569275?casa_token=3vV_r99mb0QAAAAA%3ACK8Wogj5cs5CQm8gZfLKuHJtctkCyGX_i2y4CLyDgAhsReGB1s7QrV1I0qul-6Gw75QBcY93WoWuWA). Higher educational attainment has been linked with lower levels of stress and neuroticism, of which both have been linked with loneliness (more neuroticism/stress linked to more loneliness).
+
+Loneliness has been [linked with ethnicity](https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-020-09208-0).
+> The association between ethnicity and loneliness was stronger among young and early middle-aged adults, compared to late middle-aged adults.
+
+```{r loneliness_model_summary}
+plot_rfo_importance(model)
+```
 
 
-```{r housing_output, echo=FALSE}
+## Results
+  
+Random Forest Ordinal models from the ranger package cannot provide a summary like some other models can, so instead we will look at plots of observed vs predicted values as well as the importance of each variable in the resulting model.
+
+```{r loneliness_output, echo=FALSE}
 options(width=120)
 discrete_barplot2(obs, preds, "loneliness") 
-rfo_output(model)
 ```
 
 
-### References
+## References

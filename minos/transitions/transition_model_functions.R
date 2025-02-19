@@ -488,7 +488,8 @@ estimate_RandomForestOrdinal <- function(data, formula, depend) {
     data = data,
     num.trees = 100,
     probability = TRUE,
-    verbose = FALSE
+    verbose = FALSE,
+    importance = "permutation"
   )
 
   return(ranger_model)
