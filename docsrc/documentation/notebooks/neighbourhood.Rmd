@@ -27,6 +27,12 @@ preds <- ranger::predictions(stats::predict(model, data))
 column_names <- colnames(preds)
 preds <-glmnet::rmult(preds)
 preds <- plyr::mapvalues(preds, from=c(1,2,3), to= column_names)
+
+obs <- factor(obs,
+              levels = c(1, 2, 3))
+preds <- factor(preds,
+                levels = c(1, 2, 3))
+
 v <- "neighbourhood_safety"
 
 ### Read data in for handovers plots
@@ -84,6 +90,7 @@ We then assign people into three categories:
     very or fairly common, no matter what category, you are likely to feel that your neighbourhood safety is
     compromised.
 
+*IMPORTANT NOTE:* The variables listed above that make up neighbourhood_safety are only asked in the survey every 3rd wave, starting in wave 3 (6, 9, 12). This causes a lot of problems and was the most challenging variable to include in the model. First, trying to fit a 
 
 ## Methods
   
@@ -119,5 +126,8 @@ options(width=120)
 discrete_barplot2(obs, preds, "neighbourhood_safety") 
 ```
 
+```{r neighbourhood_performance}
+cumulative_link_plot(obs, preds)
+```
 
 ## References

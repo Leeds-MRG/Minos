@@ -166,12 +166,17 @@ common’. Justification is that if perception of crime is very or
 fairly common, no matter what category, you are likely to feel that
 your neighbourhood safety is compromised.</p></li>
 </ol>
+<p><em>IMPORTANT NOTE:</em> The variables listed above that make up
+neighbourhood_safety are only asked in the survey every 3rd wave,
+starting in wave 3 (6, 9, 12). This causes a lot of problems and was the
+most challenging variable to include in the model. First, trying to fit
+a</p>
 <section id="methods">
 <h2>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h2>
 <figure class="align-default" id="id2">
 <img alt="plot of chunk neighbourhood_barchart" src="../../_images/neighbourhood_barchart-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 16 </span><span class="caption-text">plot of chunk neighbourhood_barchart</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 22 </span><span class="caption-text">plot of chunk neighbourhood_barchart</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -189,7 +194,7 @@ package in R to estimate transitions for this variable.</p>
 <figure class="align-default" id="id3">
 <img alt="plot of chunk nh_safety_model_summary" src="../../_images/nh_safety_model_summary-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 17 </span><span class="caption-text">plot of chunk nh_safety_model_summary</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 23 </span><span class="caption-text">plot of chunk nh_safety_model_summary</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -198,14 +203,31 @@ package in R to estimate transitions for this variable.</p>
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">handover_ordinal</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><img alt="plot of chunk nh_safety_validation" src="../../_images/nh_safety_validation-1.png" /><img alt="image1" src="../../_images/nh_safety_validation-2.png" /></p>
+<figure class="align-default" id="id4">
+<img alt="plot of chunk nh_safety_validation" src="../../_images/nh_safety_validation-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 24 </span><span class="caption-text">plot of chunk nh_safety_validation</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="results">
 <h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
-<figure class="align-default" id="id4">
+<figure class="align-default" id="id5">
 <img alt="plot of chunk neighbourhood_output" src="../../_images/neighbourhood_output-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 18 </span><span class="caption-text">plot of chunk neighbourhood_output</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 25 </span><span class="caption-text">plot of chunk neighbourhood_output</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">cumulative_link_plot</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="w"> </span><span class="n">preds</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## `geom_smooth()` using formula = &#39;y ~ x&#39;</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id6">
+<img alt="plot of chunk neighbourhood_performance" src="../../_images/neighbourhood_performance-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 26 </span><span class="caption-text">plot of chunk neighbourhood_performance</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

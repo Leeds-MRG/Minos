@@ -144,7 +144,7 @@ loneliness.</p>
 <figure class="align-default" id="id1">
 <img alt="plot of chunk loneliness_data" src="../../_images/loneliness_data-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 12 </span><span class="caption-text">plot of chunk loneliness_data</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 14 </span><span class="caption-text">plot of chunk loneliness_data</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <section id="transition-model">
@@ -171,7 +171,7 @@ young and early middle-aged adults, compared to late middle-aged adults.</p>
 <figure class="align-default" id="id2">
 <img alt="plot of chunk loneliness_model_summary" src="../../_images/loneliness_model_summary-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 13 </span><span class="caption-text">plot of chunk loneliness_model_summary</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 15 </span><span class="caption-text">plot of chunk loneliness_model_summary</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>
@@ -180,7 +180,12 @@ young and early middle-aged adults, compared to late middle-aged adults.</p>
 <div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">handover_ordinal</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><img alt="plot of chunk loneliness_validation" src="../../_images/loneliness_validation-1.png" /><img alt="image1" src="../../_images/loneliness_validation-2.png" /></p>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk loneliness_validation" src="../../_images/loneliness_validation-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 16 </span><span class="caption-text">plot of chunk loneliness_validation</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 <section id="results">
 <h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
@@ -188,10 +193,22 @@ young and early middle-aged adults, compared to late middle-aged adults.</p>
 summary like some other models can, so instead we will look at plots of
 observed vs predicted values as well as the importance of each variable
 in the resulting model.</p>
-<figure class="align-default" id="id3">
+<figure class="align-default" id="id4">
 <img alt="plot of chunk loneliness_output" src="../../_images/loneliness_output-1.png" />
 <figcaption>
-<p><span class="caption-number">Fig. 14 </span><span class="caption-text">plot of chunk loneliness_output</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+<p><span class="caption-number">Fig. 17 </span><span class="caption-text">plot of chunk loneliness_output</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">cumulative_link_plot</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="w"> </span><span class="n">preds</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## `geom_smooth()` using formula = &#39;y ~ x&#39;</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="plot of chunk loneliness_performance" src="../../_images/loneliness_performance-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 18 </span><span class="caption-text">plot of chunk loneliness_performance</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 </section>

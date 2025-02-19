@@ -39,7 +39,10 @@ Validation
 
    handover_ordinal(raw.dat, base.dat, v)
 
-|plot of chunk S7_labour_state_validation|\ |image2|
+.. figure:: ./figure/S7_labour_state_validation-1.png
+   :alt: plot of chunk S7_labour_state_validation
+
+   plot of chunk S7_labour_state_validation
 
 Results
 ~~~~~~~
@@ -56,10 +59,21 @@ Results
 
    plot of chunk labour_output
 
+.. code:: r
+
+   cumulative_link_plot(obs, preds)
+
+::
+
+   ## `geom_smooth()` using formula = 'y ~ x'
+
+.. figure:: ./figure/labour_performance-1.png
+   :alt: plot of chunk labour_performance
+
+   plot of chunk labour_performance
+
 References
 ~~~~~~~~~~
 
 .. |plot of chunk labour_barchart| image:: ./figure/labour_barchart-1.png
 .. |image1| image:: ./figure/labour_barchart-2.png
-.. |plot of chunk S7_labour_state_validation| image:: ./figure/S7_labour_state_validation-1.png
-.. |image2| image:: ./figure/S7_labour_state_validation-2.png

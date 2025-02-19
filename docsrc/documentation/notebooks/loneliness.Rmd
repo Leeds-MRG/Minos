@@ -26,6 +26,11 @@ preds <- ranger::predictions(stats::predict(model, data))
 column_names <- colnames(preds)
 preds <-glmnet::rmult(preds)
 preds <- plyr::mapvalues(preds, from=c(1,2,3), to= column_names)
+
+obs <- factor(obs,
+              levels = c(1, 2, 3))
+preds <- factor(preds,
+                levels = c(1, 2, 3))
 v <- "loneliness"
 
 ### Read data in for handovers plots
@@ -104,5 +109,9 @@ options(width=120)
 discrete_barplot2(obs, preds, "loneliness") 
 ```
 
+
+```{r loneliness_performance}
+cumulative_link_plot(obs, preds)
+```
 
 ## References

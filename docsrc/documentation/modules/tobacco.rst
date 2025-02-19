@@ -127,12 +127,12 @@ labour_state. whether a person is employed or not. job_sec job quality
    ## factor(financial_situation)4                  0.047932   0.214865   0.223
    ## factor(financial_situation)5                 -0.059367   0.284620  -0.209
    ## factor(S7_labour_state)PT Employed           -0.012102   0.159718  -0.076
-   ## factor(S7_labour_state)Job Seeking            0.137921   0.175851   0.784
+   ## factor(S7_labour_state)Job Seeking            0.137922   0.175851   0.784
    ## factor(S7_labour_state)FT Education          -0.389807   0.402215  -0.969
    ## factor(S7_labour_state)Family Care            0.172396   0.246076   0.701
    ## factor(S7_labour_state)Not Working            0.053776   0.146154   0.368
    ## factor(job_sec)1                              0.148942   0.307434   0.484
-   ## factor(job_sec)2                             -0.006664   0.337203  -0.020
+   ## factor(job_sec)2                             -0.006665   0.337203  -0.020
    ## factor(job_sec)3                              0.168864   0.214513   0.787
    ## factor(job_sec)4                              0.168856   0.225449   0.749
    ## factor(job_sec)5                              0.123171   0.230018   0.535
@@ -145,8 +145,8 @@ labour_state. whether a person is employed or not. job_sec job quality
    ## factor(sex)Male                              0.187716    
    ## relevel(factor(ethnicity), ref = "WBI")BAN   0.527365    
    ## relevel(factor(ethnicity), ref = "WBI")BLA   0.536762    
-   ## relevel(factor(ethnicity), ref = "WBI")BLC   0.429652    
-   ## relevel(factor(ethnicity), ref = "WBI")CHI   0.851867    
+   ## relevel(factor(ethnicity), ref = "WBI")BLC   0.429651    
+   ## relevel(factor(ethnicity), ref = "WBI")CHI   0.851866    
    ## relevel(factor(ethnicity), ref = "WBI")IND   0.635425    
    ## relevel(factor(ethnicity), ref = "WBI")MIX   0.291290    
    ## relevel(factor(ethnicity), ref = "WBI")OAS   0.581829    
@@ -164,38 +164,38 @@ labour_state. whether a person is employed or not. job_sec job quality
    ## factor(region)South West                     0.299792    
    ## factor(region)Wales                          0.859872    
    ## factor(region)West Midlands                  0.536781    
-   ## factor(region)Yorkshire and The Humber       0.981750    
+   ## factor(region)Yorkshire and The Humber       0.981749    
    ## relevel(factor(education_state), ref = "1")0 0.339748    
    ## relevel(factor(education_state), ref = "1")2 0.413537    
    ## relevel(factor(education_state), ref = "1")3 0.732565    
    ## relevel(factor(education_state), ref = "1")5 0.668962    
    ## relevel(factor(education_state), ref = "1")6 0.824541    
    ## relevel(factor(education_state), ref = "1")7 0.284698    
-   ## factor(housing_quality)Low                   0.746462    
+   ## factor(housing_quality)Low                   0.746463    
    ## factor(housing_quality)Medium                0.827943    
    ## factor(loneliness)2                          0.138279    
-   ## factor(loneliness)3                          0.637012    
+   ## factor(loneliness)3                          0.637011    
    ## scale(nutrition_quality)                     0.128639    
    ## scale(ncigs)                                 1.14e-07 ***
-   ## scale(hh_income)                             0.519551    
+   ## scale(hh_income)                             0.519552    
    ## scale(SF_12)                                 0.414641    
    ## factor(behind_on_bills)2                     0.816425    
    ## factor(behind_on_bills)3                     0.705034    
    ## factor(financial_situation)2                 0.361740    
-   ## factor(financial_situation)3                 0.931228    
+   ## factor(financial_situation)3                 0.931227    
    ## factor(financial_situation)4                 0.823472    
    ## factor(financial_situation)5                 0.834774    
-   ## factor(S7_labour_state)PT Employed           0.939601    
-   ## factor(S7_labour_state)Job Seeking           0.432860    
+   ## factor(S7_labour_state)PT Employed           0.939602    
+   ## factor(S7_labour_state)Job Seeking           0.432859    
    ## factor(S7_labour_state)FT Education          0.332469    
    ## factor(S7_labour_state)Family Care           0.483564    
    ## factor(S7_labour_state)Not Working           0.712916    
    ## factor(job_sec)1                             0.628053    
-   ## factor(job_sec)2                             0.984232    
+   ## factor(job_sec)2                             0.984231    
    ## factor(job_sec)3                             0.431166    
    ## factor(job_sec)4                             0.453871    
    ## factor(job_sec)5                             0.592314    
-   ## factor(job_sec)6                             0.317425    
+   ## factor(job_sec)6                             0.317424    
    ## factor(job_sec)7                             0.590546    
    ## factor(job_sec)8                             0.279648    
    ## 
@@ -208,34 +208,34 @@ labour_state. whether a person is employed or not. job_sec job quality
    ## relevel(factor(ethnicity), ref = "WBI")BLC -1.14543    2.34089  -0.489    0.625
    ## relevel(factor(ethnicity), ref = "WBI")CHI -0.89546    3.71259  -0.241    0.809
    ## relevel(factor(ethnicity), ref = "WBI")IND  0.14328    2.26575   0.063    0.950
-   ## relevel(factor(ethnicity), ref = "WBI")MIX -0.08255    2.00374  -0.041    0.967
+   ## relevel(factor(ethnicity), ref = "WBI")MIX -0.08254    2.00374  -0.041    0.967
    ## relevel(factor(ethnicity), ref = "WBI")OAS  0.39417    3.41132   0.116    0.908
    ## relevel(factor(ethnicity), ref = "WBI")OBL -0.43468    8.72959  -0.050    0.960
    ## relevel(factor(ethnicity), ref = "WBI")OTH  1.73849    3.39195   0.513    0.608
-   ## relevel(factor(ethnicity), ref = "WBI")PAK  0.96085    2.13239   0.451    0.652
+   ## relevel(factor(ethnicity), ref = "WBI")PAK  0.96084    2.13239   0.451    0.652
    ## relevel(factor(ethnicity), ref = "WBI")WHO -0.43313    1.21204  -0.357    0.721
-   ## factor(housing_quality)Low                 -0.57763    1.15368  -0.501    0.617
-   ## factor(housing_quality)Medium              -0.52552    0.70965  -0.741    0.459
+   ## factor(housing_quality)Low                 -0.57763    1.15367  -0.501    0.617
+   ## factor(housing_quality)Medium              -0.52553    0.70965  -0.741    0.459
    ## factor(loneliness)2                        -0.14139    0.74225  -0.190    0.849
    ## factor(loneliness)3                         0.13103    1.20400   0.109    0.913
    ## scale(nutrition_quality)                    0.05535    0.33362   0.166    0.868
    ## scale(ncigs)                               -0.62567    0.39396  -1.588    0.112
-   ## relevel(factor(job_sec), ref = "3")0        0.05609    1.33826   0.042    0.967
+   ## relevel(factor(job_sec), ref = "3")0        0.05608    1.33826   0.042    0.967
    ## relevel(factor(job_sec), ref = "3")1       -0.80761    1.65422  -0.488    0.625
-   ## relevel(factor(job_sec), ref = "3")2        0.02726    1.36350   0.020    0.984
+   ## relevel(factor(job_sec), ref = "3")2        0.02727    1.36350   0.020    0.984
    ## relevel(factor(job_sec), ref = "3")4       -0.33529    1.02164  -0.328    0.743
    ## relevel(factor(job_sec), ref = "3")5       -0.35811    1.21971  -0.294    0.769
    ## relevel(factor(job_sec), ref = "3")6       -0.49222    1.38210  -0.356    0.722
-   ## relevel(factor(job_sec), ref = "3")7       -0.61392    0.94742  -0.648    0.517
+   ## relevel(factor(job_sec), ref = "3")7       -0.61393    0.94742  -0.648    0.517
    ## relevel(factor(job_sec), ref = "3")8       -0.68657    1.19747  -0.573    0.566
-   ## scale(hh_income)                            0.05336    0.40102   0.133    0.894
-   ## scale(SF_12)                                0.07008    0.34707   0.202    0.840
-   ## factor(behind_on_bills)2                   -1.16404    1.15193  -1.011    0.312
+   ## scale(hh_income)                            0.05335    0.40103   0.133    0.894
+   ## scale(SF_12)                                0.07009    0.34707   0.202    0.840
+   ## factor(behind_on_bills)2                   -1.16405    1.15193  -1.011    0.312
    ## factor(behind_on_bills)3                    0.40170    5.17767   0.078    0.938
    ## factor(financial_situation)2               -0.12475    0.82111  -0.152    0.879
    ## factor(financial_situation)3               -0.52030    0.97033  -0.536    0.592
    ## factor(financial_situation)4               -0.17864    1.40060  -0.128    0.899
-   ## factor(financial_situation)5               -1.09377    2.30711  -0.474    0.635
+   ## factor(financial_situation)5               -1.09378    2.30711  -0.474    0.635
    ##                                               
    ## (Intercept)                                ***
    ## I(factor(ncigs > 0))TRUE                   ***

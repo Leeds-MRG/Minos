@@ -69,7 +69,10 @@ Validation
 
    handover_ordinal(raw.dat, base.dat, v)
 
-|plot of chunk loneliness_validation|\ |image1|
+.. figure:: ./figure/loneliness_validation-1.png
+   :alt: plot of chunk loneliness_validation
+
+   plot of chunk loneliness_validation
 
 Results
 ~~~~~~~
@@ -84,8 +87,18 @@ in the resulting model.
 
    plot of chunk loneliness_output
 
+.. code:: r
+
+   cumulative_link_plot(obs, preds)
+
+::
+
+   ## `geom_smooth()` using formula = 'y ~ x'
+
+.. figure:: ./figure/loneliness_performance-1.png
+   :alt: plot of chunk loneliness_performance
+
+   plot of chunk loneliness_performance
+
 References
 ~~~~~~~~~~
-
-.. |plot of chunk loneliness_validation| image:: ./figure/loneliness_validation-1.png
-.. |image1| image:: ./figure/loneliness_validation-2.png

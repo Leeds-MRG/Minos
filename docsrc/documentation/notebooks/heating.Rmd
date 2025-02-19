@@ -1,0 +1,200 @@
+---
+title: "Heating"
+output: html_document
+bibliography: 
+  - "`r here::here('docsrc', 'refs.bib')`"
+---
+
+# Heating
+
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(here)
+library(ranger)
+library(caret)
+
+source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
+
+model_path <- here::here("data", "transitions", "heating", "logit", "heating_2019_2020.rds")
+model <- readRDS(model_path)
+
+data <- read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
+
+obs <- data$heating
+data$heating_last <- data$heating
+preds <- predict(model, data, type='response')
+# Convert probabilities to binary outcomes
+preds <- ifelse(runif(length(preds)) < preds, 1, 0)
+v <- "heating"
+
+
+### Read data in for handovers plots
+# Read raw datafiles in
+keep.vars <- c('pidp', 'hidp', 'time', 'weight', 'heating')
+raw.files1 <- list.files(here::here('data', 'raw_US'), pattern='2009_US_cohort.csv', full.names = TRUE)
+raw.files2 <- list.files(here::here('data', 'raw_US'), pattern='201[0-9]{1}_US_cohort.csv', full.names = TRUE)
+raw.files3 <- list.files(here::here('data', 'raw_US'), pattern='202[0-9]{1}_US_cohort.csv', full.names = TRUE)
+raw.files <- c(raw.files1, raw.files2, raw.files3)
+raw.dat <- do.call(rbind, lapply(raw.files, read_csv, col_select = keep.vars, 
+                                 show_col_types = FALSE))
+
+# cut out the zero weight individuals
+raw.dat <- raw.dat %>%
+  filter(weight > 0)
+
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 'baseline',
+                                    drop.dead = TRUE,
+                                    drop.zero.weight = TRUE)
+
+# cut off any years of raw data AFTER start year of simulation
+if (min(base.dat$time) <= max(raw.dat$time)) {
+  raw.dat <- raw.dat %>%
+    filter(time <= min(base.dat$time))
+}
+
+# cut missing data for key variable
+raw.dat <- raw.dat %>%
+  filter(!.data[[v]] %in% miss.values)
+
+
+### Read data in for cross-val plots
+out.path <- here::here('output', 'cv')
+cv1 <- read_singular_local_out(here::here(out.path, 'default1/'), 'baseline', drop.dead = TRUE)
+cv2 <- read_singular_local_out(here::here(out.path, 'default2/'), 'baseline', drop.dead = TRUE)
+cv3 <- read_singular_local_out(here::here(out.path, 'default3/'), 'baseline', drop.dead = TRUE)
+cv4 <- read_singular_local_out(here::here(out.path, 'default4/'), 'baseline', drop.dead = TRUE)
+cv5 <- read_singular_local_out(here::here(out.path, 'default5/'), 'baseline', drop.dead = TRUE)
+
+cvlist <- list(cv1, cv2, cv3, cv4, cv5)
+cv <- do.call(rbind, cvlist)
+
+# cv simulation batches
+cv.simul.files1 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch1'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw1 <- do.call(rbind, lapply(cv.simul.files1, read.csv))
+cv.simul.files2 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch2'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw2 <- do.call(rbind, lapply(cv.simul.files2, read.csv))
+cv.simul.files3 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch3'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw3 <- do.call(rbind, lapply(cv.simul.files3, read.csv))
+cv.simul.files4 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch4'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw4 <- do.call(rbind, lapply(cv.simul.files4, read.csv))
+cv.simul.files5 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch5'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw5 <- do.call(rbind, lapply(cv.simul.files5, read.csv))
+
+rawlist <- list(raw1, raw2, raw3, raw4, raw5)
+raw.dat <- do.call(rbind, rawlist)
+
+# year filter
+cv.years <- cv %>% select(time) %>% unique()
+cv.years <- cv.years[['time']]
+
+#  cv <- cv.dat %>% filter(pidp %in% both.pidps$pidp)
+raw <- raw.dat %>% filter(time %in% cv.years)
+
+rm(cv.years)
+```
+
+The Heating module is not present in all experiments. It has been included in the SF-12 and housing experiments, but is not technically required for SF-12 simulation runs.
+
+Heating is a binary variable that represents an individuals ability to adequately heat their home. The variable is taken directly from the survey, from the [`hheat`](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hheat/) variable.
+
+*NOTE:* Heating is not present in every wave of the survey. This was problematic in the generation of the housing_quality composite variable. For this reason, we decided to forward fill this variable to fill in some values for the missing waves. Justification for this decision is in the section [Justification for Forward Fill](#Justification-for-Forward-Fill).
+
+
+```{r heating_barchart, echo=FALSE}
+order <- c(1, 0)
+discrete_barplot(obs, order)
+```
+
+## Transition Model
+
+To estimate transitions in heating, we fit a logit model using the `glm()` function from the stats package in R. We used the binomial family with a logit link function.
+
+Formula:
+
+$$  heating \sim heating\_last + age + sex + ethnicity + region + education\_state + housing\_quality + neighbourhood\_safety\\ + loneliness + nutrition\_quality + ncigs + hh\_income + SF\_12 + financial\_situation + behind\_on\_bills  $$
+
+```{r heating_model_summary}
+summary(model)
+```
+
+## Validation
+
+```{r heating_validation}
+handover_ordinal(raw.dat, base.dat, v)
+```
+
+```{r heating_cv}
+pivoted <- combine_and_pivot_long(df1 = cv,
+                                   df1.name = 'simulated',
+                                   df2 = raw,
+                                   df2.name = 'raw',
+                                   var = 'heating')
+
+cv_ordinal_plots(pivoted.df = pivoted,
+                 var = 'heating',
+                 save = FALSE)
+```
+
+
+## Justification for Forward Fill
+
+Adequate heating in the household is a key component of the housing_quality proxy variable. It is one of the core variables of housing_quality, and the one that is most closely associated with conditions of poor housing quality such as excessive damp and mould. However, unfortunately the `hheat` variable in Understanding Society (the source of the heating variable) is not present in every wave. This is problematic for the generation of the housing_quality proxy variable, so here I will provide some justification that this is not a terrible idea. The table below shows which waves `hheat` is present in Understanding Society.
+
+| Wave | Present? |
+| 1 | TRUE |
+| 2 | TRUE |
+| 3 | FALSE |
+| 4 | TRUE |
+| 5 | FALSE |
+| 6 | TRUE |
+| 7 | FALSE |
+| 8 | TRUE |
+| 9 | TRUE |
+| 10 | TRUE |
+| 11 | TRUE |
+| 12 | TRUE |
+| 13 | FALSE |
+| 14 | TRUE |
+
+First we will look at how static the heating variable is over time. We are looking at the proportion of the sample at each wave that shows a change in `hheat`.
+
+```{r ffill_justification}
+year_list <- c(2009, 2010, 2012, 2014, 2016, 2017, 2018, 2019, 2020, 2022)
+transition_summary <- get_transition_rate(v, year_list)
+
+ggplot(transition_summary, aes(x = time, y = transition_rate)) +
+  geom_col() +
+  labs(title = "Transition rate of hheat in survey") +
+  xlab('Year') +
+  ylab('Transition Rate (%)')
+```
+
+## Results
+
+Random Forest Ordinal models from the ranger package cannot provide a summary like some other models can, so instead we will look at plots of observed vs predicted values as well as the importance of each variable in the resulting model.
+
+```{r heating_output, echo=FALSE}
+options(width=120)
+discrete_barplot2(obs, preds, 'heating')
+```
+
+```{r heating_performance}
+cumulative_link_plot(obs, preds)
+```
+
+
+## References

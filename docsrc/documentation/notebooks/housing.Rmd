@@ -3,13 +3,13 @@ title: "Housing"
 output: html_document
 bibliography: 
   - "`r here::here('docsrc', 'refs.bib')`"
-
 ---
 
 ```{r setup, include=FALSE}
 library(dplyr)
 library(here)
 library(ranger)
+library(caret)
 
 source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
 source(here::here('minos', 'utils_datain.R'))
@@ -29,6 +29,8 @@ preds <- ranger::predictions(stats::predict(model, data))
 column_names <- colnames(preds)
 preds <-glmnet::rmult(preds)
 preds <- plyr::mapvalues(preds, from=c(1,2,3), to= column_names)
+preds <- factor(preds,
+                levels = c("High", "Medium", "Low"))
 v <- "housing_quality"
 
 
@@ -130,6 +132,8 @@ The housing_quality composite is defined as:
 - All core some bonus == 2
 - All core all bonus  == 3
 
+*IMPORTANT NOTE:* Unfortunately, one of the core components of this composite is not present in every wave of the survey - `heating`. This caused us a major problem, as the way the pathways are devised we need at least one wave with all pathway variables present, so we can fit a transition model for SF-12. Because of this, we decided to forward fill the `heating` variable before generating the `housing_quality` composite variable. As `heating` is a fairly static variable (highest transition rate between years is 6%, mean 4.5%) we believe this is a justified decision. Please see the heating module documentation page for more information on this (specifically under the heading "Justification for Forward Fill".
+
   
 ```{r housing_barchart, echo=FALSE}
 order <- c("Low", "Medium", "High")
@@ -190,6 +194,10 @@ Random Forest Ordinal models from the ranger package cannot provide a summary li
 ```{r housing_output, echo=FALSE}
 options(width=120)
 discrete_barplot2(obs, preds, 'housing_quality')
+```
+
+```{r housing_performance}
+cumulative_link_plot(obs, preds)
 ```
 
 

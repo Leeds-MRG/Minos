@@ -50,6 +50,18 @@ The housing_quality composite is defined as:
 -  All core some bonus == 2
 -  All core all bonus == 3
 
+*IMPORTANT NOTE:* Unfortunately, one of the core components of this
+composite is not present in every wave of the survey - ``heating``. This
+caused us a major problem, as the way the pathways are devised we need
+at least one wave with all pathway variables present, so we can fit a
+transition model for SF-12. Because of this, we decided to forward fill
+the ``heating`` variable before generating the ``housing_quality``
+composite variable. As ``heating`` is a fairly static variable (highest
+transition rate between years is 6%, mean 4.5%) we believe this is a
+justified decision. Please see the heating module documentation page for
+more information on this (specifically under the heading “Justification
+for Forward Fill”.
+
 .. figure:: ./figure/housing_barchart-1.png
    :alt: plot of chunk housing_barchart
 
@@ -106,7 +118,10 @@ Validation
 
    handover_ordinal(raw.dat, base.dat, v)
 
-|plot of chunk housing_validation|\ |image1|
+.. figure:: ./figure/housing_validation-1.png
+   :alt: plot of chunk housing_validation
+
+   plot of chunk housing_validation
 
 .. code:: r
 
@@ -115,36 +130,6 @@ Validation
                                           df2 = raw, 
                                           df2.name = 'raw', 
                                           var = 'housing_quality')
-
-::
-
-   ## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
-   ## ℹ Please use `all_of()` or `any_of()` instead.
-   ##   # Was:
-   ##   data %>% select(df1.name)
-   ## 
-   ##   # Now:
-   ##   data %>% select(all_of(df1.name))
-   ## 
-   ## See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
-   ## This warning is displayed once every 8 hours.
-   ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
-
-::
-
-   ## Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
-   ## ℹ Please use `all_of()` or `any_of()` instead.
-   ##   # Was:
-   ##   data %>% select(df2.name)
-   ## 
-   ##   # Now:
-   ##   data %>% select(all_of(df2.name))
-   ## 
-   ## See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
-   ## This warning is displayed once every 8 hours.
-   ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
-
-.. code:: r
 
    cv_ordinal_plots(pivoted.df = hous.pivoted, 
                     var = 'housing_quality',
@@ -173,8 +158,18 @@ in the resulting model.
 
    plot of chunk housing_output
 
+.. code:: r
+
+   cumulative_link_plot(obs, preds)
+
+::
+
+   ## `geom_smooth()` using formula = 'y ~ x'
+
+.. figure:: ./figure/housing_performance-1.png
+   :alt: plot of chunk housing_performance
+
+   plot of chunk housing_performance
+
 References
 ~~~~~~~~~~
-
-.. |plot of chunk housing_validation| image:: ./figure/housing_validation-1.png
-.. |image1| image:: ./figure/housing_validation-2.png

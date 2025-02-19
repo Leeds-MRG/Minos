@@ -16,3 +16,4 @@ Modules
     mortality
     education
     replenishment
+    heating

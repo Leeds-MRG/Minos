@@ -66,51 +66,51 @@ Formula:
    ## 
    ## Fixed effects:
    ##                                                                     Estimate
-   ## (Intercept)                                                        4.9130360
+   ## (Intercept)                                                        4.9130185
    ## time                                                              -0.0005121
-   ## scale(SF_12_last)                                                  0.1147985
+   ## scale(SF_12_last)                                                  0.1147981
    ## scale(age)                                                         0.0213196
    ## factor(sex)Male                                                    0.0201720
    ## relevel(factor(ethnicity), ref = "WBI")BAN                         0.0003187
-   ## relevel(factor(ethnicity), ref = "WBI")BLA                         0.0292479
-   ## relevel(factor(ethnicity), ref = "WBI")BLC                         0.0182469
-   ## relevel(factor(ethnicity), ref = "WBI")CHI                         0.0156511
-   ## relevel(factor(ethnicity), ref = "WBI")IND                        -0.0006695
-   ## relevel(factor(ethnicity), ref = "WBI")MIX                        -0.0035134
-   ## relevel(factor(ethnicity), ref = "WBI")OAS                        -0.0014412
+   ## relevel(factor(ethnicity), ref = "WBI")BLA                         0.0292480
+   ## relevel(factor(ethnicity), ref = "WBI")BLC                         0.0182470
+   ## relevel(factor(ethnicity), ref = "WBI")CHI                         0.0156512
+   ## relevel(factor(ethnicity), ref = "WBI")IND                        -0.0006693
+   ## relevel(factor(ethnicity), ref = "WBI")MIX                        -0.0035133
+   ## relevel(factor(ethnicity), ref = "WBI")OAS                        -0.0014411
    ## relevel(factor(ethnicity), ref = "WBI")OBL                        -0.0010133
-   ## relevel(factor(ethnicity), ref = "WBI")OTH                        -0.0698175
+   ## relevel(factor(ethnicity), ref = "WBI")OTH                        -0.0698165
    ## relevel(factor(ethnicity), ref = "WBI")PAK                         0.0055012
-   ## relevel(factor(ethnicity), ref = "WBI")WHO                         0.0153347
+   ## relevel(factor(ethnicity), ref = "WBI")WHO                         0.0153349
    ## relevel(factor(region), ref = "Scotland")East Midlands             0.0111865
-   ## relevel(factor(region), ref = "Scotland")East of England           0.0051782
-   ## relevel(factor(region), ref = "Scotland")London                    0.0015323
-   ## relevel(factor(region), ref = "Scotland")North East               -0.0045409
+   ## relevel(factor(region), ref = "Scotland")East of England           0.0051783
+   ## relevel(factor(region), ref = "Scotland")London                    0.0015321
+   ## relevel(factor(region), ref = "Scotland")North East               -0.0045410
    ## relevel(factor(region), ref = "Scotland")North West                0.0017339
-   ## relevel(factor(region), ref = "Scotland")Northern Ireland          0.0007918
+   ## relevel(factor(region), ref = "Scotland")Northern Ireland          0.0007917
    ## relevel(factor(region), ref = "Scotland")South East                0.0018979
-   ## relevel(factor(region), ref = "Scotland")South West               -0.0022500
-   ## relevel(factor(region), ref = "Scotland")Wales                    -0.0052198
+   ## relevel(factor(region), ref = "Scotland")South West               -0.0022499
+   ## relevel(factor(region), ref = "Scotland")Wales                    -0.0052200
    ## relevel(factor(region), ref = "Scotland")West Midlands            -0.0012001
-   ## relevel(factor(region), ref = "Scotland")Yorkshire and The Humber  0.0010756
+   ## relevel(factor(region), ref = "Scotland")Yorkshire and The Humber  0.0010755
    ## relevel(factor(education_state), ref = "1")0                      -0.0077798
    ## relevel(factor(education_state), ref = "1")2                       0.0042615
-   ## relevel(factor(education_state), ref = "1")3                       0.0007321
-   ## relevel(factor(education_state), ref = "1")5                       0.0107276
+   ## relevel(factor(education_state), ref = "1")3                       0.0007323
+   ## relevel(factor(education_state), ref = "1")5                       0.0107278
    ## relevel(factor(education_state), ref = "1")6                       0.0025737
-   ## relevel(factor(education_state), ref = "1")7                       0.0005953
-   ## scale(hh_income)                                                   0.0058139
+   ## relevel(factor(education_state), ref = "1")7                       0.0005955
+   ## scale(hh_income)                                                   0.0058137
    ## factor(housing_quality)Medium                                     -0.0034585
-   ## factor(housing_quality)Low                                        -0.0333141
-   ## factor(neighbourhood_safety)2                                      0.0040435
+   ## factor(housing_quality)Low                                        -0.0333144
+   ## factor(neighbourhood_safety)2                                      0.0040437
    ## factor(neighbourhood_safety)3                                      0.0164410
-   ## factor(loneliness)2                                               -0.0767773
+   ## factor(loneliness)2                                               -0.0767774
    ## factor(loneliness)3                                               -0.2659751
    ## scale(nutrition_quality)                                           0.0091674
    ## scale(ncigs)                                                      -0.0060226
    ## I(factor(ncigs > 0))TRUE                                          -0.0132155
    ##                                                                   Std. Error
-   ## (Intercept)                                                        0.8338147
+   ## (Intercept)                                                        0.8338149
    ## time                                                               0.0004135
    ## scale(SF_12_last)                                                  0.0011464
    ## scale(age)                                                         0.0012655

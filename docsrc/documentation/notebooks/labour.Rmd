@@ -19,6 +19,12 @@ model <- readRDS(model_path)
 data <-  read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
 obs <- data$S7_labour_state
 preds <- stats::predict(model, data, type='class')
+obs <- factor(obs,
+              levels = c("FT Employed", "PT Employed", "FT Education", 
+                         "Family Care", "Job Seeking", "Not Working"))
+preds <- factor(preds,
+                levels = c("FT Employed", "PT Employed", "FT Education", 
+                         "Family Care", "Job Seeking", "Not Working"))
 v <- "S7_labour_state"
 
 ### Read data in for handovers plots
@@ -90,5 +96,8 @@ options(width=120)
 nnet_confusion_matrix(obs, preds, mode='multinom', 'S7_labour_state') # Note this is transition out of this state. 
 ```
 
+```{r labour_performance}
+cumulative_link_plot(obs, preds)
+```
 
 ## References

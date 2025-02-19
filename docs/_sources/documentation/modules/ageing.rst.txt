@@ -12,7 +12,10 @@ simulation).
 
    handover_ordinal(raw.dat, base.dat, var = 'age_bucket')
 
-|plot of chunk age_structure|\ |image1|
+.. figure:: ./figure/age_structure-1.png
+   :alt: plot of chunk age_structure
+
+   plot of chunk age_structure
 
 Child Ages
 ~~~~~~~~~~
@@ -38,6 +41,3 @@ each time step.
 
 References
 ----------
-
-.. |plot of chunk age_structure| image:: ./figure/age_structure-1.png
-.. |image1| image:: ./figure/age_structure-2.png

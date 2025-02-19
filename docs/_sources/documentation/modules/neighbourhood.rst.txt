@@ -47,6 +47,12 @@ We then assign people into three categories:
    fairly common, no matter what category, you are likely to feel that
    your neighbourhood safety is compromised.
 
+*IMPORTANT NOTE:* The variables listed above that make up
+neighbourhood_safety are only asked in the survey every 3rd wave,
+starting in wave 3 (6, 9, 12). This causes a lot of problems and was the
+most challenging variable to include in the model. First, trying to fit
+a
+
 Methods
 ~~~~~~~
 
@@ -82,7 +88,10 @@ Validation
 
    handover_ordinal(raw.dat, base.dat, v)
 
-|plot of chunk nh_safety_validation|\ |image1|
+.. figure:: ./figure/nh_safety_validation-1.png
+   :alt: plot of chunk nh_safety_validation
+
+   plot of chunk nh_safety_validation
 
 Results
 ~~~~~~~
@@ -92,8 +101,18 @@ Results
 
    plot of chunk neighbourhood_output
 
+.. code:: r
+
+   cumulative_link_plot(obs, preds)
+
+::
+
+   ## `geom_smooth()` using formula = 'y ~ x'
+
+.. figure:: ./figure/neighbourhood_performance-1.png
+   :alt: plot of chunk neighbourhood_performance
+
+   plot of chunk neighbourhood_performance
+
 References
 ~~~~~~~~~~
-
-.. |plot of chunk nh_safety_validation| image:: ./figure/nh_safety_validation-1.png
-.. |image1| image:: ./figure/nh_safety_validation-2.png
