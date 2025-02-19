@@ -3,8 +3,9 @@ import os
 from os.path import dirname as up
 
 from minos.RateTables.BaseHandler import BaseHandler
-from minos.data_generation.convert_rate_data import cache_fertility_by_region
-from minos.data_generation.convert_rate_data import transform_rate_table
+from minos.data_generation.convert_rate_data import (cache_fertility_by_region,
+                                                     transform_rate_table,
+                                                     correct_rate_data_to_unity)
 
 import numpy as np
 from minos.utils import extend_series, get_nearest
@@ -354,6 +355,9 @@ class FertilityRateTable(BaseHandler):
         self._parity_added = False
 
     def _build(self):
+
+        config = self.configuration
+
         # HR 21/04/23 Try and load from source file, otherwise create from primary data
         try:
             print("Trying to load from source file...")
@@ -370,8 +374,8 @@ class FertilityRateTable(BaseHandler):
             else:
                 print("Couldn't dump source file")
 
-        yr_start = self.configuration['time']['start']['year']
-        yr_end = self.configuration['time']['end']['year']
+        yr_start = config['time']['start']['year']
+        yr_end = config['time']['end']['year']
         print('Computing fertility rate table for years in range [', yr_start, ',', yr_end, ']...')
 
         self.rate_table = transform_rate_table(df,
@@ -381,22 +385,22 @@ class FertilityRateTable(BaseHandler):
                                                age_end=AGE_RANGE_DEFAULT[1],
                                                unique_sex=[2])
 
+        scale_rate = config["scale_rates"][self.scaling_method]['fertility']
+        if scale_rate != 1:
+            print(f'Scaling the fertility rates by a factor of {scale_rate}')
+            self.rate_table["mean_value"] *= float(scale_rate)
+            self.rate_table = correct_rate_data_to_unity(self.rate_table, 'mean_value')  # Replace values with x > 1 to x = 1
+
         # HR 21/06/23 Expanding fertility rate table by parity
         # print("Expanding NewEthPop fertility data with parity data from ONS")
         if self.parity:
             self.rate_table = self.add_parity()
-
-        if self.configuration["scale_rates"][self.scaling_method]["fertility"] != 1:
-            print(f'Scaling the fertility rates by a factor of {self.configuration["scale_rates"][self.scaling_method]["fertility"]}')
-            self.rate_table["fertility"] *= float(self.configuration["scale_rates"][self.scaling_method]["fertility"])
 
     def add_parity(self):
         # Avoid running more than once as will break rate table
         if self._parity_added:
             print("Already added parity, returning existing rate table")
             return self.rate_table
-
-        rt = self.rate_table
 
         df_parity = parse_parity_ons()
         pop_concat, births_concat = extend_parity_ons(df_parity,
