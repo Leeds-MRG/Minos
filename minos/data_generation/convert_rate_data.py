@@ -20,14 +20,14 @@ from os.path import dirname as up
 from minos.utils import get_nearest
 
 
-LAD_to_region_code = load_json(os.path.join(up(up(up(__file__))), "persistent_data/JSON/"), "LAD_to_region_code.json")
-LAD_to_region_name = load_json(os.path.join(up(up(up(__file__))), "persistent_data/JSON/"), "LAD_to_region_name.json")
-
 PERSISTENT_DATA_DIR = os.path.join(up(up(up(__file__))), "persistent_data/")
 FERT_DIR_DEFAULT = os.path.join(PERSISTENT_DATA_DIR, "Fertility")
 FERT_STUBS = ["Fertility", "_LEEDS1_2.csv"]
 MORT_DIR_DEFAULT = os.path.join(PERSISTENT_DATA_DIR, "Mortality")
 MORT_STUBS = ["Mortality", "_LEEDS1_2.csv"]
+
+LAD_to_region_code = load_json(os.path.join(PERSISTENT_DATA_DIR, 'JSON/'), "LAD_to_region_code.json")
+LAD_to_region_name = load_json(os.path.join(PERSISTENT_DATA_DIR, 'JSON/'), "LAD_to_region_name.json")
 
 YEAR_RANGE_DEFAULT = None
 VARS_TO_GROUP_DEFAULT = ("REGION.name", "ETH.group")  # Must be tuple, not list! Mutable default argument problem!
@@ -320,6 +320,12 @@ def transform_rate_table(df,
     return dfn
 
 
+# HR 19/02/25 Set any data with x > 1 to x = 1
+def correct_rate_data_to_unity(data, _var):
+    data.loc[data[_var] > 1.0, _var] = 1.0
+    return data
+
+
 if __name__ == "__main__":
     # file_source = PERSISTENT_DATA_DIR
     # d1, d2 = main(file_source)
@@ -332,9 +338,5 @@ if __name__ == "__main__":
     # # Final rate table, compatible with Vivarium; for validation
     # mort_correct = os.path.join(PERSISTENT_DATA_DIR, 'mortality_rate_table_2020_2035_1_.csv')
     # df_correct = pd.read_csv(mort_correct)
-    #
-    # # Want to rewrite transform_rate_data to be simpler and use Pandas;
-    # # validation is to verify it is identical to df_correct
-    # # Working copy of df to be acted on
-    # dfn = transform_rate_table(df, 2020, 2035, 0, 100)
+
     pass

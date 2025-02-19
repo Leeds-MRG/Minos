@@ -350,7 +350,7 @@ class nkidsFertilityAgeSpecificRates(Base):
         population.loc[who_had_children_individuals, 'child_ages_ind'] += 1
 
         # HR 12/12/24 Also updating nresp and randomly decrementing 1/16 of individuals by one to account for ageing out of 0-15 age range
-        # This is an imperfect solution as it doesn't account for actual child ages explicitly, which are currently constructed by hh, not ind
+        # This is an imperfect solution as it doesn't account for actual child ages explicitly
         population.loc[who_had_children_individuals, 'nresp'] += 1
         ageout_sample = population.loc[who_had_children_individuals].sample(frac=1).sample(frac=1/16).index  # Shuffle then sample
         population.loc[ageout_sample, 'nresp'] -= 1

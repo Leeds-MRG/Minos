@@ -3,8 +3,9 @@ import os
 from os.path import dirname as up
 
 from minos.RateTables.BaseHandler import BaseHandler
-from minos.data_generation.convert_rate_data import cache_mortality_by_region
-from minos.data_generation.convert_rate_data import transform_rate_table
+from minos.data_generation.convert_rate_data import (cache_mortality_by_region,
+                                                     transform_rate_table,
+                                                     correct_rate_data_to_unity)
 
 
 RATETABLE_PATH_DEFAULT = os.path.join(up(up(up(__file__))), "persistent_data")
@@ -28,6 +29,9 @@ class MortalityRateTable(BaseHandler):
             self.source_file = MORTALITY_FILE_DEFAULT
 
     def _build(self):
+
+        config = self.configuration
+
         # HR 21/04/23 Try and load from source file, otherwise create from primary data
         try:
             print("Trying to load from source file...")
@@ -44,16 +48,18 @@ class MortalityRateTable(BaseHandler):
             else:
                 print("Couldn't dump source file")
 
-        yr_start = self.configuration['time']['start']['year']
-        yr_end = self.configuration['time']['end']['year']
+        yr_start = config['time']['start']['year']
+        yr_end = config['time']['end']['year']
         print('Computing mortality rate table for years in range [', yr_start, ',', yr_end, ']...')
 
         self.rate_table = transform_rate_table(df,
                                                yr_start,
                                                yr_end,
-                                               self.configuration.population.age_start,
-                                               self.configuration.population.age_end)
+                                               config.population.age_start,
+                                               config.population.age_end)
 
-        if self.configuration["scale_rates"][self.scaling_method]["mortality"] != 1:
-            print(f'Scaling the mortality rates by a factor of {self.configuration["scale_rates"][self.scaling_method]["mortality"]}')
-            self.rate_table["mean_value"] *= float(self.configuration["scale_rates"][self.scaling_method]["mortality"])
+        scale_rate = config["scale_rates"][self.scaling_method]["mortality"]
+        if scale_rate != 1:
+            print(f'Scaling the mortality rates by a factor of {scale_rate}')
+            self.rate_table['mean_value'] *= float(scale_rate)
+            self.rate_table = correct_rate_data_to_unity(self.rate_table, 'mean_value')  # Replace values with x > 1 to x = 1
