@@ -284,6 +284,7 @@ def type_check(data):
     data['job_sec'] = data['job_sec'].astype(int)
     #data['S7_neighbourhood_safety'] = data['S7_neighbourhood_safety'].astype(str)
     data['nkids'] = data['nkids'].astype(float)
+    data['heating'] = data['heating'].astype(int)
 
     return data
 
@@ -295,8 +296,8 @@ def RunPipeline(config, intervention=None):
     ----------
     config : ConfigTree
         Config file to run the pipeline
-    run_output_dir : String
-        Directory
+    intervention : String
+        Intervention name, should correspond to one of the named and programmed interventions
     Returns
     --------
      A dataframe with the resulting simulation

@@ -172,7 +172,7 @@ handover_ordinal <- function(raw.dat, base.dat, var, start.year=2020, save=FALSE
            plot = last_plot(),
            path = save.path)
   }
-  print(p1)
+  #print(p1)
   print(p2)
 }
 
@@ -759,7 +759,7 @@ combine_and_pivot_long <- function(df1, df1.name, df2, df2.name, var) {
   # merge on pidp and time
   merged <- merge(df1, df2, by = c('pidp', 'time'), all=TRUE)
   pivoted <- pivot_longer(data = merged,
-                          cols = df1.name:df2.name,
+                          cols = all_of(c(df1.name, df2.name)),
                           names_to = 'scenario',
                           values_to = var)
   return(pivoted)
