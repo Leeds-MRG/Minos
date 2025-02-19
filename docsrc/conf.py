@@ -17,7 +17,7 @@ import sys
 # -- Project information -----------------------------------------------------
 
 project = 'Minos'
-copyright = '2022, Open MIT License'
+copyright = '2025, Open MIT License'
 author = 'Robert Clay, Luke Archer, Hugh Rice, and Nik Lomax'
 
 
@@ -80,3 +80,5 @@ html_css_files = [
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+numfig=True

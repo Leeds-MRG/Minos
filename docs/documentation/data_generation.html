@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -12,18 +10,22 @@
       <link rel="stylesheet" type="text/css" href="../_static/minos_theme.css?v=85179c66" />
 
   
-      <script src="../_static/jquery.js?v=3d1d8b85"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=9fa44488"></script>
-      <script src="../_static/doctools.js?v=dcc2bf79"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=3d1d8b85"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=9fa44488"></script>
+        <script src="../_static/doctools.js?v=dcc2bf79"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="modules/index.html" />
+    <link rel="next" title="Modules" href="modules/index.html" />
     <link rel="prev" title="Documentation" href="index.html" /> 
 </head>
 
@@ -61,19 +63,17 @@
 <li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="modules/modules_intro.html">Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/household_income.html">Household Income</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/housing.html">Housing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/loneliness.html">Loneliness</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/labour.html">Labour</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/neighbourhood.html">Neighbourhood</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/mental_well_being.html">Mental Well-Being</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/education.html">Education</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/nutrition.html">Nutrition</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/replenishment.html">Replenishment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules/tobacco.html">Tobacco</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/index.html">Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/interventions.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/interventions.html#child-uplift">Child Uplift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/interventions.html#poverty-percentage-targets">Poverty Percentage Targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/interventions.html#living-wage">Living Wage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/interventions.html#energy-downlift">Energy Downlift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/interventions.html#epcg">EPCG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/interventions.html#gbis">GBIS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="HPC.html">Running MINOS on Slurm/ARC4.</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/outcomes.html">Outcomes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="data_discovery.html">Data Discovery</a></li>
@@ -224,12 +224,11 @@ RAM. Also its slow.</p>
 </section>
 <section id="synthetic-population-optional">
 <h2>Synthetic Population (Optional).<a class="headerlink" href="#synthetic-population-optional" title="Link to this heading"></a></h2>
-<p>UKHLS data is then merged with the WS3 synthetic population
-[2]. This produces a full size population
-that is representative of the full UK population in terms of numbers and
-spatial disaggergation by LSOA. We usually take a small random sample of
-this population <span class="math notranslate nohighlight">\(0.1-10\%\)</span> because its too computationally
-expensive to run the whole thing.</p>
+<p>UKHLS data is then merged with the WS3 synthetic population [2]. This
+produces a full size population that is representative of the full UK
+population in terms of numbers and spatial disaggergation by LSOA. We
+usually take a small random sample of this population <span class="math notranslate nohighlight">\(0.1-10\%\)</span>
+because its too computationally expensive to run the whole thing.</p>
 <p>There is also some spatial anlignment here ensuring correct variables
 for properties such as government region that can get mangled due to the
 merge.</p>
@@ -247,9 +246,9 @@ full children at 16 years old with all attributes. This also adjusts
 income household weights according to cell based reweighting matching
 changes in mid year demographic attributes over time. These weights are
 from the NEWETHPOP project based on NOMIS/ONS mid year estimates
-forecasting [3]. E.g. if there are
-more women or white british ethnicities predicted over time then their
-weights are icnreased to match.</p>
+forecasting [3]. E.g. if there are more women or white british
+ethnicities predicted over time then their weights are icnreased to
+match.</p>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
@@ -278,13 +277,13 @@ NEWETHPOP-ethnic population projections for UK local areas,
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="modules/index.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="modules/index.html" class="btn btn-neutral float-right" title="Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Open MIT License.</p>
+    <p>&#169; Copyright 2025, Open MIT License.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

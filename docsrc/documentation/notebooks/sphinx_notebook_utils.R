@@ -13,14 +13,14 @@ real_data <- read.csv(here::here("data", "final_US", "2019_US_cohort.csv"))
 
 # Prevent spamming of package load messages when compiling with sphinx.
 # model stuff.
-suppressMessages(require(pscl))
-suppressMessages(require(nnet))
-suppressMessages(require(ordinal))
-suppressMessages(require(tidyverse))
+suppressMessages(library(pscl))
+suppressMessages(library(nnet))
+suppressMessages(library(ordinal))
+suppressMessages(library(tidyverse))
 # plot stuff.
-suppressMessages(require(ggplot2))
-suppressMessages(require(stringr))
-suppressMessages(require(shadowtext))
+suppressMessages(library(ggplot2))
+suppressMessages(library(stringr))
+suppressMessages(library(shadowtext))
 
 
 notebook_setwd<- function(){
@@ -41,7 +41,13 @@ counts_density <- function(path, v){
   plot(density(obs, from=0, to=quants[2]), main='', xlab=v)
 }
 
-discrete_barplot <- function(obs, v){
+discrete_barplot_old <- function(obs, v){
+  counts <- table(obs)
+  barplot(counts, horiz=F, cex.names=.7, las=2)
+}
+
+discrete_barplot <- function(obs, order){
+  obs <- factor(obs, levels = order, ordered = TRUE)
   counts <- table(obs)
   barplot(counts, horiz=F, cex.names=.7, las=2)
 }
@@ -121,11 +127,6 @@ discrete_barplot2 <- function(obs, preds, v){
 clm_output <- function(data_path){
   clm_model<- readRDS(data_path)
   print(summary(clm_model))
-  # any diagnostic plots for tobacco.
-}
-
-rfo_output <- function(model){
-  print(summary(model))
   # any diagnostic plots for tobacco.
 }
 
@@ -209,7 +210,7 @@ nnet_output <- function(data_path){
 
 # ZIP models #########################################
 
-zip_density <- function (data_path, v){
+zip_density <- function (zip_model, v){
   # Density plot for zip models.
   # zip model outputs two sets of predictors.
   #
@@ -225,7 +226,7 @@ zip_density <- function (data_path, v){
   # If they have an event assign them the corresponding count else 0.
   
   # get obs/preds
-  zip_model <- readRDS(data_path)
+  #zip_model <- readRDS(data_path)
   obs <- zip_model[[v]]
   # predict probability of zero value and counts of non-zero value..
   probs <- predict(zip_model, type='zero')
@@ -238,9 +239,32 @@ zip_density <- function (data_path, v){
   legend('topright', legend=c("Predicted", "Real"), col=c("red", "blue"), lty=1:2)
 }
 
-zip_output <- function(data_path){
-  zip_model <- readRDS(data_path)
+zip_output <- function(zip_model){
+  #zip_model <- readRDS(data_path)
   print(summary(zip_model))
+}
+
+# RFO Models #########################################
+
+rfo_output <- function(model){
+  print(summary(model))
+  # any diagnostic plots for tobacco.
+}
+
+plot_rfo_importance <- function(rfo_model) {
+  library(ggplot2)
+  
+  importance <- rfo_model$variable.importance
+  
+  importance_df <- data.frame(
+    Variable = names(importance),
+    Importance = importance
+  )
+  
+  ggplot(importance_df, aes(x = reorder(Variable, Importance), y = Importance)) +
+    geom_col() +
+    coord_flip() +
+    labs(title = "Variable Importance", x = "Variables", y = "Importance")
 }
 
 #TODO utility functions for education and replenishment. 

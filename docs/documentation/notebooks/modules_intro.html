@@ -1,23 +1,25 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modules &mdash; Minos  documentation</title>
+  <title>Introduction &mdash; Minos  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=31edadca" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=8209df7b" />
       <link rel="stylesheet" type="text/css" href="../../_static/minos_theme.css?v=85179c66" />
 
   
-      <script src="../../_static/jquery.js?v=3d1d8b85"></script>
-      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=9fa44488"></script>
-      <script src="../../_static/doctools.js?v=dcc2bf79"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=3d1d8b85"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=9fa44488"></script>
+        <script src="../../_static/doctools.js?v=dcc2bf79"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -65,7 +67,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Modules</li>
+      <li class="breadcrumb-item active">Introduction</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -74,10 +76,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="modules">
-<h1>Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h1>
-<section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+  <section id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h1>
 <p>MINOS consists of multiple modules. Each module has a specific purpose in the microsimulaton. Most are transition modules that evolve some subset of the population data frame forwards in time. Others are more specialist and handle issues such as population replenishment and interventions.</p>
 <p>List of fleshed out modules:</p>
 <p>List of Modules with templates (alphabetically)<br />
@@ -96,6 +96,10 @@ Interventions
 Mortality
 Neighbourhood
 Replenishment.</p>
+<section id="transition-probabilities">
+<h2>Transition Probabilities<a class="headerlink" href="#transition-probabilities" title="Link to this heading"></a></h2>
+<p>Each of these modules utilises a series of transition probability models in order to predict future state for individual households and people within the MINOS population.
+Discussion on each module used within the MINOS model is provided here including justification for included predictor variables and model structure as well as validation and uncertainty quantifiction.</p>
 </section>
 </section>
 
@@ -107,7 +111,7 @@ Replenishment.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Open MIT License.</p>
+    <p>&#169; Copyright 2025, Open MIT License.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

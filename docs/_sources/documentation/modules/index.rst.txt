@@ -1,3 +1,6 @@
+Modules
+=======
+
 .. toctree::
 
     modules_intro
@@ -7,6 +10,7 @@
     labour
     neighbourhood
     mental_well_being
+    mortality
     education
     nutrition
     replenishment

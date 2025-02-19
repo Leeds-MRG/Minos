@@ -2,8 +2,11 @@ Documentation
 ####################
 
 .. toctree::
+     :maxdepth: 4
 
      data_generation
      modules/index
+     modules/interventions
      HPC
-     validation
+     modules/validation
+     modules/outcomes
