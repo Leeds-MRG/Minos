@@ -76,6 +76,13 @@ Variables used in this model. Encodings for discrete variables found in data tab
 - labour_state. Previous labour state. XXXX cite. Probably remove this. dominates prediction..
 - household income. Monthly disposable income of individuals household. XXXX cite.
 
+| Predictor | Description | Literature/Justification |
+|------|-------|-------|
+|  |  |  |
+|  |  |  |
+|  |  |  |
+|  |  |  |
+
 ## Validation
 
 ```{r S7_labour_state_validation}

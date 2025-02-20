@@ -127,6 +127,13 @@ Formula:
 
 $$  heating \sim heating\_last + age + sex + ethnicity + region + education\_state + housing\_quality + neighbourhood\_safety\\ + loneliness + nutrition\_quality + ncigs + hh\_income + SF\_12 + financial\_situation + behind\_on\_bills  $$
 
+| Predictor | Description | Literature/Justification |
+|------|-------|-------|
+|  |  |  |
+|  |  |  |
+|  |  |  |
+|  |  |  |
+
 ```{r heating_model_summary}
 summary(model)
 ```

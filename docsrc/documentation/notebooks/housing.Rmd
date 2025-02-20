@@ -146,22 +146,26 @@ We use a Random Forest Ordinal model from the [ranger](https://www.rdocumentatio
 
 Formula:
 
-$$  housing\_quality \sim housing\_quality\_last + age + sex + ethnicity + region + education\_state + \\neighbourhood\_safety + loneliness + nutrition\_quality + ncigs + hh\_income + \\housing\_tenure + behind\_on\_bills + financial\_situation  $$
+$$  housing\_quality \sim housing\_quality\_last + age + sex + ethnicity + region + education\_state + \\neighbourhood\_safety + loneliness + nutrition\_quality + ncigs + hh\_income + \\housing\_tenure + behind\_on\_bills + financial\_situation + job\_sec  $$
 
-- age: Age at time of interview. 
-- sex: Individual's biological sex.
-- ethnicity: Discrete string values White British, Black African, etc.
-- region: Administrative region of the UK. Discrete strings such as London, North-East.
-- education_state: Highest attained qualification. Ordinal values based on UK government education tiers
-- neighbourhood_safety: Ordinal values based on frequency of 6 factors related to safety
-- loneliness: Ordinal variable for frequency of feeling lonely. Often/Sometimes/Never
-- nutrition_quality: Household nutrition quality. Continuous variable proxied by frequency of consumption of fruit and vegetables.
-- ncigs: Tobacco consumption. Count of cigarettes smoked per week.
-- hh_income: Household Income. Continuous, equivalised household disposable income.
-- housing_tenure: Housing Tenure. Ordinal variable for tenure type e.g. Owned outright, Local authority rent
-- behind_on_bills: Subjective feeling of struggling to pay bills.
-- financial_situation: Ordinal variable for current subjective financial situation.
-- SF_12:  Mental well-being. Continuous score indicating overall mental-wellbeing.
+
+| Predictor | Description | Literature/Justification |
+|------|-------|-------|
+| Previous Housing Quality |  |  |
+| Age |  | [@whelan2012understanding] |
+| Sex |  | [@whelan2012understanding] |
+| Ethnicity |  |[@whelan2012understanding]  |
+| Region |  |  |
+| Education |  | [@whelan2012understanding] |
+| Neighbourhood Safety |  |  |
+| Loneliness |  |  |
+| Nutrition Quality |  |  |
+| Tobacco Consumption | Count of cigarettes smoked per week |  |
+| Household Income |  |  |
+| Housing Tenure | Ordinal variable for tenure type e.g. Owned outright, Local authority rent |  |
+| Behind on Bills | Subjective feeling of struggling to pay bills |  |
+| Financial Situation | Ordinal variable for current subjective financial situation |  |
+| SF-12 MCS | Mental wellbeing | [@whelan2012understanding] |
 
 
 ```{r housing_model_summary}

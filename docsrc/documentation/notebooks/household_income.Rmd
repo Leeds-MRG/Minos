@@ -118,19 +118,21 @@ To estimate this variable we use a Generalised Linear Mixed Model (GLMM) using t
   
 Formula:
   
-$$  hh\_income\_next \sim hh\_income\_last + age + age^2 +  age^3 + sex + ethnicity + region + \\education\_state + job\_sec + SF\_12 + labour\_state + (1|pidp)$$
+$$  hh\_income \sim hh\_income\_last + age + age^2 +  age^3 + sex + ethnicity + region + \\education\_state + job\_sec + SF\_12 + labour\_state + (1|pidp)$$
 
 Each variable included is defined as follows. Each variable with discrete values is defined in the data tables section of this documentation [here](https://leeds-mrg.github.io/Minos/documentation/data_tables.html).
 
-- sex. Individual's biological sex. [@dilmaghani2018sexual]
-- age. Age at time of interview. 
-- ethnicity. Individual ethnicity. Discrete string values White British, Black African, etc. [@clemens2014method]
-- region. Administrative region of the UK. Discrete strings such as London, North-East. [@brewer2007poverty]
-- household income. Previous household income values are a strong indicator of current value. [@dilmaghani2018sexual]
-- job_sec. NSSEC code for individual's employment. Ordinal values describing job quality. [@clemens2014method]
-- labour state. Is a person employed, unemployed, student etc. Discrete states. [@dilmaghani2018sexual]
-- education state. Highest attained qualification. Ordinal values based on UK government education tiers [@eika2019educational]
-- SF_12. Mental well-being. Continuous score indicating overall mental-wellbeing. [@viswanathan2005nature]
+| Predictor | Description | Literature/Justification |
+|------|-------|-------|
+| Previous Income |  | [@dilmaghani2018sexual] |
+| Sex |  | [@dilmaghani2018sexual] |
+| Age |  |  |
+| Ethnicity |  | [@clemens2014method] |
+| Region | Administrative region of the UK | [@brewer2007poverty] |
+| Education | Highest attained qualification | [@eika2019educational] |
+| Job NSSEC | 8 level socio-economic employment category | [@clemens2014method] |
+| SF-12 MCS | Mental wellbeing | [@viswanathan2005nature] |
+| Labour State | Employment status| [@dilmaghani2018sexual] |
 
 ```{r hh_income_model_summary}
 print(summary(model))
