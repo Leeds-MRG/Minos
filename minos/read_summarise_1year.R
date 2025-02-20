@@ -387,7 +387,7 @@ UC_MIR_families_three_plus_children_summarise <- function(data) {
            nkids > 0) %>%
     mutate(three_plus_children = nkids_ind >= 3) %>%
     mutate(mental_health_risk = (SF_12 < 45.6)) %>%  # IS THIS VALUE CORRECT??
-    group_by(run_id, mental_health_risk, tpc_flag) %>%
+    group_by(run_id, mental_health_risk, three_plus_children) %>%
     summarise(count = n()) %>%
     ungroup() %>%
     group_by(run_id) %>%
@@ -1066,7 +1066,7 @@ summary_funcs <- c(UC = UC_summarise,
                    UC_MIR_families_ethnicity = UC_MIR_families_ethnicity_summarise,
                    UC_MIR_families_three_plus_children = UC_MIR_families_three_plus_children_summarise,
                    UC_MIR_families_mother_under_25 = UC_MIR_families_mother_under_25_summarise,
-                   UC_MIR_families_disabled_family = UC_MIR_families_disabled_family_summarise,
+                   UC_MIR_families_disabled_family = UC_MIR_families_disabled_family_summarise
 )
 
 
