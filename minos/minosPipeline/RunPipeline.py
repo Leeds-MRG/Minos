@@ -55,6 +55,7 @@ from minos.modules.interventions_energy import GBIS,goodHeatingDummy,fossilFuelR
 
 from minos.modules.physical_wellbeing import lmmYJPCS
 from minos.modules.physical_activity import PhysicalActivity
+from minos.modules.QALYs import QALYs
 
 
 # from minos.modules.metrics import ChildPovertyMetrics
@@ -113,6 +114,7 @@ components_map = {
     "Ageing()": Ageing(),
     "lmmYJPCS()": lmmYJPCS(),
     "PhysicalActivity()": PhysicalActivity(),
+    "QALYs()": QALYs(),
 }
 
 SIPHER7_components_map = {  # SIPHER7 stuff
@@ -246,7 +248,9 @@ def get_priorities():
     # print("Everything else:\n", everything_else)
 
     component_priorities.update({el: 7 for el in everything_else})
-    component_priorities.update({el: 9 for el in and_finally})
+    component_priorities.update({el: 8 for el in and_finally})
+    component_priorities.update({el: 9 for el in ["QALYs()"]}) # stupid but qalys needs to go right at the end.
+
     # component_priorities.update({el: 8 for el in metrics_map})
 
     return component_priorities, all_components_map
