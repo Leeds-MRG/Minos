@@ -26,12 +26,25 @@ synthetic: TRUE
 #components : [lmmYJMWB(), Loneliness(), nCars(), lmmTobacco(), S7Labour(), HourlyWage(),
 #              JobSec(), Neighbourhood(), Heating(), Housing(), lmmYJNutrition(), lmmYJNetIncome(), behindOnBills(), financialSituation(),
 #              energyBills(), lmmYJOutgoings(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
-components : [QALYs(), lmmYJPCS(), lmmYJMWB(), Loneliness(), nCars(), #lmmTobacco(), MaterialDeprivation(), HourlyWage(),
-              PhysicalActivity(), Alcohol(), S7Labour(),
-              JobSec(), Neighbourhood(), Heating(), Housing(), lmmYJNutrition(), Neighbourhood(),
-              lmmYJNetIncome(), behindOnBills(),
-              financialSituation(), energyBills(), lmmYJOutgoings(), Education(), Ageing(), Mortality(),
+
+
+# no equivalent income modules.
+#components : [QALYs(), lmmYJPCS(), lmmYJMWB(), Loneliness(), nCars(), #lmmTobacco(), MaterialDeprivation(), HourlyWage(),
+#              PhysicalActivity(), Alcohol(), S7Labour(),
+#              JobSec(), Neighbourhood(), Heating(), Housing(), lmmYJNutrition(), Neighbourhood(),
+#              lmmYJNetIncome(), behindOnBills(),
+#              financialSituation(), energyBills(), lmmYJOutgoings(), Education(), Ageing(), Mortality(),
+#              nkidsFertilityAgeSpecificRates(), Replenishment()]
+
+# sf12 and equivalent income modules.
+components : [QALYs(), lmmYJPCS(), lmmYJMWB(),
+              S7MentalHealth(), S7PhysicalHealth(), S7Neighbourhood(), S7EquivalentIncome(),
+              Loneliness(), nCars(), PhysicalActivity(), Alcohol(), S7Labour(),
+              JobSec(), Neighbourhood(), # Heating(), Housing(), Neighbourhood(),
+              lmmYJNutrition(), lmmYJNetIncome(), behindOnBills(), financialSituation(), energyBills(),
+              lmmYJOutgoings(), Education(), Ageing(), Mortality(),
               nkidsFertilityAgeSpecificRates(), Replenishment()]
+
 scale_rates:
   method: "constant"
   constant:
