@@ -1,0 +1,52 @@
+randomness:
+  key_columns: ['entrance_time', 'age']
+time:
+  start: {year: 2020, month: 10, day: 15}
+  end:   {year: 2045, month: 10, day: 15}
+  step_size: 365.25  # Days
+population:
+  age_start: 0
+  age_end: 100
+
+mortality_file: 'regional_mortality_2011_2061.csv'
+fertility_file: 'regional_fertility_2011_2061.csv'
+input_data_dir: "data/scaled_manchester_aligned_US"
+persistent_data_dir: "persistent_data"
+output_data_dir: "output"
+
+transition_dir: 'data/transitions'
+replenishing_dir: 'data/replenishing/manchester_scaled'
+
+cross_validation: FALSE
+synthetic: TRUE
+
+# Correct ordering of components is automated in RunPipeline, so can be passed in any order here now.
+components : [QALYs(), lmmYJPCS(), lmmYJMWB(),
+              S7MentalHealth(), S7PhysicalHealth(), S7Neighbourhood(), S7EquivalentIncome(),
+              Loneliness(), nCars(), PhysicalActivity(), Alcohol(), S7Labour(),
+              JobSec(), Neighbourhood(), # Heating(), Housing(), Neighbourhood(),
+              lmmYJNutrition(), lmmYJNetIncome(), behindOnBills(), financialSituation(), energyBills(),
+              lmmYJOutgoings(), Education(), Ageing(), Mortality(),
+              nkidsFertilityAgeSpecificRates(), Replenishment()]
+
+scale_rates:
+  method: "constant"
+  constant:
+    education: 1
+    mortality: 1
+    fertility: 1
+
+# which columns are saved to CSVs. if not provided defaults to saving everything.
+#keep_columns : ["weight", "pidp", "hidp",
+#                "alive", "SF_12_MCS", "SF_12_PCS", 'time',
+#                "housing_quality", "hh_income", "neighbourhood_safety",
+#                "nkids", "loneliness", "age",
+#                "ethnicity", "marital_status", "S7_labour_state",
+#                'has_newborn', "region", "hourly_wage",
+#                "age", "yearly_energy", 'heating',
+#                "S7_physical_health", "S7_mental_health", "S7_housing_quality", "S7_neighbourhood_safety",
+#                "equivalent_income"]
+## if running a policy intervention keep some extra columns.
+#intervention_keep_columns : ["income_boosted", "boost_amount"]
+## if running synthetic population with spatial data keep some extra columns.
+#synthpop_keep_columns : ["ZoneID", "simd_decile"]

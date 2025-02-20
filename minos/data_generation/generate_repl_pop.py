@@ -93,7 +93,7 @@ def expand_repl(US_wave, region, final_year=2070):
         # in python. Developed in the 80s such that odds of repeat values is astronomical.
         # https://stackoverflow.com/questions/3530294/how-to-generate-unique-64-bits-integers-from-python
         # bit shifting makes number that only relies on clock to improve uniqueness but less random.
-        new_repl['pidp'] = new_repl['pidp'].apply(lambda _: uuid4().int % 10e18)
+        new_repl['pidp'] = new_repl['pidp'].apply(lambda _: uuid4().int % 10e22)
         # [(uuid4().int % 10e12) for _ in range(len(new_repl.index))]
 
         # print(f"There are {len(new_repl)} people in the replenishing population in year {year}.")
@@ -268,8 +268,9 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['ncigs'] = final_repl['ncigs'].astype(int)
     final_repl['nutrition_quality'] = final_repl['nutrition_quality'].astype(int)
     final_repl['loneliness'] = final_repl['loneliness'].astype(int)
-    #final_repl['S7_mental_health'] = final_repl['S7_mental_health'].astype(int)
-    #final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
+
+    final_repl['S7_mental_health'] = final_repl['S7_mental_health'].astype(int)
+    final_repl['S7_physical_health'] = final_repl['S7_physical_health'].astype(int)
     #final_repl['nutrition_quality_diff'] = final_repl['nutrition_quality_diff'].astype(int)
     final_repl['neighbourhood_safety'] = final_repl['neighbourhood_safety'].astype(int)
     final_repl['job_sec'] = final_repl['job_sec'].astype(int)

@@ -187,7 +187,7 @@ def input_main():
     data.loc[data['housing_tenure'] == 7, "housing_tenure"] = 6
     data.loc[data['housing_tenure'] == 8, "housing_tenure"] = 7
 
-    data = cut_outliers(data, 0.1, 99.9, "hh_income")
+    #data = cut_outliers(data, 0.1, 99.9, "hh_income")
     US_utils.save_multiple_files(data, years, "data/imputed_complete_US/", "")
 
 def transition_main():
