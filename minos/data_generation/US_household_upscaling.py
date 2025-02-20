@@ -23,6 +23,15 @@ import US_utils
 import argparse
 from minos.data_generation.align_household_spatial_data import main as align_main
 
+import os
+from sipherdb.sipher_database import SipherDatabase
+from sipherdb.sipher_database import SqlDB
+from sipherdb.query.general_queries import GeneralDataQueries
+
+ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '../..'))
+os.chdir(ROOT_DIR)
+
+
 def merge_with_synthpop_households(synthpop, msim_data, merge_column="hidp"):
     """ Merge US data on synthetic pop individual data.
 
@@ -92,41 +101,53 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     n : int
         number of boostrapping samples to take.
     """
+
+    db = SipherDatabase()
+    db.init_class(sql_db=SqlDB.POSTGRESQL, db_config_file=os.path.join(ROOT_DIR, 'database.ini'))
+    sdb = GeneralDataQueries()
+
     # get synthetic data.
     #if region in ['scotland', 'glasgow', 'edinburgh']:
     #    synthpop_file_path = "persistent_data/spatial_data/HH2011PopEst2020S_population.csv"
     #elif region in ['uk', 'manchester', 'sheffield']:
-    synthpop_file_path = "persistent_data/spatial_data/HH2011PopEst2020UK_population.csv"
+    # synthpop_file_path = "persistent_data/spatial_data/HH2011PopEst2020UK_population.csv"
+    # synthpop_file_path = "persistent_data/spatial_data/20230413HHEW_population.csv"
 
-    try:
-        synthpop_data = pd.read_csv(synthpop_file_path)  # this is individual population weighted data.
-    except FileNotFoundError as e:
-        print(e)
-        print(f"Synthetic population file not found at {synthpop_file_path}. Please ask MINOS maintainers for access.")
-        raise
+    # try:
+    #     synthpop_data = pd.read_csv(synthpop_file_path)  # this is individual population weighted data.
+    # except FileNotFoundError as e:
+    #     print(e)
+    #     print(f"Synthetic population file not found at {synthpop_file_path}. Please ask MINOS maintainers for access.")
+    #     raise
 
+    db_vars = {'households': ['household_id']}
+    subsetted_synthpop = sdb.ca_data_at_lsoa_level(ca_name='Greater Manchester', db_vars=db_vars, hh_based_syn=True)
+    subsetted_synthpop_data = pd.DataFrame(subsetted_synthpop, columns=['ZoneID', 'hidp'])
 
-    data_zones = get_data_zones(region)
-    US_data = pd.read_csv("data/imputed_final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
-    #US_data = pd.read_csv("data/final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
-    if type(data_zones) == pd.core.series.Series:
-        subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
-    else:
-        subsetted_synthpop_data = synthpop_data # no subsetting for full UK population.
+    # data_zones = pd.Series(sdb.ca_lsoa_codes(ca_name='Greater Manchester'))
+    # data_zones = get_data_zones(region)
+    # if type(data_zones) == pd.core.series.Series:
+    #     subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
+    # else:
+    #     subsetted_synthpop_data = synthpop_data # no subsetting for full UK population.
 
     # if bootstrapping sample from subsetted synthetic data with replacement.
-    if bootstrapping:
-        subsetted_synthpop_data = subsetted_synthpop_data.sample(n, replace=True)
+    # if bootstrapping:
+    #     subsetted_synthpop_data = subsetted_synthpop_data.sample(n, replace=True)
+
+    US_data = pd.read_csv("data/imputed_final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
+    # US_data = pd.read_csv("data/final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
 
     # merge synthetic and US data together.
-    subsetted_synthpop_data['hidp'] = subsetted_synthpop_data['hhid']
+    # subsetted_synthpop_data['hidp'] = subsetted_synthpop_data['hhid']
     merged_data = merge_with_synthpop_households(subsetted_synthpop_data, US_data)
     merged_data = merged_data.dropna(axis=0, subset=["time"])  # remove rows that are missing in spatial data and aren't merged properly.
     print(f"{sum(merged_data['time'].value_counts())} rows out of {merged_data.shape[0]} successfully merged.")
 
     # scramble new hidp and pidp.
     merged_data['hidp'] = merged_data['new_hidp']  # replace old pidp.
-    merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True)  # removing old hidp columns
+    # merged_data.drop(['new_hidp', 'hhid'], axis=1, inplace=True)  # removing old hidp columns
+    merged_data.drop(['new_hidp'], axis=1, inplace=True)  # removing old hidp columns
     merged_data['pidp'] = merged_data.index  # creating new pidps.
 
     # take subset of sample if desired. defaults to 100% for now.
