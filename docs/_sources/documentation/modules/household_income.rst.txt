@@ -49,29 +49,41 @@ package in R.
 
 Formula:
 
-.. math::   hh\_income\_next \sim hh\_income\_last + age + age^2 +  age^3 + sex + ethnicity + region + \\education\_state + job\_sec + SF\_12 + labour\_state + (1|pidp)
+.. math::   hh\_income \sim hh\_income\_last + age + age^2 +  age^3 + sex + ethnicity + region + \\education\_state + job\_sec + SF\_12 + labour\_state + (1|pidp)
 
 Each variable included is defined as follows. Each variable with
 discrete values is defined in the data tables section of this
 documentation
 `here <https://leeds-mrg.github.io/Minos/documentation/data_tables.html>`__.
 
--  sex. Individual’s biological sex. (Dilmaghani 2018)
--  age. Age at time of interview.
--  ethnicity. Individual ethnicity. Discrete string values White
-   British, Black African, etc. (Clemens and Dibben 2014)
--  region. Administrative region of the UK. Discrete strings such as
-   London, North-East. (Brewer et al. 2007)
--  household income. Previous household income values are a strong
-   indicator of current value. (Dilmaghani 2018)
--  job_sec. NSSEC code for individual’s employment. Ordinal values
-   describing job quality. (Clemens and Dibben 2014)
--  labour state. Is a person employed, unemployed, student etc. Discrete
-   states. (Dilmaghani 2018)
--  education state. Highest attained qualification. Ordinal values based
-   on UK government education tiers (Eika, Mogstad, and Zafar 2019)
--  SF_12. Mental well-being. Continuous score indicating overall
-   mental-wellbeing. (Viswanathan, Anderson, and Thomas 2005)
++--------------------+------------------------+------------------------+
+| Predictor          | Description            | Li                     |
+|                    |                        | terature/Justification |
++====================+========================+========================+
+| Previous Income    |                        | (Dilmaghani 2018)      |
++--------------------+------------------------+------------------------+
+| Sex                |                        | (Dilmaghani 2018)      |
++--------------------+------------------------+------------------------+
+| Age                |                        |                        |
++--------------------+------------------------+------------------------+
+| Ethnicity          |                        | (Clemens and Dibben    |
+|                    |                        | 2014)                  |
++--------------------+------------------------+------------------------+
+| Region             | Administrative region  | (Brewer et al. 2007)   |
+|                    | of the UK              |                        |
++--------------------+------------------------+------------------------+
+| Education          | Highest attained       | (Eika, Mogstad, and    |
+|                    | qualification          | Zafar 2019)            |
++--------------------+------------------------+------------------------+
+| Job NSSEC          | 8 level socio-economic | (Clemens and Dibben    |
+|                    | employment category    | 2014)                  |
++--------------------+------------------------+------------------------+
+| SF-12 MCS          | Mental wellbeing       | (Viswanathan,          |
+|                    |                        | Anderson, and Thomas   |
+|                    |                        | 2005)                  |
++--------------------+------------------------+------------------------+
+| Labour State       | Employment status      | (Dilmaghani 2018)      |
++--------------------+------------------------+------------------------+
 
 .. code:: r
 

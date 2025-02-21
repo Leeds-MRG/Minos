@@ -76,31 +76,58 @@ package in R to estimate transitions for this variable.
 
 Formula:
 
-.. math::   housing\_quality \sim housing\_quality\_last + age + sex + ethnicity + region + education\_state + \\neighbourhood\_safety + loneliness + nutrition\_quality + ncigs + hh\_income + \\housing\_tenure + behind\_on\_bills + financial\_situation  
+.. math::   housing\_quality \sim housing\_quality\_last + age + sex + ethnicity + region + education\_state + \\neighbourhood\_safety + loneliness + nutrition\_quality + ncigs + hh\_income + \\housing\_tenure + behind\_on\_bills + financial\_situation + job\_sec  
 
--  age: Age at time of interview.
--  sex: Individual’s biological sex.
--  ethnicity: Discrete string values White British, Black African, etc.
--  region: Administrative region of the UK. Discrete strings such as
-   London, North-East.
--  education_state: Highest attained qualification. Ordinal values based
-   on UK government education tiers
--  neighbourhood_safety: Ordinal values based on frequency of 6 factors
-   related to safety
--  loneliness: Ordinal variable for frequency of feeling lonely.
-   Often/Sometimes/Never
--  nutrition_quality: Household nutrition quality. Continuous variable
-   proxied by frequency of consumption of fruit and vegetables.
--  ncigs: Tobacco consumption. Count of cigarettes smoked per week.
--  hh_income: Household Income. Continuous, equivalised household
-   disposable income.
--  housing_tenure: Housing Tenure. Ordinal variable for tenure type
-   e.g. Owned outright, Local authority rent
--  behind_on_bills: Subjective feeling of struggling to pay bills.
--  financial_situation: Ordinal variable for current subjective
-   financial situation.
--  SF_12: Mental well-being. Continuous score indicating overall
-   mental-wellbeing.
++--------------------+------------------------+------------------------+
+| Predictor          | Description            | Li                     |
+|                    |                        | terature/Justification |
++====================+========================+========================+
+| Previous Housing   |                        |                        |
+| Quality            |                        |                        |
++--------------------+------------------------+------------------------+
+| Age                |                        | (Whelan and Maitre     |
+|                    |                        | 2012)                  |
++--------------------+------------------------+------------------------+
+| Sex                |                        | (Whelan and Maitre     |
+|                    |                        | 2012)                  |
++--------------------+------------------------+------------------------+
+| Ethnicity          |                        | (Whelan and Maitre     |
+|                    |                        | 2012)                  |
++--------------------+------------------------+------------------------+
+| Region             |                        |                        |
++--------------------+------------------------+------------------------+
+| Education          |                        | (Whelan and Maitre     |
+|                    |                        | 2012)                  |
++--------------------+------------------------+------------------------+
+| Neighbourhood      |                        | (Whelan and Maitre     |
+| Safety             |                        | 2012)                  |
++--------------------+------------------------+------------------------+
+| Loneliness         |                        |                        |
++--------------------+------------------------+------------------------+
+| Nutrition Quality  |                        |                        |
++--------------------+------------------------+------------------------+
+| Tobacco            | Count of cigarettes    |                        |
+| Consumption        | smoked per week        |                        |
++--------------------+------------------------+------------------------+
+| Household Income   |                        | (Waters and Wernham    |
+|                    |                        | 2023)                  |
++--------------------+------------------------+------------------------+
+| Housing Tenure     | Ordinal variable for   | (Whelan and Maitre     |
+|                    | tenure type e.g. Owned | 2012) (Waters and      |
+|                    | outright, Local        | Wernham 2023)          |
+|                    | authority rent         |                        |
++--------------------+------------------------+------------------------+
+| Behind on Bills    | Subjective feeling of  |                        |
+|                    | struggling to pay      |                        |
+|                    | bills                  |                        |
++--------------------+------------------------+------------------------+
+| Financial          | Ordinal variable for   |                        |
+| Situation          | current subjective     |                        |
+|                    | financial situation    |                        |
++--------------------+------------------------+------------------------+
+| SF-12 MCS          | Mental wellbeing       | (Whelan and Maitre     |
+|                    |                        | 2012)                  |
++--------------------+------------------------+------------------------+
 
 .. code:: r
 
@@ -173,3 +200,19 @@ in the resulting model.
 
 References
 ~~~~~~~~~~
+
+.. container:: references csl-bib-body hanging-indent
+   :name: refs
+
+   .. container:: csl-entry
+      :name: ref-waters2023housing
+
+      Waters, Tom, and Thomas Wernham. 2023. “Housing Quality and
+      Affordability for Lower-Income Households.” IFS Report.
+
+   .. container:: csl-entry
+      :name: ref-whelan2012understanding
+
+      Whelan, Christopher T, and Bertrand Maitre. 2012. “Understanding
+      Material Deprivation: A Comparative European Analysis.” *Research
+      in Social Stratification and Mobility* 30 (4): 489–503.

@@ -78,10 +78,12 @@ Variables used in this model. Encodings for discrete variables found in data tab
 
 | Predictor | Description | Literature/Justification |
 |------|-------|-------|
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
+| Previous Labour State |  |  |
+| Age |  |  |
+| Sex |  |  |
+| Ethnicity |  |  |
+| Region |  |  |
+| Education |  |  |
 
 ## Validation
 

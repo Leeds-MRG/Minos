@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heating &mdash; Minos  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=31edadca" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=8209df7b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/minos_theme.css?v=85179c66" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=3d1d8b85"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=9fa44488"></script>
+        <script src="../../_static/doctools.js?v=dcc2bf79"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Introduction" href="interventions.html" />
+    <link rel="prev" title="Replenishment" href="replenishment.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Minos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../data_generation.html">Data Generation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="modules_intro.html">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="household_income.html">Household Disposable Income</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
+<li class="toctree-l3"><a class="reference internal" href="housing.html">Housing Quality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="loneliness.html">Loneliness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="labour.html">Labour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="labour.html#transition-model">Transition Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
+<li class="toctree-l3"><a class="reference internal" href="neighbourhood.html#neighbourhood-1">Neighbourhood</a></li>
+<li class="toctree-l3"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tobacco.html">Tobacco</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ageing.html">Ageing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ageing.html#references">References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mortality.html">Mortality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="education.html">Education</a></li>
+<li class="toctree-l3"><a class="reference internal" href="replenishment.html">Replenishment</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Heating</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#transition-model">Transition Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#validation">Validation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#justification-for-forward-fill">Justification for Forward Fill</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html#child-uplift">Child Uplift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html#poverty-percentage-targets">Poverty Percentage Targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html#living-wage">Living Wage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html#energy-downlift">Energy Downlift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html#epcg">EPCG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html#gbis">GBIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outcomes.html">Outcomes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API/index.html">Welcome to Minos’ API documentation!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compile_help.html">Compiling this page using sphinx.</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Minos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Documentation</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Modules</a></li>
+      <li class="breadcrumb-item active">Heating</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="heating">
+<h1>Heating<a class="headerlink" href="#heating" title="Link to this heading"></a></h1>
+<p>The Heating module is not present in all experiments. It has been
+included in the SF-12 and housing experiments, but is not technically
+required for SF-12 simulation runs.</p>
+<p>Heating is a binary variable that represents an individuals ability to
+adequately heat their home. The variable is taken directly from the
+survey, from the
+<code class="docutils literal notranslate"><span class="pre">`hheat</span></code> &lt;<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hheat/">https://www.understandingsociety.ac.uk/documentation/mainstage/variables/hheat/</a>&gt;`__
+variable.</p>
+<p><em>NOTE:</em> Heating is not present in every wave of the survey. This was
+problematic in the generation of the housing_quality composite variable.
+For this reason, we decided to forward fill this variable to fill in
+some values for the missing waves. Justification for this decision is in
+the section <a class="reference internal" href="#justification-for-forward-fill"><span class="std std-ref">Justification for Forward
+Fill</span></a>.</p>
+<figure class="align-default" id="id1">
+<img alt="plot of chunk heating_barchart" src="../../_images/heating_barchart-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 38 </span><span class="caption-text">plot of chunk heating_barchart</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<section id="transition-model">
+<h2>Transition Model<a class="headerlink" href="#transition-model" title="Link to this heading"></a></h2>
+<p>To estimate transitions in heating, we fit a logit model using the
+<code class="docutils literal notranslate"><span class="pre">glm()</span></code> function from the stats package in R. We used the binomial
+family with a logit link function.</p>
+<p>Formula:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}heating \sim heating\_last + age + sex + ethnicity + region + education\_state + housing\_quality + neighbourhood\_safety\\ + loneliness + nutrition\_quality + ncigs + hh\_income + SF\_12 + financial\_situation + behind\_on\_bills\end{split}\]</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Predictor</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Literature/Justification</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p></p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">summary</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##</span>
+<span class="c1">## Call:</span>
+<span class="c1">## glm(formula = formula, family = binomial(link = &quot;logit&quot;), data = data,</span>
+<span class="c1">##     weights = weight)</span>
+<span class="c1">##</span>
+<span class="c1">## Deviance Residuals:</span>
+<span class="c1">##      Min        1Q    Median        3Q       Max</span>
+<span class="c1">## -1.33703   0.01769   0.02867   0.04594   0.85367</span>
+<span class="c1">##</span>
+<span class="c1">## Coefficients:</span>
+<span class="c1">##                                               Estimate Std. Error z value</span>
+<span class="c1">## (Intercept)                                   2.950340   3.704914   0.796</span>
+<span class="c1">## factor(heating)1                              3.319767   1.458905   2.276</span>
+<span class="c1">## scale(age)                                   -0.068202   0.319234  -0.214</span>
+<span class="c1">## factor(sex)Male                               0.096644   0.582296   0.166</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN   -0.244995   2.466160  -0.099</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA    0.297122   1.786083   0.166</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC   -0.228502   2.063753  -0.111</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI   -0.160526   3.444261  -0.047</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND   -0.035215   1.568074  -0.022</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX    0.277764   1.877503   0.148</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS    1.348962   3.029686   0.445</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL   -0.848160   5.935335  -0.143</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH    2.894664   4.779247   0.606</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK   -0.556564   1.513136  -0.368</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO   -0.179361   1.179221  -0.152</span>
+<span class="c1">## factor(region)East of England                 1.317506   1.690274   0.779</span>
+<span class="c1">## factor(region)London                         -0.814064   1.176274  -0.692</span>
+<span class="c1">## factor(region)North East                      1.244462   2.184858   0.570</span>
+<span class="c1">## factor(region)North West                     -0.169440   1.237976  -0.137</span>
+<span class="c1">## factor(region)Northern Ireland               -0.475106   2.250174  -0.211</span>
+<span class="c1">## factor(region)Scotland                        0.156604   1.576786   0.099</span>
+<span class="c1">## factor(region)South East                     -0.185219   1.183122  -0.157</span>
+<span class="c1">## factor(region)South West                      0.244589   1.406359   0.174</span>
+<span class="c1">## factor(region)Wales                           0.751346   1.878305   0.400</span>
+<span class="c1">## factor(region)West Midlands                   0.761370   1.439835   0.529</span>
+<span class="c1">## factor(region)Yorkshire and The Humber        0.080737   1.326698   0.061</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)0 -1.335485   3.217566  -0.415</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)2 -1.521265   3.199262  -0.476</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)3 -0.892079   3.279710  -0.272</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)5 -1.660019   3.251868  -0.510</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)6 -1.455852   3.206597  -0.454</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)7 -0.714272   3.323053  -0.215</span>
+<span class="c1">## factor(housing_quality)Low                   -0.358152   1.505364  -0.238</span>
+<span class="c1">## factor(housing_quality)Medium                -0.543219   0.798922  -0.680</span>
+<span class="c1">## factor(loneliness)2                           0.001498   0.674986   0.002</span>
+<span class="c1">## factor(loneliness)3                           0.061320   1.041214   0.059</span>
+<span class="c1">## scale(nutrition_quality)                      0.021469   0.299282   0.072</span>
+<span class="c1">## scale(ncigs)                                 -0.016210   0.236582  -0.069</span>
+<span class="c1">## scale(hh_income)                              0.354331   0.450281   0.787</span>
+<span class="c1">## scale(SF_12)                                  0.194311   0.306314   0.634</span>
+<span class="c1">## factor(financial_situation)2                 -0.410978   0.997972  -0.412</span>
+<span class="c1">## factor(financial_situation)3                 -1.077603   1.028242  -1.048</span>
+<span class="c1">## factor(financial_situation)4                 -1.816079   1.188545  -1.528</span>
+<span class="c1">## factor(financial_situation)5                 -1.530868   1.592330  -0.961</span>
+<span class="c1">## factor(behind_on_bills)2                     -0.837083   0.797210  -1.050</span>
+<span class="c1">## factor(behind_on_bills)3                     -0.263824   2.678453  -0.098</span>
+<span class="c1">##                                              Pr(&gt;|z|)</span>
+<span class="c1">## (Intercept)                                    0.4258</span>
+<span class="c1">## factor(heating)1                               0.0229 *</span>
+<span class="c1">## scale(age)                                     0.8308</span>
+<span class="c1">## factor(sex)Male                                0.8682</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN     0.9209</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA     0.8679</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC     0.9118</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI     0.9628</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND     0.9821</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX     0.8824</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS     0.6561</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL     0.8864</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH     0.5447</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK     0.7130</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO     0.8791</span>
+<span class="c1">## factor(region)East of England                  0.4357</span>
+<span class="c1">## factor(region)London                           0.4889</span>
+<span class="c1">## factor(region)North East                       0.5690</span>
+<span class="c1">## factor(region)North West                       0.8911</span>
+<span class="c1">## factor(region)Northern Ireland                 0.8328</span>
+<span class="c1">## factor(region)Scotland                         0.9209</span>
+<span class="c1">## factor(region)South East                       0.8756</span>
+<span class="c1">## factor(region)South West                       0.8619</span>
+<span class="c1">## factor(region)Wales                            0.6891</span>
+<span class="c1">## factor(region)West Midlands                    0.5970</span>
+<span class="c1">## factor(region)Yorkshire and The Humber         0.9515</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)0   0.6781</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)2   0.6344</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)3   0.7856</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)5   0.6097</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)6   0.6498</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)7   0.8298</span>
+<span class="c1">## factor(housing_quality)Low                     0.8119</span>
+<span class="c1">## factor(housing_quality)Medium                  0.4965</span>
+<span class="c1">## factor(loneliness)2                            0.9982</span>
+<span class="c1">## factor(loneliness)3                            0.9530</span>
+<span class="c1">## scale(nutrition_quality)                       0.9428</span>
+<span class="c1">## scale(ncigs)                                   0.9454</span>
+<span class="c1">## scale(hh_income)                               0.4313</span>
+<span class="c1">## scale(SF_12)                                   0.5259</span>
+<span class="c1">## factor(financial_situation)2                   0.6805</span>
+<span class="c1">## factor(financial_situation)3                   0.2946</span>
+<span class="c1">## factor(financial_situation)4                   0.1265</span>
+<span class="c1">## factor(financial_situation)5                   0.3364</span>
+<span class="c1">## factor(behind_on_bills)2                       0.2937</span>
+<span class="c1">## factor(behind_on_bills)3                       0.9215</span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">##</span>
+<span class="c1">## (Dispersion parameter for binomial family taken to be 1)</span>
+<span class="c1">##</span>
+<span class="c1">##     Null deviance: 166.66  on 9324  degrees of freedom</span>
+<span class="c1">## Residual deviance: 106.76  on 9279  degrees of freedom</span>
+<span class="c1">##   (1 observation deleted due to missingness)</span>
+<span class="c1">## AIC: 94.42</span>
+<span class="c1">##</span>
+<span class="c1">## Number of Fisher Scoring iterations: 8</span>
+</pre></div>
+</div>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h2>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">handover_ordinal</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id2">
+<img alt="plot of chunk heating_validation" src="../../_images/heating_validation-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 39 </span><span class="caption-text">plot of chunk heating_validation</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">pivoted</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">combine_and_pivot_long</span><span class="p">(</span><span class="n">df1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span>
+<span class="w">                                   </span><span class="n">df1.name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;simulated&#39;</span><span class="p">,</span>
+<span class="w">                                   </span><span class="n">df2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">raw</span><span class="p">,</span>
+<span class="w">                                   </span><span class="n">df2.name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;raw&#39;</span><span class="p">,</span>
+<span class="w">                                   </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;heating&#39;</span><span class="p">)</span>
+
+<span class="nf">cv_ordinal_plots</span><span class="p">(</span><span class="n">pivoted.df</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pivoted</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;heating&#39;</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">save</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## `summarise()` has grouped output by &#39;time&#39;, &#39;scenario&#39;. You can override using</span>
+<span class="c1">## the `.groups` argument.</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk heating_cv" src="../../_images/heating_cv-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 40 </span><span class="caption-text">plot of chunk heating_cv</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="justification-for-forward-fill">
+<h2>Justification for Forward Fill<a class="headerlink" href="#justification-for-forward-fill" title="Link to this heading"></a></h2>
+<p>Adequate heating in the household is a key component of the
+housing_quality proxy variable. It is one of the core variables of
+housing_quality, and the one that is most closely associated with
+conditions of poor housing quality such as excessive damp and mould.
+However, unfortunately the <code class="docutils literal notranslate"><span class="pre">hheat</span></code> variable in Understanding Society
+(the source of the heating variable) is not present in every wave. This
+is problematic for the generation of the housing_quality proxy variable,
+so here I will provide some justification that this is not a terrible
+idea. The table below shows which waves <code class="docutils literal notranslate"><span class="pre">hheat</span></code> is present in
+Understanding Society.</p>
+<div class="line-block">
+<div class="line">Wave | Present? |</div>
+<div class="line">1 | TRUE |</div>
+<div class="line">2 | TRUE |</div>
+<div class="line">3 | FALSE |</div>
+<div class="line">4 | TRUE |</div>
+<div class="line">5 | FALSE |</div>
+<div class="line">6 | TRUE |</div>
+<div class="line">7 | FALSE |</div>
+<div class="line">8 | TRUE |</div>
+<div class="line">9 | TRUE |</div>
+<div class="line">10 | TRUE |</div>
+<div class="line">11 | TRUE |</div>
+<div class="line">12 | TRUE |</div>
+<div class="line">13 | FALSE |</div>
+<div class="line">14 | TRUE |</div>
+</div>
+<p>First we will look at how static the heating variable is over time. We
+are looking at the proportion of the sample at each wave that shows a
+change in <code class="docutils literal notranslate"><span class="pre">hheat</span></code>.</p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">year_list</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">2009</span><span class="p">,</span><span class="w"> </span><span class="m">2010</span><span class="p">,</span><span class="w"> </span><span class="m">2012</span><span class="p">,</span><span class="w"> </span><span class="m">2014</span><span class="p">,</span><span class="w"> </span><span class="m">2016</span><span class="p">,</span><span class="w"> </span><span class="m">2017</span><span class="p">,</span><span class="w"> </span><span class="m">2018</span><span class="p">,</span><span class="w"> </span><span class="m">2019</span><span class="p">,</span><span class="w"> </span><span class="m">2020</span><span class="p">,</span><span class="w"> </span><span class="m">2022</span><span class="p">)</span>
+<span class="n">transition_summary</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">get_transition_rate</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">year_list</span><span class="p">)</span>
+
+<span class="nf">ggplot</span><span class="p">(</span><span class="n">transition_summary</span><span class="p">,</span><span class="w"> </span><span class="nf">aes</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">transition_rate</span><span class="p">))</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">geom_col</span><span class="p">()</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">labs</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Transition rate of hheat in survey&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">xlab</span><span class="p">(</span><span class="s">&#39;Year&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">ylab</span><span class="p">(</span><span class="s">&#39;Transition Rate (%)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id4">
+<img alt="plot of chunk ffill_justification" src="../../_images/ffill_justification-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 41 </span><span class="caption-text">plot of chunk ffill_justification</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="results">
+<h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
+<p>Random Forest Ordinal models from the ranger package cannot provide a
+summary like some other models can, so instead we will look at plots of
+observed vs predicted values as well as the importance of each variable
+in the resulting model.</p>
+<figure class="align-default" id="id5">
+<img alt="plot of chunk heating_output" src="../../_images/heating_output-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 42 </span><span class="caption-text">plot of chunk heating_output</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">cumulative_link_plot</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="w"> </span><span class="n">preds</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## `geom_smooth()` using formula = &#39;y ~ x&#39;</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id6">
+<img alt="plot of chunk heating_performance" src="../../_images/heating_performance-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 43 </span><span class="caption-text">plot of chunk heating_performance</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="replenishment.html" class="btn btn-neutral float-left" title="Replenishment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="interventions.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Open MIT License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

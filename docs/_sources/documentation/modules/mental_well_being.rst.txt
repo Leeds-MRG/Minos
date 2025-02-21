@@ -7,11 +7,12 @@ To measure mental wellbeing, we use the Short-Form 12 Mental Component
 Score (SF-12 MCS). The Short-Form 12 survey is a survey consisting of 12
 questions relating to both physical and mental health. `See
 here <https://www.england.nhs.uk/wp-content/uploads/2022/12/Short-form-12-health-survey-questionnaire.pdf>`__
-for a copy of the survey. Summary scores for both mental and physical
-health can be calculated from the responses, leading to the Mental
-Component Score (MCS). MCS is a measure ranging from 0 (low functioning)
-to 100 (high functioning). SF-12 MCS is represented by a variable
-directly from the survey -
+for a copy of the survey.
+
+Summary scores for both mental and physical health can be calculated
+from the responses, leading to the Mental Component Score (MCS). MCS is
+a measure ranging from 0 (low functioning) to 100 (high functioning).
+SF-12 MCS is represented by a variable directly from the survey -
 ```sf12mcs_dv`` <https://www.understandingsociety.ac.uk/documentation/mainstage/variables/sf12mcs_dv/>`__.
 Each of the responses to the 12 questions are also available in the
 survey.
@@ -35,6 +36,40 @@ package in R.
 Formula:
 
 .. math::   SF\_12 \sim SF\_12\_last + age + sex + ethnicity + region + education\_state + hh\_income + \\housing\_quality + neighbourhood\_safety + loneliness + nutrition\_quality + ncigs + \\I(ncigs>0) + (1|pidp)  
+
++--------------------+------------------------+------------------------+
+| Predictor          | Description            | Li                     |
+|                    |                        | terature/Justification |
++====================+========================+========================+
+| Previous Mental    |                        |                        |
+| Wellbeing          |                        |                        |
++--------------------+------------------------+------------------------+
+| Sex                |                        |                        |
++--------------------+------------------------+------------------------+
+| Age                |                        |                        |
++--------------------+------------------------+------------------------+
+| Ethnicity          |                        |                        |
++--------------------+------------------------+------------------------+
+| Region             | Administrative region  |                        |
+|                    | of the UK              |                        |
++--------------------+------------------------+------------------------+
+| Education          | Highest attained       |                        |
+|                    | qualification          |                        |
++--------------------+------------------------+------------------------+
+| Household Income   |                        |                        |
++--------------------+------------------------+------------------------+
+| Housing Quality    |                        |                        |
++--------------------+------------------------+------------------------+
+| Neighbourhood      |                        | (Ruijsbroek et al.     |
+| Safety             |                        | 2014) (Putrik et al.   |
+|                    |                        | 2019)                  |
++--------------------+------------------------+------------------------+
+| Loneliness         |                        |                        |
++--------------------+------------------------+------------------------+
+| Nutrition Quality  |                        |                        |
++--------------------+------------------------+------------------------+
+| Tobacco Use        |                        |                        |
++--------------------+------------------------+------------------------+
 
 .. code:: r
 
@@ -217,14 +252,32 @@ Validation
 
    handover_boxplots(raw.dat, base.dat, v)
 
-.. figure:: ./figure/mwb_validation-1.png
-   :alt: plot of chunk mwb_validation
+.. figure:: ./figure/mwb_handovers-1.png
+   :alt: plot of chunk mwb_handovers
 
-   plot of chunk mwb_validation
+   plot of chunk mwb_handovers
 
 .. code:: r
 
    #handover_lineplots(raw.dat, base.dat, v)
+
+.. code:: r
+
+   multi_year_boxplots(raw, cv, v)
+
+.. figure:: ./figure/mwb_cv-1.png
+   :alt: plot of chunk mwb_cv
+
+   plot of chunk mwb_cv
+
+.. code:: r
+
+   q_q_comparison(raw, cv, v)
+
+.. figure:: ./figure/mwb_cv-2.png
+   :alt: plot of chunk mwb_cv
+
+   plot of chunk mwb_cv
 
 Results
 ~~~~~~~
@@ -233,6 +286,28 @@ Results
 
 References
 ~~~~~~~~~~
+
+.. container:: references csl-bib-body hanging-indent
+   :name: refs
+
+   .. container:: csl-entry
+      :name: ref-putrik2019assessing
+
+      Putrik, Polina, Ludovic Van Amelsvoort, Suhreta Mujakovic, Anton E
+      Kunst, Hans van Oers, IJmert Kant, Maria W Jansen, and Nanne K De
+      Vries. 2019. “Assessing the Role of Criminality in Neighbourhood
+      Safety Feelings and Self-Reported Health: Results from a
+      Cross-Sectional Study in a Dutch Municipality.” *BMC Public
+      Health* 19: 1–12.
+
+   .. container:: csl-entry
+      :name: ref-ruijsbroek2014social
+
+      Ruijsbroek, Annemarie, M Droomers, PP Groenewegen, W Hardyns, and
+      K Stronks. 2014. “Social Safety, General Health and Physical
+      Activity: Changes in Neighbourhood Safety and the Role of Social
+      Cohesion: Annemarie Ruijsbroek.” *European Journal of Public
+      Health* 24 (suppl_2): cku162–070.
 
 .. |plot of chunk SF12_Output| image:: ./figure/SF12_Output-1.png
 .. |image1| image:: ./figure/SF12_Output-2.png

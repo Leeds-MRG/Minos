@@ -157,12 +157,12 @@ $$  housing\_quality \sim housing\_quality\_last + age + sex + ethnicity + regio
 | Ethnicity |  |[@whelan2012understanding]  |
 | Region |  |  |
 | Education |  | [@whelan2012understanding] |
-| Neighbourhood Safety |  |  |
+| Neighbourhood Safety |  | [@whelan2012understanding] |
 | Loneliness |  |  |
 | Nutrition Quality |  |  |
 | Tobacco Consumption | Count of cigarettes smoked per week |  |
-| Household Income |  |  |
-| Housing Tenure | Ordinal variable for tenure type e.g. Owned outright, Local authority rent |  |
+| Household Income |  | [@waters2023housing] |
+| Housing Tenure | Ordinal variable for tenure type e.g. Owned outright, Local authority rent | [@whelan2012understanding] [@waters2023housing] |
 | Behind on Bills | Subjective feeling of struggling to pay bills |  |
 | Financial Situation | Ordinal variable for current subjective financial situation |  |
 | SF-12 MCS | Mental wellbeing | [@whelan2012understanding] |

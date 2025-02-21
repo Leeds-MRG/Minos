@@ -73,22 +73,17 @@ NOTE: The syntax seen above `I(ncigs>0)` represents a binary flag for whether a 
 
 Two set of variables are needed for the logistic and poisson parts of the ZIP model respectively. These two formula are separated by a '|' symbol. On the right hand side of the '|' is the formula for the logistic regression that determines whether an individual is a smoker or not. On the left side is the formula for the poisson model to predict the counts of cigarettes for smokers.
 
-ncigs_last previous number consumed.
-age. persons age. generally older people and very young smoke. 
-sex.
-ethnicity. certain ethnicities more likely to smoke cigarettes. 
-region.
-education_state. highest qualification.
-housing quality.
-neighbourhood safety.
-loneliness.
-nutrition quality.
-hh_income household income
-SF_12. wellbeing estimates number of cigarettes smoked.
-behind on bills.
-financial situation.
-labour_state. whether a person is employed or not.
-job_sec job quality
+| Predictor | Description | Literature/Justification |
+|------|-------|-------|
+| Previous Tobacco Consumption |  |  |
+| Sex |  |  |
+| Age |  |  |
+| Ethnicity |  |  |
+| Region | Administrative region of the UK |  |
+| Education | Highest attained qualification |  |
+| Household Income |  |  |
+| Behind on Bills |  |  |
+| Financial Situation |  |  |
 
 ```{r tobacco_model_summary}
 zip_output(model)

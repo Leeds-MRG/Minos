@@ -56,13 +56,31 @@ logistic regression that determines whether an individual is a smoker or
 not. On the left side is the formula for the poisson model to predict
 the counts of cigarettes for smokers.
 
-ncigs_last previous number consumed. age. persons age. generally older
-people and very young smoke. sex. ethnicity. certain ethnicities more
-likely to smoke cigarettes. region. education_state. highest
-qualification. housing quality. neighbourhood safety. loneliness.
-nutrition quality. hh_income household income SF_12. wellbeing estimates
-number of cigarettes smoked. behind on bills. financial situation.
-labour_state. whether a person is employed or not. job_sec job quality
++----------------------+----------------------+----------------------+
+| Predictor            | Description          | Lite                 |
+|                      |                      | rature/Justification |
++======================+======================+======================+
+| Previous Tobacco     |                      |                      |
+| Consumption          |                      |                      |
++----------------------+----------------------+----------------------+
+| Sex                  |                      |                      |
++----------------------+----------------------+----------------------+
+| Age                  |                      |                      |
++----------------------+----------------------+----------------------+
+| Ethnicity            |                      |                      |
++----------------------+----------------------+----------------------+
+| Region               | Administrative       |                      |
+|                      | region of the UK     |                      |
++----------------------+----------------------+----------------------+
+| Education            | Highest attained     |                      |
+|                      | qualification        |                      |
++----------------------+----------------------+----------------------+
+| Household Income     |                      |                      |
++----------------------+----------------------+----------------------+
+| Behind on Bills      |                      |                      |
++----------------------+----------------------+----------------------+
+| Financial Situation  |                      |                      |
++----------------------+----------------------+----------------------+
 
 .. code:: r
 

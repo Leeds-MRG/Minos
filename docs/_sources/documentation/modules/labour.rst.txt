@@ -32,6 +32,17 @@ data tables.
 -  household income. Monthly disposable income of individuals household.
    XXXX cite.
 
+===================== =========== ========================
+Predictor             Description Literature/Justification
+===================== =========== ========================
+Previous Labour State             
+Age                               
+Sex                               
+Ethnicity                         
+Region                            
+Education                         
+===================== =========== ========================
+
 Validation
 ~~~~~~~~~~
 

@@ -81,12 +81,32 @@ To predict the next state of loneliness we use a Random Forest Ordinal model fro
 
 Formula:
 
-$$  loneliness \sim loneliness\_last + age + sex + ethnicity + region + education\_state + housing\_quality + \\neighbourhood\_safety + nutrition\_quality + ncigs + job\_sec + hh\_income + \\marital\_status + behind\_on\_bills + financial\_situation  $$
+$$  loneliness \sim loneliness\_last + age + sex + ethnicity + region + education\_state + housing\_quality + \\neighbourhood\_safety + nutrition\_quality + ncigs + labour\_state + job\_sec + hh\_income + \\marital\_status + behind\_on\_bills + financial\_situation + SF\_12  $$
 
 Loneliness has been [linked with educational attainment](https://www.tandfonline.com/doi/full/10.1080/03601270701569275?casa_token=3vV_r99mb0QAAAAA%3ACK8Wogj5cs5CQm8gZfLKuHJtctkCyGX_i2y4CLyDgAhsReGB1s7QrV1I0qul-6Gw75QBcY93WoWuWA). Higher educational attainment has been linked with lower levels of stress and neuroticism, of which both have been linked with loneliness (more neuroticism/stress linked to more loneliness).
 
 Loneliness has been [linked with ethnicity](https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-020-09208-0).
 > The association between ethnicity and loneliness was stronger among young and early middle-aged adults, compared to late middle-aged adults.
+
+| Predictor | Description | Literature/Justification |
+|------|-------|-------|
+| Previous Loneliness |  |  |
+| Age |  | [@franssen2020age] [@beutel2017loneliness] |
+| Sex |  | [@franssen2020age] [@beutel2017loneliness] |
+| Ethnicity |  |  |
+| Region | Administrative region of the UK |  |
+| Education | Highest attained qualification | [@bishop2007indirect] [@franssen2020age] |
+| Housing Quality |  |  |
+| Neighbourhood Safety |  |  |
+| Nutrition Quality |  |  |
+| Tobacco Consumption |  | [@beutel2017loneliness] |
+| Labour State |  | [@morrish2021does] [@moens2021does] |
+| Job NSSEC | 8 level socio-economic employment category | [@morrish2021does] [@moens2021does] |
+| Household Income |  | [@franssen2020age] |
+| Marital Status |  | [@franssen2020age] [@beutel2017loneliness] |
+| Behind on Bills |  |  |
+| Financial Situation |  | [@franssen2020age] |
+| SF-12 MCS |  | [@franssen2020age] |
 
 ```{r loneliness_model_summary}
 plot_rfo_importance(model)

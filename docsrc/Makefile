@@ -43,6 +43,7 @@ render_rmd:
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)tobacco.Rmd" "$(NOTEBOOKOUTPUTDIR)tobacco.rst" 1
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)nutrition.Rmd" "$(NOTEBOOKOUTPUTDIR)nutrition.rst" 1
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)ageing.Rmd" "$(NOTEBOOKOUTPUTDIR)ageing.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)heating.Rmd" "$(NOTEBOOKOUTPUTDIR)heating.rst" 1
 
 	# Knitr outputs figures for the documentation in a folder /figure at the top repo level.
 	# I couldn't figure out how change where to output them so manually move them instead..
