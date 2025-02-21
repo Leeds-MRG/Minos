@@ -3,7 +3,7 @@ missing data (if any) there is.
 
 """
 
-import US_utils
+from minos.data_generation import US_utils
 import pandas as pd
 import numpy as np
 from collections import Counter

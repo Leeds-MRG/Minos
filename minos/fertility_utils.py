@@ -8,6 +8,7 @@ import geopandas as gpd
 import yaml
 import matplotlib.pyplot as plt
 from minos import utils
+from minos.data_generation.US_format_raw_children_data import integer_child_ages_to_nkids as intch
 import random
 
 CURR_DIR = up(__file__)
@@ -17,11 +18,6 @@ OUTPUT_DEFAULT = os.path.join(up(CURR_DIR), 'output')
 METRICS_FILE = 'metrics.csv'
 LA_BOUNDARIES_FILES = {2022: 'Local_Authority_Districts_December_2022_UK_BFE_V2_-6894743385278129679.geojson',
                        }
-
-# COLUMNS_TO_READ = ['alive', 'ethnicity', 'pidp', 'time', 'age', 'sex',
-#                    'nnewborn', 'nnewborn_hh', 'nkids_ind', 'nkids', 'nresp', 'child_ages',
-#                    'region', 'LSOA11CD',
-#                    ]
 
 ETH_GROUPS = {'White': ['WBI', 'WHO',],
               'Black': ['BLA', 'BLC', 'OBL',],
@@ -125,43 +121,105 @@ def get_latest_data(parity=False,
     return data
 
 
+# HR 20/02/25 Get fertility metrics (TFR, GFR, CBR) according to ONS methodologies,
+# ONS user guide is here: https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/livebirths/methodologies/userguidetobirthstatistics#calculating-birth-and-fertility-rates
+
+INTERVAL_DEFAULT = 5
+BINS_DEFAULT = range(15, 50, INTERVAL_DEFAULT)  # These are standard bins for TFR, i.e. 15-19, ... , 45-49
+AGE_RANGE_DEFAULT = (16, 17, 18)
+
+
+# HR 21/02/25 General fertility rate (GFR) is calculated using births in all age groups as the numerator,
+# but the population of the 15-44 yo cohort (women only) x 1000 as the denominator
+# Additional tweak here to account for US/synthpop data only covering 16-49 yos:
+# the size of the 15 yo cohort is estimated from the 16-18 yo cohort, i.e. the denominator (population size) is corrected
+# Assumes negligible no. of births in 15 yo cohort
+# Should be 50-60
+def get_gfr(pop, age_range=AGE_RANGE_DEFAULT):
+    women = pop.loc[pop.sex == 'Female']
+    n_new = women.nnewborn.sum()
+    n15 = len(women.loc[women.age.isin(age_range)]) / len(age_range)
+    women_gfr = women.loc[women.age.between(15, 44)]
+    gfr = 1000 * n_new / (len(women_gfr) + n15)
+    return gfr
+
+
+# HR 21/02/25 Total fertility rate (TFR) is calculated using five-year age intervals, for 15-49 yo women
+# Additional tweak here to account for US/synthpop data only covering 16-49 yos:
+# a 5/4 factor is applied to the cohort size (i.e. the denominator) for the 15-19 group, as US only contains 16-19
+# Assumes negligible no. of births in 15 yo cohort
+# Should be 1.5-1.6
+def get_tfr(pop, bins=BINS_DEFAULT, interval=INTERVAL_DEFAULT):
+    def get_cohort_tfr(cohort, age_group):
+        try:
+            tfr = cohort['nnewborn'].sum() / len(cohort)
+        except:  # Sometimes get an exception if len(cohort) is zero
+            tfr = 0.0
+        if age_group == 15:
+            tfr *= (4.0 / 5.0)  # Correction to account for absense of 15 yo cohort in US/synthpop
+        return tfr
+
+    pop = pop.copy()  # Best to copy to avoid Pandas SettingWithCopyWarning when creating age_bracket column
+    pop['age_bracket'] = pd.cut(pop['age'], bins=bins, labels=bins[:-1], right=False)  # Apply left edges as labels for ease
+    sub = pop.loc[(pop['sex'] == 'Female') & (~pop['age_bracket'].isna())]  # Get women in correct age range
+    sums = sub.groupby('age_bracket').apply(lambda x: get_cohort_tfr(x, x.name))
+    tfr = interval * sum(sums)
+
+    return tfr
+
+
+# HR 21/02/25 Crude birth rate (CBR) is calculated from the total births and the total population x 1000
+# Subtlety here is to account for U16 cohort using nresp (women only); also possible using child_ages_ind
+# Assumes negligible no. of births in 15 yo cohort
+# Should be 10-12
+def get_cbr(pop):
+    n_adult = len(pop)
+    women = pop.loc[pop.sex == 'Female'].copy()
+    n_u16 = women.nresp.sum()
+    # Alternative method using child ages - not working as causes unexplained hang
+    # women['children_ind'] = women['child_ages_ind'].astype('int64').apply(intch)
+    # n_u16 = women['children_ind'].sum()
+    n_new = women.nnewborn.sum()
+    cbr = 1000 * n_new / (n_adult + n_u16)
+    return cbr
+
+
+# HR 21/02/25 Get mortality rate from Minos output; this is NOT as general purpose as the fertility metrics,
+# so MUST pass whole population AND year, as inferring year might cause errors (e.g. in edge case of lots of dead people)
+# Should be about 0.8-1%
+def get_mortality_rate(pop, year):
+    alive = pop.loc[(pop.alive == 'alive')]
+    dead = pop.loc[(pop.alive == 'dead') & (pop.time == year - 1)]
+    mort = 100 * len(dead) / len(alive)
+    return mort
+
+
 # HR 11/12/24 Get mortality and fertility metrics
 def get_metrics(pop,
                 year,
                 ):
     metrics = {}
 
-    # Mortality rate, should be about 1%
+    # Get all living individuals
     alive = pop.loc[(pop.alive == 'alive')]
-    dead = pop.loc[(pop.alive == 'dead') & (pop.time == year-1)]
-    mort = 100 * len(dead) / len(alive)
+
+    # Mortality rate
+    mort = get_mortality_rate(pop, year)
     # print('Mortality rate: {:.3f}% ({}/{})'.format(mort, len(dead), len(pop)))
     metrics['mort'] = mort
 
-    # General fertility rate (GFR, i.e. birth rate per 1,000 women of age 15-44, ONS definition), should be 50-60
-    # Includes estimate of number of 15 yos from mean of 16-18 yos so age range 15-44 is satisfied
-    # However, births to 15 yos neglected
-    women_alive = alive.loc[alive.sex == 'Female']
-    age_range = [16, 17, 18]
-    n15 = len(women_alive.loc[women_alive.age.isin(age_range)]) / len(age_range)
-    women_gfr = women_alive.loc[women_alive.age.between(15, 44)]
-    n_new = women_gfr.nnewborn.sum()
-    gfr = 1000 * n_new / (len(women_gfr) + n15)
-    # print('General fertility rate, births per 1,000 women (15-44): {:.3f} ({}/{})'.format(gfr, len(has_newborn), len(women_gfr)))
+    # General fertility rate (GFR)
+    gfr = get_gfr(alive)
+    # print('General fertility rate, births (all ages) per 1,000 women (15-44 only): {:.3f} ({}/{})'.format(gfr, len(has_newborn), len(women_gfr)))
     metrics['gfr'] = gfr
 
-    # Total fertility rate (TFR, i.e. mean children per woman), should be 1.5-1.6
-    # Neglects births to <16 yos
-    tfr = women_alive.nkids_ind.mean()
+    # Total fertility rate (TFR)
+    tfr = get_tfr(alive)
     # print('TFR (children per woman): {:.3f}'.format(tfr))
     metrics['tfr'] = tfr
 
-    # Crude birth rate (CBR, i.e. births per 1,000 population), should be 10-12
-    # Includes estimate of number of children under 16 (nresp, women only) for purpose of calculating total population
-    # Neglects births to <16 yos
-    n_u16 = women_alive.nresp.sum()
-    n_adult = len(alive)
-    cbr = 1000 * n_new / (n_adult + n_u16)
+    # Crude birth rate (CBR)
+    cbr = get_cbr(alive)
     # print('CBR, births per 1,000 total pop: {:.3f}'.format(cbr))
     metrics['cbr'] = cbr
 
@@ -231,65 +289,97 @@ def get_metrics_post(parity=False,
 #     return
 
 
-def get_fertility_reference_data():
+SOURCES_DEFAULT = {'mort': 'ons',
+                   'tfr': 'ons',
+                   'gfr': 'ons',
+                   'cbr': 'ons',
+                   }
+
+def get_fertility_reference_data(sources=None):
+    if sources is None:
+        sources = SOURCES_DEFAULT
+
     fert_path = FERT_REF_PATH
-    index_header = 'year'
 
     # Get EW mortality data
-    mort_path = fert_path
-    mort_ref = 'dr2022corrected.xlsx'
-    mort_fullpath = os.path.join(mort_path, mort_ref)
-    mort_data = pd.read_excel(mort_fullpath,
-                              sheet_name='8',
-                              header=6 - 1,
-                              nrows=10)
-    mort_data = mort_data.set_index('Year of registration')[['All causes']].loc[range(2013, 2021)]
-    mort_data /= 1000
+    if sources['mort'] == 'ons':
+        mort_path = fert_path
+        mort_ref = 'dr2022corrected.xlsx'
+        mort_fullpath = os.path.join(mort_path, mort_ref)
+        mort_data = pd.read_excel(mort_fullpath,
+                                  sheet_name='8',
+                                  header=6 - 1,
+                                  nrows=10)
+        mort_data = mort_data.set_index('Year of registration')[['All causes']].loc[range(2013, 2021)]
+        mort_data /= 1000
 
-    # Get UK birth rate (proportion of women giving birth)
-    ''' OPTION 1: HFD '''
-    # br_path = fert_path
-    # br_ref1 = 'GBR_NPbirthsRR.txt'
-    # br_ref2 = 'GBR_NPexposRR.txt'
-    # br_fullpath1 = os.path.join(br_path, br_ref1)
-    # br_fullpath2 = os.path.join(br_path, br_ref2)
-    # br1 = pd.read_csv(br_fullpath1, header=2, delim_whitespace=True).set_index('Year')
-    # br2 = pd.read_csv(br_fullpath2, header=2, delim_whitespace=True).set_index('Year')
-    #
-    # br1c = br1.loc[~br1.Age.isin(['12-', '55+'])]
-    # br1c = br1c.loc[br1c.Age.astype(int).between(15, 44)]
-    # br1cg = br1c.groupby(br1c.index)['Total'].sum()
-    #
-    # br2c = br2.loc[~br2.Age.isin(['12', '55'])]
-    # br2c = br2c.loc[br2.Age.astype(int).between(15, 44)]
-    # br2cg = br2c.groupby(br2c.index)['Exposure'].sum()
-    #
-    # br_data = 1000*(br1cg / br2cg)[-8:].to_frame()
+    elif sources['mort'] == 'hfd':
+        mort_data = None
 
-    ''' OPTION 2: ONS '''
-    br_path = fert_path
-    br_ref = 'birthssummary2022refreshedpopulations.xlsx'
-    br_fullpath = os.path.join(br_path, br_ref)
-    br_data = pd.read_excel(br_fullpath,
-                            sheet_name='Table_1',
-                            header=9 - 1)
-    br_data = br_data.set_index('Year')[[br_data.columns[7]]][2:10]
+    # Get general fertility rate (GFR)
+    if sources['gfr'] == 'hfd':
+        br_path = fert_path
+        br_ref1 = 'GBR_NPbirthsRR.txt'
+        br_ref2 = 'GBR_NPexposRR.txt'
+        br_fullpath1 = os.path.join(br_path, br_ref1)
+        br_fullpath2 = os.path.join(br_path, br_ref2)
+        br1 = pd.read_csv(br_fullpath1, header=2, delim_whitespace=True).set_index('Year')
+        br2 = pd.read_csv(br_fullpath2, header=2, delim_whitespace=True).set_index('Year')
 
-    # Get UK TFR (average kids per woman ever born)
-    tfr_path = fert_path
-    tfr_ref = 'GBR_NPtfrRRbo.txt'
-    tfr_fullpath = os.path.join(tfr_path, tfr_ref)
-    tfr_data = pd.read_csv(tfr_fullpath, header=2, delim_whitespace=True).set_index('Year')['TFR']
-    # print(tfr_data)
+        br1c = br1.loc[~br1.Age.isin(['12-', '55+'])]
+        br1c = br1c.loc[br1c.Age.astype(int).between(15, 44)]
+        br1cg = br1c.groupby(br1c.index)['Total'].sum()
 
-    # Get UK CBR (births per 1,000 total pop)
-    cbr_path = fert_path
-    cbr_ref = 'GBR_NPcbrRRbo.txt'
-    cbr_fullpath = os.path.join(cbr_path, cbr_ref)
-    cbr_data = pd.read_csv(cbr_fullpath, header=2, delim_whitespace=True).set_index('Year')['CBR']
-    # print(cbr_data)
+        br2c = br2.loc[~br2.Age.isin(['12', '55'])]
+        br2c = br2c.loc[br2.Age.astype(int).between(15, 44)]
+        br2cg = br2c.groupby(br2c.index)['Exposure'].sum()
 
-    refdata = pd.concat([mort_data, br_data, tfr_data, cbr_data], axis='columns')
+        br_data = 1000*(br1cg / br2cg)[-8:].to_frame()
+
+    elif sources['gfr'] == 'ons':
+        gfr_path = fert_path
+        gfr_ref = 'birthssummary2022refreshedpopulations.xlsx'
+        gfr_fullpath = os.path.join(gfr_path, gfr_ref)
+        gfr_data = pd.read_excel(gfr_fullpath,
+                                sheet_name='Table_1',
+                                header=9 - 1)
+        gfr_data = gfr_data.set_index('Year')[[gfr_data.columns[7]]][2:10]
+
+    if sources['tfr'] == 'hfd':
+        # Get UK TFR (average kids per woman ever born)
+        tfr_path = fert_path
+        tfr_ref = 'GBR_NPtfrRRbo.txt'
+        tfr_fullpath = os.path.join(tfr_path, tfr_ref)
+        tfr_data = pd.read_csv(tfr_fullpath, header=2, delim_whitespace=True).set_index('Year')['TFR']
+        # print(tfr_data)
+
+    elif sources['tfr'] == 'ons':
+        tfr_path = fert_path
+        tfr_ref = 'birthssummary2022refreshedpopulations.xlsx'
+        tfr_fullpath = os.path.join(tfr_path, tfr_ref)
+        tfr_data = pd.read_excel(tfr_fullpath,
+                                 sheet_name='Table_1',
+                                 header=9 - 1)
+        tfr_data = tfr_data.set_index('Year')[[tfr_data.columns[6]]][2:10]
+
+    if sources['cbr'] == 'hfd':
+        # Get UK CBR (births per 1,000 total pop)
+        cbr_path = fert_path
+        cbr_ref = 'GBR_NPcbrRRbo.txt'
+        cbr_fullpath = os.path.join(cbr_path, cbr_ref)
+        cbr_data = pd.read_csv(cbr_fullpath, header=2, delim_whitespace=True).set_index('Year')['CBR']
+        # print(cbr_data)
+
+    elif sources['cbr'] == 'ons':
+        cbr_path = fert_path
+        cbr_ref = 'birthssummary2022refreshedpopulations.xlsx'
+        cbr_fullpath = os.path.join(cbr_path, cbr_ref)
+        cbr_data = pd.read_excel(cbr_fullpath,
+                                sheet_name='Table_1',
+                                header=9 - 1)
+        cbr_data = cbr_data.set_index('Year')[[cbr_data.columns[8]]][2:10]
+
+    refdata = pd.concat([mort_data, gfr_data, tfr_data, cbr_data], axis='columns')
     refdata.index.name = 'year'
     refdata.columns = ['mort', 'gfr', 'tfr','cbr']
     refdata.columns = [el + '_ref' for el in refdata.columns]
@@ -302,7 +392,7 @@ def plot_metrics(data,
                  outfile,
                  ):
 
-    labels = ['US only w/o parity', 'US only with parity', 'Synthpop (10%) w/o parity', 'Synthpop (10%) with parity']
+    labels = ['US only w/o parity', 'US only with parity', 'Synthpop (1%) w/o parity', 'Synthpop (1%) with parity']
 
     n = len(data[0].columns)
     _vars = data[0].columns[-n:]
@@ -336,11 +426,11 @@ def plot_gb_data(data_by_area, col_to_plot=None, boundaries_file=None, outfile=N
     if outfile is None:
         outfile = os.path.join(OUTPUT_DEFAULT, 'fertility_by_area.' + outformat)
 
-    # Convert to WSG 84/EPSG4326, else breaks plotting
+    # Convert to WSG 84/EPSG4326, else breaks plotting; then filter for GB
     boundaries = gpd.read_file(boundaries_file).to_crs(epsg=4326)
+    boundaries = boundaries.loc[boundaries['LAD22CD'].str[0].isin(('E', 'S', 'W'))]
 
-    # Filter for GB (i.e. exclude NI) and merge with data
-    boundries = boundaries.loc[boundaries['LAD22CD'].str[0].isin(('E', 'S', 'W'))]
+    # Merge spatial data with pop data
     if col_to_plot is None:
         col_to_plot = 'random_number'  # Create random variable for testing
         boundaries[col_to_plot] = random.sample(range(1, 2 * len(boundaries)), len(boundaries))
@@ -433,8 +523,8 @@ if __name__ == '__main__':
     # HR 17/02/25 Get some synthpop fertility data and plot up
     y = 2025
     data = get_latest_data_by_year(year=y, synthpop=True, parity=False)
-    spatial = utils.add_spatial_attributes(data)  # Add wards, LAs and regions
+    data = utils.add_spatial_attributes(data)  # Add wards, LAs and regions
     fert_data_by_la = data.groupby('LAD22CD').apply(lambda x: get_metrics(x, y)).to_frame()[0].apply(pd.Series)  # Get mort/fert data by LA
     # fert_data_by_region = data.groupby('RGN22CD').apply(lambda x: get_metrics(x, y)).to_frame()[0].apply(pd.Series)  # Get mort/fert data by region
 
-    plot_gb_data(data_by_area=fert_data_by_la, col_to_plot='gfr')
+    plot_gb_data(data_by_area=fert_data_by_la, col_to_plot='tfr', outformat='png')
