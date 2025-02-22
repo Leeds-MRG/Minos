@@ -516,6 +516,48 @@ def format_ukhls_heating(data):
     return data
 
 
+def format_ukhls_household_composition(data):
+    """ Adds household composition variable and also a boolean variable
+     that indicates if there are children or not in the household
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Data frame with household composition hhtype_dv variable
+
+        Returns
+        -------
+        data : Pd.DataFrame
+            Data with formatted household composition and whether there are children in the household or not
+    """
+
+    household_composition_dic = {
+        1: 1,  # 1 male, aged 65+, no children => one person no child
+        2: 1,  # 1 female, age 60+, no children => one person no child
+        3: 1,  # 1 adult under pensionable age, no children => one person no child
+        4: 2,  # 1 adult, 1 child => one person with children
+        5: 2,  # 1 adult, 2 or more children => one person with children
+        6: 3,  # Couple both under pensionable age, no children => married no child
+        8: 3,  # Couple 1 or more over pensionable age, no children => married no child
+        10: 4,  # Couple with 1 child => married with children
+        11: 4,  # Couple with 2 children => married with children
+        12: 4,  # Couple with 3 or more children => married with children
+        16: 5,  # 2 adults, not a couple, both under pensionable age, no children => cohabiting no child
+        17: 5,  # 2 adults, not a couple, one or more over pensionable age, no children => cohabiting no child
+        18: 6,  # 2 adults, not a couple, 1 or more children => cohabiting with children
+        19: 7,  # 3 or more adults, no children, incl. at least one couple => other family no child
+        20: 8,  # 3 or more adults, 1-2 children, incl. at least one couple => other not family with children
+        21: 8,  # 3 or more adults, >2 children, incl. at least one couple => other not family with children
+        22: 9,  # 3 or more adults, no children, excl. any couples => other not family with children
+        23: 8,  # 3 or more adults, 1 or more children, excl. any couples => other not family with children
+    }
+
+    data = data.assign(
+        household_composition = lambda df_: df_['hh_composition'].astype(int).map(household_composition_dic),
+        household_with_children = lambda df_: np.where(df_['household_composition'].isin([2, 4, 6, 8]), True, False)
+    )
+    return data
+
 def format_analysis_weight(data, year):
     """
     Add and format analysis weight variable.
@@ -643,6 +685,7 @@ def format_data(year, data, verbose):
     data = format_ukhls_employment(data)
     data = format_ukhls_education(data)
     data = format_ukhls_heating(data)
+    data = format_ukhls_household_composition(data)
 
     #if year == 2014 or year == 2020: #only adding these child age chains to input data years for now.
     if year >= 2014:
