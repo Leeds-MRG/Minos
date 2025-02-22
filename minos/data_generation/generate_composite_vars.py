@@ -118,11 +118,14 @@ def generate_composite_housing_quality(data):
     data.loc[data['number_of_bedrooms'] > 6, "is_overcrowded"] = False
 
     # drop cols we don't need
-    data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'fridge_freezer', 'washing_machine',
-                      'tumble_dryer', 'dishwasher', 'microwave', 'npeople'],# 'heating'],
+    # data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'fridge_freezer', 'washing_machine',
+    #                   'tumble_dryer', 'dishwasher', 'microwave', 'npeople'],# 'heating'],
+    #           axis=1,
+    #           inplace=True)
+
+    data.drop(labels=['housing_core_sum', 'housing_bonus_sum', 'npeople'],
               axis=1,
               inplace=True)
-
 
     return data
 
@@ -254,6 +257,7 @@ def generate_hh_income(data):
     data["outgoings"] = -9
     data["outgoings"] = data["hh_rent"] + data["hh_mortgage"] + data["council_tax"]
 
+    # data["oecd_equiv"] =
     data["hh_income"] = (data["hh_netinc"] - data["outgoings"]) / data["oecd_equiv"]
 
 
