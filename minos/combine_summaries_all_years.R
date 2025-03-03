@@ -928,7 +928,7 @@ summary_funcs <- c(UC = UC_summarise,
                    UC_MIR_families_ethnicity = UC_MIR_families_ethnicity_summarise,
                    UC_MIR_families_three_plus_children = UC_MIR_families_three_plus_children_summarise,
                    UC_MIR_families_mother_under_25 = UC_MIR_families_mother_under_25_summarise,
-                   UC_MIR_families_disabled_family = UC_MIR_families_disabled_family_summarise,
+                   UC_MIR_families_disabled_family = UC_MIR_families_disabled_family_summarise
 )
 
 #summary_funcs <- c(UC_kids = UC_kids_summarise)
