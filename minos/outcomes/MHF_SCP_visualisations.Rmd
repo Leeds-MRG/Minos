@@ -25,7 +25,7 @@ library(RColorBrewer)
 library(stringr)
 library(grid)
 
-workingDir <- "/home/luke/Documents/WORK/MINOS/SCP_ARC_SUMMARIES/"
+workingDir <- "/home/luke/Documents/WORK/MINOS/SCP_ARC_SUMMARIES/test_NEW/"
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
@@ -916,92 +916,92 @@ mental_illness_risk_plots_interval <- function(summary_group, scen.list, palette
 # Sample Size Calculations
 
 ```{r}
-# E&W adults: 48,566,000
-# N: 160,908; 211,034
-# N total: 371,942
-
-# so we have
-scaling_factor <- (371942 / 48566000) * 100
-scaling_factor
-
-
-
-# Q1: What is the total eligible sample in E&W?
-#   : UC_families_count * 100/scaling_factor
-
-UC_families <- generate_df_list('UC_kids', 'baseline')
-UC_families <- do.call(rbind, UC_families)
-
-UC_fam <- UC_families %>%
-  filter(universal_credit == 1,
-         children == TRUE,
-         year == 2024) %>%
-  group_by(run_id) %>%
-  summarise(total_count = sum(count)) %>%
-  ungroup() %>%
-  summarise(mean_count = mean(total_count))
-
-mean_count <- UC_fam[[1]]
-mean_count
-
-
-# eligible sample
-eligible_sample_count <- mean_count * (100 / scaling_factor)
-eligible_sample_count
+# # E&W adults: 48,566,000
+# # N: 160,908; 211,034
+# # N total: 371,942
+# 
+# # so we have
+# scaling_factor <- (371942 / 48566000) * 100
+# scaling_factor
+# 
+# 
+# 
+# # Q1: What is the total eligible sample in E&W?
+# #   : UC_families_count * 100/scaling_factor
+# 
+# UC_families <- generate_df_list('UC_kids', 'baseline')
+# UC_families <- do.call(rbind, UC_families)
+# 
+# UC_fam <- UC_families %>%
+#   filter(universal_credit == 1,
+#          children == TRUE,
+#          year == 2024) %>%
+#   group_by(run_id) %>%
+#   summarise(total_count = sum(count)) %>%
+#   ungroup() %>%
+#   summarise(mean_count = mean(total_count))
+# 
+# mean_count <- UC_fam[[1]]
+# mean_count
+# 
+# 
+# # eligible sample
+# eligible_sample_count <- mean_count * (100 / scaling_factor)
+# eligible_sample_count
 ```
 
 
 # Whole Population
 
 ```{r}
-whole.pop.list <- generate_df_list('whole_pop', scen.list.full)
-whole.pop <- do.call(rbind, whole.pop.list)
+# whole.pop.list <- generate_df_list('whole_pop', scen.list.full)
+# whole.pop <- do.call(rbind, whole.pop.list)
 ```
 
 ```{r}
-whole.pop.sum <- whole.pop %>%
-  group_by(scen, year) %>%
-  summarise(hh_income = mean(hh_income),
-            SF_12 = mean(SF_12))
-
-ggplot(whole.pop.sum, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
-  geom_line()
-
-ggplot(whole.pop, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
-  geom_smooth()
-
-rm(whole.pop.sum, whole.pop.list, whole.pop)
+# whole.pop.sum <- whole.pop %>%
+#   group_by(scen, year) %>%
+#   summarise(hh_income = mean(hh_income),
+#             SF_12 = mean(SF_12))
+# 
+# ggplot(whole.pop.sum, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
+#   geom_line()
+# 
+# ggplot(whole.pop, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
+#   geom_smooth()
+# 
+# rm(whole.pop.sum, whole.pop.list, whole.pop)
 ```
 
 # Families
 
 ```{r}
-fam.list <- generate_df_list('families', scen.list.full)
-families <- do.call(rbind, fam.list)
+# fam.list <- generate_df_list('families', scen.list.full)
+# families <- do.call(rbind, fam.list)
 ```
 
 ```{r}
-fam.sum <- families %>%
-  group_by(scen, year) %>%
-  summarise(hh_income = mean(hh_income),
-            SF_12 = mean(SF_12))
-
-ggplot(fam.sum, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
-  geom_line()
-
-ggplot(families, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
-  geom_smooth()
-
-rm(fam.sum, fam.list, families)
+# fam.sum <- families %>%
+#   group_by(scen, year) %>%
+#   summarise(hh_income = mean(hh_income),
+#             SF_12 = mean(SF_12))
+# 
+# ggplot(fam.sum, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
+#   geom_line()
+# 
+# ggplot(families, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
+#   geom_smooth()
+# 
+# rm(fam.sum, fam.list, families)
 ```
 
 ```{r}
-fam.2550 <- do.call(rbind, generate_df_list('families', scen.list.25_50))
-
-ggplot(fam.2550, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
-  geom_smooth()
-
-rm(fam.2550)
+# fam.2550 <- do.call(rbind, generate_df_list('families', scen.list.25_50))
+# 
+# ggplot(fam.2550, aes(x = year, y = SF_12, group = scen, colour = scen, fill = scen)) +
+#   geom_smooth()
+# 
+# rm(fam.2550)
 ```
 
 
@@ -1062,19 +1062,19 @@ SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.10_100)
 ### Whole Pop
 
 ```{r}
-compare_relative_absolute(comparison_scen = '25UniversalCredit')
-compare_relative_absolute(comparison_scen = '50UniversalCredit')
-compare_relative_absolute(comparison_scen = '70UniversalCredit')
-compare_relative_absolute(comparison_scen = '100UniversalCredit')
+# compare_relative_absolute(comparison_scen = '25UniversalCredit')
+# compare_relative_absolute(comparison_scen = '50UniversalCredit')
+# compare_relative_absolute(comparison_scen = '70UniversalCredit')
+# compare_relative_absolute(comparison_scen = '100UniversalCredit')
 ```
 
 ### Families with Children
 
 ```{r}
-compare_relative_absolute(comparison_scen = '25UniversalCredit', kids=TRUE)
-compare_relative_absolute(comparison_scen = '50UniversalCredit', kids=TRUE)
-compare_relative_absolute(comparison_scen = '70UniversalCredit', kids=TRUE)
-compare_relative_absolute(comparison_scen = '100UniversalCredit', kids=TRUE)
+# compare_relative_absolute(comparison_scen = '25UniversalCredit', kids=TRUE)
+# compare_relative_absolute(comparison_scen = '50UniversalCredit', kids=TRUE)
+# compare_relative_absolute(comparison_scen = '70UniversalCredit', kids=TRUE)
+# compare_relative_absolute(comparison_scen = '100UniversalCredit', kids=TRUE)
 ```
 
 ## INITIAL Relative and Absolute Poverty
@@ -1082,19 +1082,19 @@ compare_relative_absolute(comparison_scen = '100UniversalCredit', kids=TRUE)
 ### Whole Pop
 
 ```{r}
-compare_init_relative_absolute(comparison_scen = '25UniversalCredit')
-compare_init_relative_absolute(comparison_scen = '50UniversalCredit')
-compare_init_relative_absolute(comparison_scen = '70UniversalCredit')
-compare_init_relative_absolute(comparison_scen = '100UniversalCredit')
+# compare_init_relative_absolute(comparison_scen = '25UniversalCredit')
+# compare_init_relative_absolute(comparison_scen = '50UniversalCredit')
+# compare_init_relative_absolute(comparison_scen = '70UniversalCredit')
+# compare_init_relative_absolute(comparison_scen = '100UniversalCredit')
 ```
 
 ### Families with Children
 
 ```{r}
-compare_init_relative_absolute(comparison_scen = '25UniversalCredit', kids=TRUE)
-compare_init_relative_absolute(comparison_scen = '50UniversalCredit', kids=TRUE)
-compare_init_relative_absolute(comparison_scen = '70UniversalCredit', kids=TRUE)
-compare_init_relative_absolute(comparison_scen = '100UniversalCredit', kids=TRUE)
+# compare_init_relative_absolute(comparison_scen = '25UniversalCredit', kids=TRUE)
+# compare_init_relative_absolute(comparison_scen = '50UniversalCredit', kids=TRUE)
+# compare_init_relative_absolute(comparison_scen = '70UniversalCredit', kids=TRUE)
+# compare_init_relative_absolute(comparison_scen = '100UniversalCredit', kids=TRUE)
 ```
 
 ## Gender
@@ -1121,149 +1121,149 @@ compare_lone_parent(comparison_scen = '100UniversalCredit')
 ## Whole Pop
 
 ```{r}
-summary_group <- 'men_illness_risk'
-scen.list = scen.list.25_100
-
-
-  total_adults_EW <- 48566000
-
-  tit <- ' '
-  if (summary_group == 'UC_men_illness_risk') { tit <- 'UC Population' }
-  if (summary_group == 'UC_families_men_illness_risk') { tit <- 'UC Families' }
-  if (summary_group == 'men_illness_risk') { tit <- 'Whole Population' }
-  if (summary_group == 'men_illness_risk_families') { tit <- 'Families' }
-  
-  # scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
-  # summary_group <- 'men_illness_risk'
-  
-  #scen.list <- c('baseline', comparison_scen)
-  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
-  
-  data <- data %>%
-    mutate_at("scen", str_replace, "UniversalCredit", "") %>%
-    mutate(scen = if_else(scen == "baseline", scen, paste0("£", scen)))
-  
-  plot_data1 <- data %>%
-    filter(mental_health_risk == 'TRUE') %>%
-    select(-prop, -mental_health_risk) %>%
-    pivot_wider(names_from = scen,
-                values_from = count) %>%
-    mutate(across(starts_with("£"), ~ . - baseline, .names = "diff_{.col}")) %>%
-    select(run_id, year, starts_with('diff')) %>%
-    pivot_longer(cols = starts_with("diff"),
-                 names_sep = '_',
-                 names_to = c("diff", "scen"),
-                 values_to = 'Count')
-  
-  # Extract numeric part from 'scen' column then...
-  scen_numeric <- as.numeric(gsub("[^0-9]", "", plot_data1$scen))
-  # ...Reorder 'scen' column based on numeric values for plotting
-  plot_data1$scen <- factor(plot_data1$scen, levels = unique(plot_data1$scen[order(scen_numeric)]))
-  
-  
-  plot_data1_confint <- plot_data1 %>%
-    group_by(year, scen) %>%
-    summarise(n = n(),
-              Mean_Count = mean(Count),
-              margin = qt(0.975, df = n - 1) * (sd(Count) / sqrt(n)),
-              lower = Mean_Count - margin,
-              upper = Mean_Count + margin)
-  
-  final_count <- plot_data1_confint %>%
-    filter(year == max(year),
-           )
-  
-  
-  p1 <- ggplot(plot_data1_confint, aes(x = year, y = Mean_Count, group = scen)) +
-    geom_ribbon(aes(ymin = lower, ymax = upper, color = scen, fill = scen), linetype = 'dotted', alpha = 0.3) +
-    geom_line(aes(color = scen), linetype = 'dashed') +
-    geom_point(aes(color = scen)) +
-    scale_color_manual(values = palette) +
-    scale_fill_manual(values = palette) +
-    xlab('Year') +
-    ylab('Mean Change') +
-    theme(
-        legend.title = element_blank(),  # Remove the legend title
-        legend.position = c(0.2, 0.7),  # Position the legend inside the plot
-        legend.text = element_text(size = 8),  # Increase the text size for better readability
-        legend.key.size = unit(0.8, 'cm'),  # Reduce the key size to fit more entries
-        legend.spacing.y = unit(0.1, 'cm')  # Add vertical space between legend items
-    ) +
-    guides(
-        color = guide_legend(
-            ncol = ifelse(length(unique(plot_data1_confint$scen)) > 5, 2, 1)  # Use 2 columns if more than 5 groups
-        ),
-        fill = guide_legend(
-            ncol = ifelse(length(unique(plot_data1_confint$scen)) > 5, 2, 1)  # Use 2 columns if more than 5 groups
-        )
-    )
-  
-    plot_data_2 <- data %>%
-      filter(mental_health_risk == 'TRUE') %>%
-      select(-mental_health_risk, -count) %>%
-      pivot_wider(names_from = scen,
-                  values_from = prop) %>%
-      mutate(across(starts_with("£"), ~ . - baseline, .names = "diff_{.col}")) %>%
-      select(run_id, year, starts_with('diff')) %>%
-      pivot_longer(cols = starts_with("diff"),
-                   names_sep = '_',
-                   names_to = c("diff", "scen"),
-                   values_to = 'Proportion')
-    
-    plot_data2_confint <- plot_data_2 %>%
-      mutate(Proportion = Proportion * 100) %>%
-      group_by(year, scen) %>%
-      summarise(n = n(),
-              Mean_Proportion = mean(Proportion),
-              margin = qt(0.975, df = n - 1) * (sd(Proportion) / sqrt(n)),
-              lower = Mean_Proportion - margin,
-              upper = Mean_Proportion + margin)
-    
-    p2 <- ggplot(plot_data2_confint, aes(x = year, y = Mean_Proportion, group = scen)) +
-    geom_ribbon(aes(ymin = lower, ymax = upper, color = scen, fill = scen), linetype = 'dotted', alpha = 0.3) +
-    geom_line(aes(color = scen), linetype = 'dashed') +
-    geom_point(aes(color = scen)) +
-    scale_color_manual(values = palette) +
-    scale_fill_manual(values = palette) +
-    xlab('Year') +
-    ylab('Mean Change (%)') +
-    theme(
-        legend.title = element_blank(),  # Remove the legend title
-        legend.position = c(0.2, 0.7),  # Position the legend inside the plot
-        legend.text = element_text(size = 8),  # Increase the text size for better readability
-        legend.key.size = unit(0.8, 'cm'),  # Reduce the key size to fit more entries
-        legend.spacing.y = unit(0.1, 'cm')  # Add vertical space between legend items
-    ) +
-    guides(
-        color = guide_legend(
-            ncol = ifelse(length(unique(plot_data1_confint$scen)) > 5, 2, 1)  # Use 2 columns if more than 5 groups
-        ),
-        fill = guide_legend(
-            ncol = ifelse(length(unique(plot_data1_confint$scen)) > 5, 2, 1)  # Use 2 columns if more than 5 groups
-        )
-    )
-  
-  print(p1)
-  print(p2)
+# summary_group <- 'men_illness_risk'
+# scen.list = scen.list.25_100
+# 
+# 
+#   total_adults_EW <- 48566000
+# 
+#   tit <- ' '
+#   if (summary_group == 'UC_men_illness_risk') { tit <- 'UC Population' }
+#   if (summary_group == 'UC_families_men_illness_risk') { tit <- 'UC Families' }
+#   if (summary_group == 'men_illness_risk') { tit <- 'Whole Population' }
+#   if (summary_group == 'men_illness_risk_families') { tit <- 'Families' }
+#   
+#   # scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
+#   # summary_group <- 'men_illness_risk'
+#   
+#   #scen.list <- c('baseline', comparison_scen)
+#   data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+#   
+#   data <- data %>%
+#     mutate_at("scen", str_replace, "UniversalCredit", "") %>%
+#     mutate(scen = if_else(scen == "baseline", scen, paste0("£", scen)))
+#   
+#   plot_data1 <- data %>%
+#     filter(mental_health_risk == 'TRUE') %>%
+#     select(-prop, -mental_health_risk) %>%
+#     pivot_wider(names_from = scen,
+#                 values_from = count) %>%
+#     mutate(across(starts_with("£"), ~ . - baseline, .names = "diff_{.col}")) %>%
+#     select(run_id, year, starts_with('diff')) %>%
+#     pivot_longer(cols = starts_with("diff"),
+#                  names_sep = '_',
+#                  names_to = c("diff", "scen"),
+#                  values_to = 'Count')
+#   
+#   # Extract numeric part from 'scen' column then...
+#   scen_numeric <- as.numeric(gsub("[^0-9]", "", plot_data1$scen))
+#   # ...Reorder 'scen' column based on numeric values for plotting
+#   plot_data1$scen <- factor(plot_data1$scen, levels = unique(plot_data1$scen[order(scen_numeric)]))
+#   
+#   
+#   plot_data1_confint <- plot_data1 %>%
+#     group_by(year, scen) %>%
+#     summarise(n = n(),
+#               Mean_Count = mean(Count),
+#               margin = qt(0.975, df = n - 1) * (sd(Count) / sqrt(n)),
+#               lower = Mean_Count - margin,
+#               upper = Mean_Count + margin)
+#   
+#   final_count <- plot_data1_confint %>%
+#     filter(year == max(year),
+#            )
+#   
+#   
+#   p1 <- ggplot(plot_data1_confint, aes(x = year, y = Mean_Count, group = scen)) +
+#     geom_ribbon(aes(ymin = lower, ymax = upper, color = scen, fill = scen), linetype = 'dotted', alpha = 0.3) +
+#     geom_line(aes(color = scen), linetype = 'dashed') +
+#     geom_point(aes(color = scen)) +
+#     scale_color_manual(values = palette) +
+#     scale_fill_manual(values = palette) +
+#     xlab('Year') +
+#     ylab('Mean Change') +
+#     theme(
+#         legend.title = element_blank(),  # Remove the legend title
+#         legend.position = c(0.2, 0.7),  # Position the legend inside the plot
+#         legend.text = element_text(size = 8),  # Increase the text size for better readability
+#         legend.key.size = unit(0.8, 'cm'),  # Reduce the key size to fit more entries
+#         legend.spacing.y = unit(0.1, 'cm')  # Add vertical space between legend items
+#     ) +
+#     guides(
+#         color = guide_legend(
+#             ncol = ifelse(length(unique(plot_data1_confint$scen)) > 5, 2, 1)  # Use 2 columns if more than 5 groups
+#         ),
+#         fill = guide_legend(
+#             ncol = ifelse(length(unique(plot_data1_confint$scen)) > 5, 2, 1)  # Use 2 columns if more than 5 groups
+#         )
+#     )
+#   
+#     plot_data_2 <- data %>%
+#       filter(mental_health_risk == 'TRUE') %>%
+#       select(-mental_health_risk, -count) %>%
+#       pivot_wider(names_from = scen,
+#                   values_from = prop) %>%
+#       mutate(across(starts_with("£"), ~ . - baseline, .names = "diff_{.col}")) %>%
+#       select(run_id, year, starts_with('diff')) %>%
+#       pivot_longer(cols = starts_with("diff"),
+#                    names_sep = '_',
+#                    names_to = c("diff", "scen"),
+#                    values_to = 'Proportion')
+#     
+#     plot_data2_confint <- plot_data_2 %>%
+#       mutate(Proportion = Proportion * 100) %>%
+#       group_by(year, scen) %>%
+#       summarise(n = n(),
+#               Mean_Proportion = mean(Proportion),
+#               margin = qt(0.975, df = n - 1) * (sd(Proportion) / sqrt(n)),
+#               lower = Mean_Proportion - margin,
+#               upper = Mean_Proportion + margin)
+#     
+#     p2 <- ggplot(plot_data2_confint, aes(x = year, y = Mean_Proportion, group = scen)) +
+#     geom_ribbon(aes(ymin = lower, ymax = upper, color = scen, fill = scen), linetype = 'dotted', alpha = 0.3) +
+#     geom_line(aes(color = scen), linetype = 'dashed') +
+#     geom_point(aes(color = scen)) +
+#     scale_color_manual(values = palette) +
+#     scale_fill_manual(values = palette) +
+#     xlab('Year') +
+#     ylab('Mean Change (%)') +
+#     theme(
+#         legend.title = element_blank(),  # Remove the legend title
+#         legend.position = c(0.2, 0.7),  # Position the legend inside the plot
+#         legend.text = element_text(size = 8),  # Increase the text size for better readability
+#         legend.key.size = unit(0.8, 'cm'),  # Reduce the key size to fit more entries
+#         legend.spacing.y = unit(0.1, 'cm')  # Add vertical space between legend items
+#     ) +
+#     guides(
+#         color = guide_legend(
+#             ncol = ifelse(length(unique(plot_data1_confint$scen)) > 5, 2, 1)  # Use 2 columns if more than 5 groups
+#         ),
+#         fill = guide_legend(
+#             ncol = ifelse(length(unique(plot_data1_confint$scen)) > 5, 2, 1)  # Use 2 columns if more than 5 groups
+#         )
+#     )
+#   
+#   print(p1)
+#   print(p2)
 ```
 
 
 ```{r}
-mental_illness_risk_plots('men_illness_risk', scen.list = scen.list.25_100)
+# mental_illness_risk_plots('men_illness_risk', scen.list = scen.list.25_100)
 ```
 
 ## Families
 
 ```{r}
-mental_illness_risk_plots('men_illness_risk_families', scen.list = scen.list.25_100)
+# mental_illness_risk_plots('men_illness_risk_families', scen.list = scen.list.25_100)
 ```
 
 
 ## UC Pop
 
 ```{r}
-mental_illness_risk_plots('UC_men_illness_risk', scen.list = scen.list.25_100)
-mental_illness_risk_plots_interval('UC_men_illness_risk', scen.list = scen.list.25_100)
+# mental_illness_risk_plots('UC_men_illness_risk', scen.list = scen.list.25_100)
+# mental_illness_risk_plots_interval('UC_men_illness_risk', scen.list = scen.list.25_100)
 ```
 
 

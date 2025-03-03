@@ -105,40 +105,40 @@ universal_credit_child_uplifts: baseline intervention_25UniversalCredit interven
 ## Running MINOS scenarios on Arc4
 #####################################
 
-arc4_intervention_10All: setup
+arc4_intervention_10All:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '10All'
 
-arc4_intervention_20All: setup
+arc4_intervention_20All:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '20All'
 
-arc4_intervention_25All: setup
+arc4_intervention_25All:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25All'
 
-arc4_intervention_30All: setup
+arc4_intervention_30All:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '30All'
 
-arc4_intervention_40All: setup
+arc4_intervention_40All:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '40All'
 
-arc4_intervention_50All: setup
+arc4_intervention_50All:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50All'
 
-arc4_intervention_60All: setup
+arc4_intervention_60All:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '60All'
 
-arc4_intervention_70All: setup
+arc4_intervention_70All:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '70All'
 
-arc4_intervention_75All: setup
+arc4_intervention_75All:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75All'
 
-arc4_intervention_80All: setup
+arc4_intervention_80All:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '80All'
 
-arc4_intervention_90All: setup
+arc4_intervention_90All:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '90All'
 
-arc4_intervention_100All: setup
+arc4_intervention_100All:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100All'
 
 ##########################################################################
@@ -149,10 +149,10 @@ arc4_intervention_25RelativePoverty:
 arc4_intervention_50RelativePoverty:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50RelativePoverty'
 
-arc4_intervention_75RelativePoverty: setup
+arc4_intervention_75RelativePoverty:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75RelativePoverty'
 
-arc4_intervention_100RelativePoverty: setup
+arc4_intervention_100RelativePoverty:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100RelativePoverty'
 
 ##########################################################################
@@ -187,7 +187,7 @@ arc4_intervention_60UniversalCredit:
 arc4_intervention_70UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '70UniversalCredit'
 
-arc4_intervention_75UniversalCredit: setup
+arc4_intervention_75UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75UniversalCredit'
 
 arc4_intervention_80UniversalCredit:
@@ -196,16 +196,16 @@ arc4_intervention_80UniversalCredit:
 arc4_intervention_90UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '90UniversalCredit'
 
-arc4_intervention_100UniversalCredit: setup
+arc4_intervention_100UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
 
-arc4_intervention_110UniversalCredit: setup
+arc4_intervention_110UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '110UniversalCredit'
 
-arc4_intervention_120UniversalCredit: setup
+arc4_intervention_120UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '120UniversalCredit'
 
-arc4_intervention_130UniversalCredit: setup
+arc4_intervention_130UniversalCredit:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '130UniversalCredit'
 
 ##########################################################################
@@ -216,10 +216,10 @@ arc4_intervention_25Priority:
 arc4_intervention_50Priority:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50Priority'
 
-arc4_intervention_75Priority: setup
+arc4_intervention_75Priority:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75Priority'
 
-arc4_intervention_100Priority: setup
+arc4_intervention_100Priority:
 	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100Priority'
 
 #####################################
@@ -269,6 +269,10 @@ arc4_UC_5_50: arc4_intervention_25UniversalCredit arc4_intervention_35UniversalC
 arc_UC_110_130: MODE=scaled_GB
 arc_UC_110_130: RUN_CONFIG=$(CONFIG)/gb_scaled.yaml
 arc_UC_110_130: arc4_intervention_110UniversalCredit arc4_intervention_120UniversalCredit arc4_intervention_130UniversalCredit
+
+arc_UC_all: MODE=scaled_GB
+arc_UC_all: RUN_CONFIG=$(CONFIG)/gb_scaled.yaml
+arc_UC_all: arc4_UC_10_100 arc4_UC_5_50 arc_UC_110_130
 
 arc4_priority_child_uplifts: MODE=scaled_glasgow #MODE=default_config
 arc4_priority_child_uplifts: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml#/default.yaml
