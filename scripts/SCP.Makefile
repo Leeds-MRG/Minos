@@ -158,55 +158,55 @@ arc4_intervention_100RelativePoverty:
 ##########################################################################
 
 arc4_intervention_10UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '10UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '10UniversalCredit'
 
 arc4_intervention_20UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '20UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '20UniversalCredit'
 
 arc4_intervention_25UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '25UniversalCredit'
 
 arc4_intervention_30UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '30UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '30UniversalCredit'
 
 arc4_intervention_35UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '35UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '35UniversalCredit'
 
 arc4_intervention_40UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '40UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '40UniversalCredit'
 
 arc4_intervention_45UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '45UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '45UniversalCredit'
 
 arc4_intervention_50UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '50UniversalCredit'
 
 arc4_intervention_60UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '60UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '60UniversalCredit'
 
 arc4_intervention_70UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '70UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '70UniversalCredit'
 
 arc4_intervention_75UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '75UniversalCredit'
 
 arc4_intervention_80UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '80UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '80UniversalCredit'
 
 arc4_intervention_90UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '90UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '90UniversalCredit'
 
 arc4_intervention_100UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '100UniversalCredit'
 
 arc4_intervention_110UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '110UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '110UniversalCredit'
 
 arc4_intervention_120UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '120UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '120UniversalCredit'
 
 arc4_intervention_130UniversalCredit:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '130UniversalCredit'
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i '130UniversalCredit'
 
 ##########################################################################
 
