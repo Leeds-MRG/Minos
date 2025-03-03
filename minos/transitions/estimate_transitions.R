@@ -296,7 +296,7 @@ run_yearly_models <- function(transitionDir_path,
       {
         create.if.not.exists("data/transitions/coefficients")
         texreg_file <- paste0("data/transitions/coefficients/", dependent, '_', year, '_', depend.year, '.txt')
-        texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
+        texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), single.row=T, digits=4, dcolumn=T, tabular=T, fontsize='scriptsize')
       }
       saveRDS(model, file=paste0(out.path2, dependent, '_', year, '_', depend.year, '.rds'))
       print(paste0(mod.type, ' model for ', dependent, ' generated for years ', year, ' - ', depend.year))

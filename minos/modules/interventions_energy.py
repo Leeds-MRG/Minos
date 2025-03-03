@@ -1235,7 +1235,8 @@ class EPCGandGBIS(Base):
         if energy_mean > EPCG_market_cap:  # energy cap only active when the mean consumption is over 3500.
             # scale energy spending such that the mean yearly bill is 3000 pounds.
             # multiplicative scaling was used via capping of energy pricing per kWh.
-            pop.loc[pop["GBIS_income_boosted"]==False, 'EPCG_intervention_cost'] = pop['yearly_energy'] * (1 - (EPCG_market_cap / energy_mean))
+            #pop.loc[pop["GBIS_income_boosted"]==False, 'EPCG_intervention_cost'] = pop['yearly_energy'] * (1 - (EPCG_market_cap / energy_mean))
+            pop['EPCG_intervention_cost'] = pop['yearly_energy'] * (1 - (EPCG_market_cap / energy_mean))
             pop['EPCG_intervention_cost'] = pop['EPCG_intervention_cost'].clip(lower=0) # stop negative moneycoming off.
             pop['EPCG_income_boosted'] = (pop['EPCG_intervention_cost'] != 0)
             pop['EPCG_boost_amount'] = pop['EPCG_intervention_cost']

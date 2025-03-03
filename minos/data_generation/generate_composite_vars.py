@@ -1374,7 +1374,7 @@ def generate_housing_sector(df):
 
     tenure_housing_sector_map = {1: 0, 2: 0, # owned outright assigned 0
                                  3: 1, 4: 1,  # public rental sector assigned 1
-                                 5:2, 6:2, 7:2, # private rental sector assigned 2
+                                 5:2, 6:2, 7:2, 8:2, # private rental sector assigned 2
                                  -1:-1, -2:-2, -3:-3, -7:-7, -8:-8, -9:-9, -10:-10} # preserving error codes.
     df['housing_sector'] = df['housing_tenure'].map(tenure_housing_sector_map)
     return df

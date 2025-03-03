@@ -1,0 +1,813 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(here)
+library(ggplot2)
+library(tidyr) #data manipulation
+library(dplyr) # data manipulation
+library(stringr) # for nice formatting of axes labels.
+library(viridis) # for nice colour palettes
+library(sf)
+library(tibble)
+library(xtable)
+
+source(here::here("minos", "utils_datain.R"))
+source(here::here('minos', 'utils_validation_vis.R'))
+source(here::here('minos', 'validation', 'utils.r'))
+```
+
+
+```{r}
+
+transition_tables <- function(v){
+
+long_EPCG_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "EPCG", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector", "ZoneID", "pidp"))
+long_baseline_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "baseline", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector", "ZoneID", "pidp"))
+long_GBIS_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "GBIS", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector", "ZoneID", "pidp"))
+
+
+lsoa_la_map <- read.csv(here::here("persistent_data", "spatial_data","LSOA11_WD22_LAD22_EW_LU.csv"))
+lsoa_la_map <- lsoa_la_map[, c("LSOA11CD", "LAD22NM")]
+colnames(lsoa_la_map) <- c("ZoneID", "LAD")
+
+long_baseline_data <- merge(long_baseline_data, lsoa_la_map, by="ZoneID")
+long_EPCG_data <- merge(long_EPCG_data, lsoa_la_map, by="ZoneID")
+long_GBIS_data <- merge(long_GBIS_data, lsoa_la_map, by="ZoneID")
+
+#long_baseline_data <- long_baseline_data[which(long_baseline_data$ZoneID %in% manchester_lsoas), ]
+#long_EPCG_data <- long_EPCG_data[which(long_EPCG_data$ZoneID %in% manchester_lsoas), ]
+#long_GBIS_data <- long_GBIS_data[which(long_GBIS_data$ZoneID %in% manchester_lsoas), ]
+
+baseline_start <- long_baseline_data[which(long_baseline_data$time == 2021), ]
+EPCG_start <- long_EPCG_data[which(long_EPCG_data$time == 2021), ]
+GBIS_start <- long_GBIS_data[which(long_GBIS_data$time == 2021), ]
+
+baseline_mid <- long_baseline_data[which(long_baseline_data$time == 2026), ]
+EPCG_mid <- long_EPCG_data[which(long_EPCG_data$time == 2026), ]
+GBIS_mid <- long_GBIS_data[which(long_GBIS_data$time == 2026), ]
+
+baseline_end <- long_baseline_data[which(long_baseline_data$time == 2031), ]
+EPCG_end <- long_EPCG_data[which(long_EPCG_data$time == 2031), ]
+GBIS_end <- long_GBIS_data[which(long_GBIS_data$time == 2031), ]
+
+
+test <- merge(baseline_start, baseline_mid, by="pidp")
+t1 <- table(test[[paste0(v, ".x")]], test[[paste0(v, ".y")]])
+t1 <- t1  * 100/ rowSums(t1)
+
+test2 <- merge(EPCG_start, EPCG_mid, by="pidp")
+t2 <-  table(test2[[paste0(v, ".x")]], test2[[paste0(v, ".y")]])
+t2 <- t2  * 100/ rowSums(t2)
+
+test3 <- merge(GBIS_start, GBIS_mid, by="pidp")
+t3 <-  table(test3[[paste0(v, ".x")]], test3[[paste0(v, ".y")]])
+t3 <- t3  * 100/ rowSums(t3)
+
+print("Rochdale")
+rochdale_baseline_start <- baseline_start[which(baseline_start$LAD == "Rochdale")]
+rochdale_baseline_mid <- baseline_mid[which(baseline_mid$LAD == "Rochdale")]
+rochdale_baseline_end<- baseline_end[which(baseline_end$LAD == "Rochdale")]
+
+rochdale_EPCG_start <- EPCG_start[which(EPCG_start$LAD == "Rochdale")]
+rochdale_EPCG_mid <- EPCG_mid[which(EPCG_mid$LAD == "Rochdale")]
+rochdale_EPCG_end<- EPCG_end[which(EPCG_end$LAD == "Rochdale")]
+
+rochdale_GBIS_start <- GBIS_start[which(GBIS_start$LAD == "Rochdale")]
+rochdale_GBIS_mid <- GBIS_mid[which(GBIS_mid$LAD == "Rochdale")]
+rochdale_GBIS_end<- GBIS_end[which(GBIS_end$LAD == "Rochdale")]
+
+print("Baseline")
+test <- merge(rochdale_baseline_start, rochdale_baseline_mid, by="pidp")
+rochdale_t1 <- table(test[[paste0(v, ".x")]], test[[paste0(v, ".y")]])
+rochdale_t1 <- rochdale_t1  * 100/ rowSums(rochdale_t1)
+print(rochdale_t1)
+
+print("EPCG")
+test2 <- merge(rochdale_EPCG_start, rochdale_EPCG_mid, by="pidp")
+rochdale_t2 <-  table(test2[[paste0(v, ".x")]], test2[[paste0(v, ".y")]])
+rochdale_t2 <- rochdale_t2  * 100/ rowSums(rochdale_t2)
+print(rochdale_t2)
+
+print("GBIS")
+test3 <- merge(rochdale_GBIS_start, rochdale_GBIS_mid, by="pidp")
+rochdale_t3 <-  table(test3[[paste0(v, ".x")]], test3[[paste0(v, ".y")]])
+rochdale_t3 <- rochdale_t3  * 100/ rowSums(rochdale_t3)
+print(rochdale_t3)
+
+
+print("Tameside")
+tameside_baseline_start <- baseline_start[which(baseline_start$LAD == "Tameside")]
+tameside_baseline_mid <- baseline_mid[which(baseline_mid$LAD == "Tameside")]
+tameside_baseline_end<- baseline_end[which(baseline_end$LAD == "Tameside")]
+
+tameside_EPCG_start <- EPCG_start[which(EPCG_start$LAD == "Tameside")]
+tameside_EPCG_mid <- EPCG_mid[which(EPCG_mid$LAD == "Tameside")]
+tameside_EPCG_end<- EPCG_end[which(EPCG_end$LAD == "Tameside")]
+
+tameside_GBIS_start <- GBIS_start[which(GBIS_start$LAD == "Tameside")]
+tameside_GBIS_mid <- GBIS_mid[which(GBIS_mid$LAD == "Tameside")]
+tameside_GBIS_end<- GBIS_end[which(GBIS_end$LAD == "Tameside")]
+
+print("Baseline")
+test <- merge(tameside_baseline_start, tameside_baseline_mid, by="pidp")
+tameside_t1 <- table(test[[paste0(v, ".x")]], test[[paste0(v, ".y")]])
+tameside_t1 <- tameside_t1  * 100/ rowSums(tameside_t1)
+print(tameside_t1)
+
+print("EPCG")
+test2 <- merge(tameside_EPCG_start, tameside_EPCG_mid, by="pidp")
+tameside_t2 <- table(test2[[paste0(v, ".x")]], test2[[paste0(v, ".y")]])
+tameside_t2 <- tameside_t2  * 100/ rowSums(tameside_t2)
+print(tameside_t2)
+
+print("GBIS")
+test3 <- merge(tameside_GBIS_start, tameside_GBIS_mid, by="pidp")
+tameside_t3 <-  table(test3[[paste0(v, ".x")]], test3[[paste0(v, ".y")]])
+tameside_t3 <- tameside_t3  * 100/ rowSums(tameside_t3)
+print(tameside_t3)
+
+
+print("Manchester")
+manchester_baseline_start <- baseline_start[which(baseline_start$LAD == "Manchester")]
+manchester_baseline_mid <- baseline_mid[which(baseline_mid$LAD == "Manchester")]
+manchester_baseline_end<- baseline_end[which(baseline_end$LAD == "Manchester")]
+
+manchester_EPCG_start <- EPCG_start[which(EPCG_start$LAD == "Manchester")]
+manchester_EPCG_mid <- EPCG_mid[which(EPCG_mid$LAD == "Manchester")]
+manchester_EPCG_end<- EPCG_end[which(EPCG_end$LAD == "Manchester")]
+
+manchester_GBIS_start <- GBIS_start[which(GBIS_start$LAD == "Manchester")]
+manchester_GBIS_mid <- GBIS_mid[which(GBIS_mid$LAD == "Manchester")]
+manchester_GBIS_end<- GBIS_end[which(GBIS_end$LAD == "Manchester")]
+
+print("Baseline")
+test <- merge(manchester_baseline_start, manchester_baseline_mid, by="pidp")
+manchester_t1 <- table(test[[paste0(v, ".x")]], test[[paste0(v, ".y")]])
+manchester_t1 <- manchester_t1  * 100/ rowSums(manchester_t1)
+print(manchester_t1)
+
+print("EPCG")
+test2 <- merge(manchester_EPCG_start, manchester_EPCG_mid, by="pidp")
+manchester_t2 <-  table(test2[[paste0(v, ".x")]], test2[[paste0(v, ".y")]])
+print(manchester_t2)
+manchester_t2 <- manchester_t2  * 100/ rowSums(manchester_t2)
+print(manchester_t2)
+
+print("GBIS")
+test3 <- merge(manchester_GBIS_start, manchester_GBIS_mid, by="pidp")
+manchester_t3 <- table(test3[[paste0(v, ".x")]], test3[[paste0(v, ".y")]])
+print(manchester_t3)
+manchester_t3 <- manchester_t3  * 100/ rowSums(manchester_t3)
+print(manchester_t3)
+
+}
+
+transition_tables("housing_quality")
+```
+
+```{r}
+
+
+long_EPCG_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "EPCG", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc"))
+long_baseline_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "baseline", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "neighbourhood_safety", "FP10", "loneliness", "financial_situation", "auditc"))
+long_GBIS_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "GBIS", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "neighbourhood_safety", "FP10", "loneliness", "financial_situation", "auditc"))
+
+
+lsoa_la_map <- read.csv(here::here("persistent_data", "spatial_data","LSOA11_WD22_LAD22_EW_LU.csv"))
+lsoa_la_map <- lsoa_la_map[, c("LSOA11CD", "LAD22NM")]
+colnames(lsoa_la_map) <- c("ZoneID", "LAD")
+
+long_baseline_data <- merge(long_baseline_data, lsoa_la_map, by="ZoneID")
+long_EPCG_data <- merge(long_EPCG_data, lsoa_la_map, by="ZoneID")
+long_GBIS_data <- merge(long_GBIS_data, lsoa_la_map, by="ZoneID")
+
+
+
+baseline_start <- long_baseline_data[which(long_baseline_data$time == 2021), ]
+EPCG_start <- long_EPCG_data[which(long_EPCG_data$time == 2021), ]
+GBIS_start <- long_GBIS_data[which(long_GBIS_data$time == 2021), ]
+
+baseline_mid <- long_baseline_data[which(long_baseline_data$time == 2026), ]
+EPCG_mid <- long_EPCG_data[which(long_EPCG_data$time == 2026), ]
+GBIS_mid <- long_GBIS_data[which(long_GBIS_data$time == 2026), ]
+
+baseline_end <- long_baseline_data[which(long_baseline_data$time == 2031), ]
+EPCG_end <- long_EPCG_data[which(long_EPCG_data$time == 2031), ]
+GBIS_end <- long_GBIS_data[which(long_GBIS_data$time == 2031), ]
+
+EPCG_mid$intervention <- "EPCG 2026"
+EPCG_start$intervention <- "Baseline 2021"
+GBIS_mid$intervention <- "GBIS 2026"
+baseline_mid$intervention <- "Baseline 2026"
+
+test2 <- rbind(EPCG_start, EPCG_mid, GBIS_mid)
+
+test3 <- test2 %>% 
+          group_by(intervention, LAD, time, housing_quality)  %>%
+            summarise(n= n()) %>%
+               mutate(pct = n / sum(n)) %>% 
+                 filter(housing_quality == "Low") 
+
+group_shift_plot3 <- ggplot(test3, aes(x=LAD, y=pct, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("housing low percentages")
+
+print(group_shift_plot3)
+
+
+
+test4 <- test2 %>% 
+          group_by(intervention, LAD, time, neighbourhood_safety)  %>%
+            summarise(n= n()) %>%
+               mutate(pct = n / sum(n)) %>% 
+                 filter(neighbourhood_safety == 1) 
+
+group_shift_plot4 <- ggplot(test4, aes(x=LAD, y=pct, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention)))+ ylab("neighbourhood low percentages")
+
+print(group_shift_plot4)
+
+
+test2a <- rbind(EPCG_start, EPCG_mid, GBIS_mid, baseline_mid)
+
+test5 <- test2a %>% 
+          group_by(intervention, LAD, time, FP10)  %>%
+            summarise(n= n()) %>%
+               mutate(pct = n / sum(n)) %>% 
+                 filter(FP10 == F) 
+
+group_shift_plot5 <- ggplot(test5, aes(x=LAD, y=pct, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("FP10 True percentages")
+
+print(group_shift_plot5)
+
+
+test6 <- test2a %>% 
+          group_by(intervention, LAD, time, loneliness)  %>%
+            summarise(n= n()) %>%
+               mutate(pct = n / sum(n)) %>% 
+                 filter(loneliness == 3) 
+
+group_shift_plot6 <- ggplot(test6, aes(x=LAD, y=pct, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("Constant Loneliness Percentages")
+
+print(group_shift_plot6)
+
+
+test2 <- rbind(baseline_mid, EPCG_mid, GBIS_mid)
+test7 <- test2 %>% 
+          group_by(intervention, LAD, time, financial_situation)  %>%
+            summarise(n= n()) %>%
+               mutate(pct = n / sum(n)) %>% 
+                 filter(financial_situation == 5) 
+
+group_shift_plot7 <- ggplot(test7, aes(x=LAD, y=pct, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("Constant Financial Situation Percentages")
+
+print(group_shift_plot7)
+
+test2 <- rbind(baseline_mid, EPCG_mid, GBIS_mid)
+test7 <- test2 %>% 
+          group_by(intervention, LAD, time, auditc)  %>%
+            summarise(n= n()) %>%
+               mutate(pct = n / sum(n)) %>% 
+                 filter(auditc == "High Risk") 
+
+group_shift_plot7 <- ggplot(test7, aes(x=LAD, y=pct, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("AUDIT-C High Risk Percentages")
+
+print(group_shift_plot7)
+
+
+
+```
+
+
+```{r}
+long_EPCG_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "EPCG", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "yearly_energy", "hh_rent", "hh_income", "ethnicity", "nutrition_quality"))
+long_baseline_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "baseline", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "yearly_energy", "hh_rent","hh_income", "ethnicity", "nutrition_quality"))
+long_GBIS_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "GBIS", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "yearly_energy", "hh_rent", "hh_income", "ethnicity", "nutrition_quality"))
+
+
+lsoa_la_map <- read.csv(here::here("persistent_data", "spatial_data","LSOA11_WD22_LAD22_EW_LU.csv"))
+lsoa_la_map <- lsoa_la_map[, c("LSOA11CD", "LAD22NM")]
+colnames(lsoa_la_map) <- c("ZoneID", "LAD")
+
+long_baseline_data <- merge(long_baseline_data, lsoa_la_map, by="ZoneID")
+long_EPCG_data <- merge(long_EPCG_data, lsoa_la_map, by="ZoneID")
+long_GBIS_data <- merge(long_GBIS_data, lsoa_la_map, by="ZoneID")
+
+
+
+baseline_start <- long_baseline_data[which(long_baseline_data$time == 2021), ]
+EPCG_start <- long_EPCG_data[which(long_EPCG_data$time == 2021), ]
+GBIS_start <- long_GBIS_data[which(long_GBIS_data$time == 2021), ]
+
+baseline_mid <- long_baseline_data[which(long_baseline_data$time == 2026), ]
+EPCG_mid <- long_EPCG_data[which(long_EPCG_data$time == 2026), ]
+GBIS_mid <- long_GBIS_data[which(long_GBIS_data$time == 2026), ]
+
+baseline_end <- long_baseline_data[which(long_baseline_data$time == 2031), ]
+EPCG_end <- long_EPCG_data[which(long_EPCG_data$time == 2031), ]
+GBIS_end <- long_GBIS_data[which(long_GBIS_data$time == 2031), ]
+
+EPCG_mid$intervention <- "EPCG 2026"
+EPCG_start$intervention <- "Baseline 2021"
+GBIS_mid$intervention <- "GBIS 2026"
+baseline_mid$intervention <- "Baseline 2026"
+
+test2 <- rbind(EPCG_mid, GBIS_mid, baseline_mid, EPCG_start)
+
+test3 <- test2 %>% 
+          filter(housing_sector == 2) %>%
+          group_by(intervention, LAD, time)  %>%
+            summarise(Median= median(yearly_energy)) 
+
+group_shift_plot3 <- ggplot(test3, aes(x=LAD, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("Yearly Energy Means")
+
+print(group_shift_plot3)
+
+test3a <- test2 %>% 
+          filter(housing_sector == 2) %>%
+          group_by(intervention, ethnicity, time)  %>%
+            summarise(Median= median(yearly_energy)) 
+
+group_shift_plot3a <- ggplot(test3a, aes(x=ethnicity, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("Yearly Energy Means by ethnicity")
+
+print(group_shift_plot3a)
+
+
+
+test4 <- test2 %>% 
+          filter(hh_rent>0) %>%
+          group_by(intervention, LAD, time)  %>%
+            summarise(Median= mean(hh_rent)) 
+
+group_shift_plot4 <- ggplot(test4, aes(x=LAD, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("HH Rent Means")
+
+print(group_shift_plot4)
+
+test4a <- test2 %>% 
+          filter(hh_rent>0) %>%
+          group_by(intervention, ethnicity, time)  %>%
+            summarise(Median= mean(hh_rent)) 
+
+group_shift_plot4a <- ggplot(test4a, aes(x=ethnicity, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("HH Rent Means by ethnicity")
+
+print(group_shift_plot4a)
+
+
+
+test5 <- test2 %>% 
+          #filter(housing_sector == 2) %>%
+          group_by(intervention, LAD, time)  %>%
+            summarise(Median= mean(hh_income)) 
+
+group_shift_plot5 <- ggplot(test5, aes(x=LAD, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("HH Income Means")
+
+print(group_shift_plot5)
+
+
+test5a <- test2 %>% 
+          #filter(housing_sector==2) %>%
+          group_by(intervention, ethnicity, time)  %>%
+            summarise(Median= median(hh_income)) 
+
+group_shift_plot5a <- ggplot(test5a, aes(x=ethnicity, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("HH Income Means by ethnicity")
+
+print(group_shift_plot5a)
+
+
+test6 <- test2 %>% 
+          #filter(housing_sector == 2) %>%
+          group_by(intervention, LAD, time)  %>%
+            summarise(Median= mean(nutrition_quality)) 
+
+group_shift_plot6 <- ggplot(test6, aes(x=LAD, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("Nutrition Quality Means")
+
+print(group_shift_plot6)
+
+```
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+long_baseline_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "baseline", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "hidp", "hh_rent","hh_income", "ethnicity", "nutrition_quality", "nkids", "yearly_energy", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc", "age"))
+long_EPCG_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "EPCG", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "hidp", "hh_rent","hh_income", "ethnicity", "nutrition_quality", "nkids", "yearly_energy", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc", "age"))
+long_GBIS_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "GBIS", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "hidp", "hh_rent","hh_income", "ethnicity", "nutrition_quality", "nkids", "yearly_energy", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc", "age"))
+
+
+baseline_start <- long_baseline_data[which(long_baseline_data$time == 2021), ]
+EPCG_start <- long_EPCG_data[which(long_EPCG_data$time == 2021), ]
+GBIS_start <- long_GBIS_data[which(long_GBIS_data$time == 2021), ]
+
+baseline_mid <- long_baseline_data[which(long_baseline_data$time == 2026), ]
+EPCG_mid <- long_EPCG_data[which(long_EPCG_data$time == 2026), ]
+GBIS_mid <- long_GBIS_data[which(long_GBIS_data$time == 2026), ]
+
+baseline_end <- long_baseline_data[which(long_baseline_data$time == 2031), ]
+EPCG_end <- long_EPCG_data[which(long_EPCG_data$time == 2031), ]
+GBIS_end <- long_GBIS_data[which(long_GBIS_data$time == 2031), ]
+
+```
+
+
+```{r}
+output_summary_column <- function(data_subset, data_total){
+#print("number of total households")
+n_FP10_houses <- length(unique(data_subset$hidp))
+n_total_houses <- length(unique(data_total$hidp))
+number_households <- paste0(n_FP10_houses, " (", round(100*n_FP10_houses/n_total_houses, 3), "%)")
+#print(number_households)
+
+#print("number of total individuals (% of total population)")
+n_FP10_individuals <- length(unique(data_subset$pidp))
+n_total_individuals <- length(unique(data_total$pidp))
+number_individuals <- paste0(n_FP10_individuals, " (", round(100*n_FP10_individuals/n_total_individuals, 3), "%)")
+#print(number_individuals)
+
+
+#print("number of children")
+n_FP10_kids <- sum(data_subset %>% group_by(hidp) %>% summarise(kids = max(nkids)) %>% select(kids))
+n_total_kids <- sum(data_total %>% group_by(hidp) %>% summarise(kids = max(nkids))%>% select(kids))
+number_kids <- paste0(n_FP10_kids, " (", round(100*n_FP10_kids/n_total_kids, 3) ,"%)")
+#print(number_kids)
+
+
+#print("Number of Pensioners (% of all pensioners)")
+n_FP10_pensioners <- nrow(data_subset %>% filter(age >= 65))
+n_total_pensioners <- nrow(data_total %>% filter(age >= 65))
+number_pensioners <- paste0(n_FP10_pensioners, " (", round(100* n_FP10_pensioners/n_total_pensioners, 3) ,"%)")
+#print(number_pensioners)
+
+
+#print("Number of Low housing quality (% of FP10 individuals)")
+n_FP10_low_housing <- nrow(data_subset %>% filter(housing_quality == "Low"))
+number_low_housing_individuals <- paste0(n_FP10_low_housing, " (", round(100* n_FP10_low_housing/n_FP10_individuals, 3) ,"%)")
+#print(number_low_housing_individuals)
+
+#print("Number of Low Neighbourhood_safety (% of all FP10 individuals)")
+n_FP10_low_neighbourhood <- print(nrow(data_subset %>% filter(neighbourhood_safety == 1)))
+number_low_neighbourhood_individuals <- paste0(n_FP10_low_neighbourhood, " (",round(100* n_FP10_low_neighbourhood / n_FP10_individuals, 3) ,"%)")
+#print(number_low_neighbourhood_individuals)
+
+#print("Number of Low Financial Situation")
+n_low_finsit <- nrow(data_subset %>% filter(financial_situation > 3))
+number_low_finsit_individuals <- paste0(n_low_finsit, " (", round(100*n_low_finsit/n_FP10_individuals, 3) ,"%)")
+#print(number_low_finsit_individuals)
+
+
+#print("Number of Private Rentals")
+n_private_rental_individuals <- nrow(data_subset %>% filter(housing_sector == 2))
+number_private_rental_individuals <- paste0(n_private_rental_individuals, " (", round(100*n_private_rental_individuals/n_FP10_individuals, 3) ,"%)")
+#print(number_low_finsit_individuals)
+
+#print("Number of Private Rentals")
+n_lonely_individuals <- nrow(data_subset %>% filter(loneliness == 1))
+number_lonely_individuals <- paste0(n_lonely_individuals, " (", round(100*n_lonely_individuals/n_FP10_individuals, 3) ,"%)")
+#print(number_low_finsit_individuals)
+
+#print("Number of Private Rentals")
+n_high_auditc<- nrow(data_subset %>% filter(auditc %in% c("Increased Risk", "High Risk")))
+number_high_auditc_individuals <- paste0(n_high_auditc, " (", round(100*n_high_auditc/n_FP10_individuals, 3) ,"%)")
+#print(number_low_finsit_individuals)
+
+
+median_FP10_income <- round(median(data_subset$hh_income), 3)
+median_FP10_energy <-round(median(data_subset$yearly_energy), 3)
+median_FP10_rent <- round(data_subset %>% filter(hh_rent > 0) %>% summarise(median(hh_rent)), 3)[1, ]
+median_nutrition <- round(mean(data_subset$nutrition_quality), 3)
+
+
+out <- c(number_households, number_individuals, number_kids, number_pensioners, number_low_housing_individuals, number_low_neighbourhood_individuals, number_low_finsit_individuals, number_private_rental_individuals, number_lonely_individuals, number_high_auditc_individuals, median_FP10_income, median_FP10_energy, median_FP10_rent, median_nutrition)
+
+print(out)
+return(out)
+}
+
+
+baseline_FP10_pidps <- baseline_start %>% filter(FP10==F) %>% select(pidp)
+baseline_FP10_pidps <- baseline_FP10_pidps$pidp
+
+baseline_start_summary <- output_summary_column(baseline_start %>% filter(pidp %in% baseline_FP10_pidps), baseline_start)
+baseline_mid_summary <- output_summary_column(  baseline_mid %>%  filter(pidp %in% baseline_FP10_pidps), baseline_mid)
+baseline_end_summary <- output_summary_column(  baseline_end %>%  filter(pidp %in% baseline_FP10_pidps), baseline_end)
+
+EPCG_mid_summary <- output_summary_column(EPCG_mid %>% filter(pidp %in% baseline_FP10_pidps), EPCG_mid)
+EPCG_end_summary <- output_summary_column(EPCG_end %>%  filter(pidp %in% baseline_FP10_pidps), EPCG_end)
+
+GBIS_mid_summary <- output_summary_column(GBIS_mid %>%  filter(pidp %in% baseline_FP10_pidps), GBIS_mid)
+GBIS_end_summary <- output_summary_column(GBIS_end %>%  filter(pidp %in% baseline_FP10_pidps), GBIS_end)
+
+output_table <- cbind(#baseline_start_summary,baseline_mid_summary, baseline_end_summary, 
+                      EPCG_mid_summary, EPCG_end_summary, GBIS_mid_summary, GBIS_end_summary)
+
+colnames(output_table) <- c(#"Baseline 2020", "Baseline 2025", "Baseline 2030", 
+                            "EPCG 2025", "EPCG 2030", 
+                            "GBIS 2025", "GBIS 2030" )
+
+# rownames(output_table) <- c("Total FP10 Households (% of Total Households)",
+#                             "Total FP10 Individuals (% of Total Individuals)",
+#                             "Total FP10 Children (% of Total Children)",
+#                             "Total FP10 Pensioners (% of Total Pensioners",
+#                             "Total FP10 Low Housing Quality Individuals (% of Total FP10 Individuals)",
+#                             "Total FP10 Low Neighbourhood Safety Individuals (% of Total FP10 Individuals)",
+#                             "Total Poor Financial Situation Individuals (% of Total FP10 Individuals)",
+#                             "Total Private Rental Individuals (% of Total FP10 Individuals)",
+#                             "Median Monthly Household Disposable Income",
+#                             "Median Yearly Energy Expenditure",
+#                             "Median Monthly Household Rent.")
+
+rownames(output_table) <- c("Households (% Total Households)",
+                            "Individuals (% of Total Individuals)",
+                            "Children (% of Total Children)",
+                            "Pensioners (% of Total Pensioners",
+                            "Low Housing Quality (% of Total FP10 Individuals)",
+                            "Low Neighbourhood Safety (% of Total FP10 Individuals)",
+                            "Poor Financial Situation (% of Total FP10 Individuals)",
+                            "Total Private Rental Individuals (% of Total FP10 Individuals)",#
+                            "Total Lonely Individuals (% of Total FP10 Individuals)",
+                            "Total high risk auditc score(% of Total FP10 Individuals)",
+                            "Median Monthly Household Disposable Income",
+                            "Median Yearly Energy Expenditure",
+                            "Median Monthly Household Rent.",
+                            "Mean Nutrition Quality")
+
+print(output_table)
+GMCA_output_tex_table <- xtable(output_table, caption= "Percentage Change in Key Variables for the FP10 positive population for the entirety of the GMCA.")
+print(GMCA_output_tex_table, file="GMCA_output.test.tex", type='latex')
+
+```
+
+
+
+```{r}
+
+long_baseline_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "baseline", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "hidp", "hh_rent","hh_income", "ethnicity", "nutrition_quality", "nkids", "yearly_energy", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc", "age"))
+long_EPCG_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "EPCG", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "hidp", "hh_rent","hh_income", "ethnicity", "nutrition_quality", "nkids", "yearly_energy", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc", "age"))
+long_GBIS_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "GBIS", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "hidp", "hh_rent","hh_income", "ethnicity", "nutrition_quality", "nkids", "yearly_energy", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc", "age"))
+
+lsoa_la_map <- read.csv(here::here("persistent_data", "spatial_data","LSOA11_WD22_LAD22_EW_LU.csv"))
+lsoa_la_map <- lsoa_la_map[, c("LSOA11CD", "LAD22NM")]
+colnames(lsoa_la_map) <- c("ZoneID", "LAD")
+
+long_baseline_data <- merge(long_baseline_data, lsoa_la_map, by="ZoneID")
+long_EPCG_data <- merge(long_EPCG_data, lsoa_la_map, by="ZoneID")
+long_GBIS_data <- merge(long_GBIS_data, lsoa_la_map, by="ZoneID")
+
+long_baseline_data <- long_baseline_data %>% filter(LAD == "Rochdale")
+long_GBIS_data <- long_GBIS_data %>% filter(LAD == "Rochdale")
+long_EPCG_data <- long_EPCG_data %>% filter(LAD == "Rochdale")
+
+baseline_start <- long_baseline_data[which(long_baseline_data$time == 2021), ]
+EPCG_start <- long_EPCG_data[which(long_EPCG_data$time == 2021), ]
+GBIS_start <- long_GBIS_data[which(long_GBIS_data$time == 2021), ]
+
+baseline_mid <- long_baseline_data[which(long_baseline_data$time == 2026), ]
+EPCG_mid <- long_EPCG_data[which(long_EPCG_data$time == 2026), ]
+GBIS_mid <- long_GBIS_data[which(long_GBIS_data$time == 2026), ]
+
+baseline_end <- long_baseline_data[which(long_baseline_data$time == 2031), ]
+EPCG_end <- long_EPCG_data[which(long_EPCG_data$time == 2031), ]
+GBIS_end <- long_GBIS_data[which(long_GBIS_data$time == 2031), ]
+
+
+
+
+baseline_FP10_pidps <- baseline_start %>% filter(FP10==F) %>% select(pidp)
+baseline_FP10_pidps <- baseline_FP10_pidps$pidp
+
+baseline_start_summary <- output_summary_column(baseline_start %>% filter(pidp %in% baseline_FP10_pidps), baseline_start)
+baseline_mid_summary <- output_summary_column(  baseline_mid %>%  filter(pidp %in% baseline_FP10_pidps), baseline_mid)
+baseline_end_summary <- output_summary_column(  baseline_end %>%  filter(pidp %in% baseline_FP10_pidps), baseline_end)
+
+EPCG_mid_summary <- output_summary_column(EPCG_mid %>% filter(pidp %in% baseline_FP10_pidps), EPCG_mid)
+EPCG_end_summary <- output_summary_column(EPCG_end %>%  filter(pidp %in% baseline_FP10_pidps), EPCG_end)
+
+GBIS_mid_summary <- output_summary_column(GBIS_mid %>%  filter(pidp %in% baseline_FP10_pidps), GBIS_mid)
+GBIS_end_summary <- output_summary_column(GBIS_end %>%  filter(pidp %in% baseline_FP10_pidps), GBIS_end)
+
+rochdale_output_table <- cbind(#baseline_start_summary,baseline_mid_summary, baseline_end_summary, 
+                               EPCG_mid_summary, EPCG_end_summary, GBIS_mid_summary, GBIS_end_summary)
+
+colnames(rochdale_output_table) <- c(#"Baseline 2020", "Baseline 2025", "Baseline 2030", 
+                            "EPCG 2025", "EPCG 2030", 
+                            "GBIS 2025", "GBIS 2030" )
+
+# rownames(rochdale_output_table) <- c("Total FP10 Households (% of Total Households)",
+#                             "Total FP10 Individuals (% of Total Individuals)",
+#                             "Total FP10 Children (% of Total Children)",
+#                             "Total FP10 Pensioners (% of Total Pensioners",
+#                             "Total FP10 Low Housing Quality Individuals (% of Total FP10 Individuals)",
+#                             "Total FP10 Low Neighbourhood Safety Individuals (% of Total FP10 Individuals)",
+#                             "Total Poor Financial Situation Individuals (% of Total FP10 Individuals)",
+#                             "Total Private Rental Individuals (% of Total FP10 Individuals)",
+#                             "Median Monthly Household Disposable Income",
+#                             "Median Yearly Energy Expenditure",
+#                             "Median Monthly Household Rent.")
+
+rownames(rochdale_output_table) <-  c("Households (% Total Households)",
+                            "Individuals (% of Total Individuals)",
+                            "Children (% of Total Children)",
+                            "Pensioners (% of Total Pensioners",
+                            "Low Housing Quality (% of Total FP10 Individuals)",
+                            "Low Neighbourhood Safety (% of Total FP10 Individuals)",
+                            "Poor Financial Situation (% of Total FP10 Individuals)",
+                            "Total Private Rental Individuals (% of Total FP10 Individuals)",#
+                            "Total Lonely Individuals (% of Total FP10 Individuals)",
+                            "Total high risk auditc score(% of Total FP10 Individuals)",
+                            "Median Monthly Household Disposable Income",
+                            "Median Yearly Energy Expenditure",
+                            "Median Monthly Household Rent.",
+                            "Mean Nutrition Quality")
+
+
+print(rochdale_output_table)
+rochdale_output_tex_table <- xtable(rochdale_output_table, caption= "Percentage Change in Key Variables for the FP10 positive population for the Rochdale Local Authority.", label="tab: rochdale_circumstances_table")
+print(rochdale_output_tex_table, "rochdale_output.test.tex", type='latex')
+```
+```{r}
+
+long_baseline_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "baseline", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "hidp", "hh_rent","hh_income", "ethnicity", "nutrition_quality", "nkids", "yearly_energy", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc", "age"))
+long_EPCG_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "EPCG", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "hidp", "hh_rent","hh_income", "ethnicity", "nutrition_quality", "nkids", "yearly_energy", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc", "age"))
+long_GBIS_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "GBIS", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "hidp", "hh_rent","hh_income", "ethnicity", "nutrition_quality", "nkids", "yearly_energy", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc", "age"))
+
+lsoa_la_map <- read.csv(here::here("persistent_data", "spatial_data","LSOA11_WD22_LAD22_EW_LU.csv"))
+lsoa_la_map <- lsoa_la_map[, c("LSOA11CD", "LAD22NM")]
+colnames(lsoa_la_map) <- c("ZoneID", "LAD")
+
+long_baseline_data <- merge(long_baseline_data, lsoa_la_map, by="ZoneID")
+long_EPCG_data <- merge(long_EPCG_data, lsoa_la_map, by="ZoneID")
+long_GBIS_data <- merge(long_GBIS_data, lsoa_la_map, by="ZoneID")
+
+long_baseline_data <- long_baseline_data %>% filter(LAD == "Tameside")
+long_GBIS_data <- long_GBIS_data %>% filter(LAD == "Tameside")
+long_EPCG_data <- long_EPCG_data %>% filter(LAD == "Tameside")
+
+baseline_start <- long_baseline_data[which(long_baseline_data$time == 2021), ]
+EPCG_start <- long_EPCG_data[which(long_EPCG_data$time == 2021), ]
+GBIS_start <- long_GBIS_data[which(long_GBIS_data$time == 2021), ]
+
+baseline_mid <- long_baseline_data[which(long_baseline_data$time == 2026), ]
+EPCG_mid <- long_EPCG_data[which(long_EPCG_data$time == 2026), ]
+GBIS_mid <- long_GBIS_data[which(long_GBIS_data$time == 2026), ]
+
+baseline_end <- long_baseline_data[which(long_baseline_data$time == 2031), ]
+EPCG_end <- long_EPCG_data[which(long_EPCG_data$time == 2031), ]
+GBIS_end <- long_GBIS_data[which(long_GBIS_data$time == 2031), ]
+
+
+
+
+baseline_FP10_pidps <- baseline_start %>% filter(FP10==F) %>% select(pidp)
+baseline_FP10_pidps <- baseline_FP10_pidps$pidp
+
+baseline_start_summary <- output_summary_column(baseline_start %>% filter(pidp %in% baseline_FP10_pidps), baseline_start)
+baseline_mid_summary <- output_summary_column(  baseline_mid %>%  filter(pidp %in% baseline_FP10_pidps), baseline_mid)
+baseline_end_summary <- output_summary_column(  baseline_end %>%  filter(pidp %in% baseline_FP10_pidps), baseline_end)
+
+EPCG_mid_summary <- output_summary_column(EPCG_mid %>% filter(pidp %in% baseline_FP10_pidps), EPCG_mid)
+EPCG_end_summary <- output_summary_column(EPCG_end %>%  filter(pidp %in% baseline_FP10_pidps), EPCG_end)
+
+GBIS_mid_summary <- output_summary_column(GBIS_mid %>%  filter(pidp %in% baseline_FP10_pidps), GBIS_mid)
+GBIS_end_summary <- output_summary_column(GBIS_end %>%  filter(pidp %in% baseline_FP10_pidps), GBIS_end)
+
+tameside_output_table <- cbind(#baseline_start_summary,baseline_mid_summary, baseline_end_summary, 
+                               EPCG_mid_summary, EPCG_end_summary, GBIS_mid_summary, GBIS_end_summary)
+
+colnames(tameside_output_table) <- c(#"Baseline 2020", "Baseline 2025", "Baseline 2030", 
+                            "EPCG 2025", "EPCG 2030", 
+                            "GBIS 2025", "GBIS 2030" )
+
+# rownames(tameside_output_table) <- c("Total FP10 Households (% of Total Households)",
+#                             "Total FP10 Individuals (% of Total Individuals)",
+#                             "Total FP10 Children (% of Total Children)",
+#                             "Total FP10 Pensioners (% of Total Pensioners",
+#                             "Total FP10 Low Housing Quality Individuals (% of Total FP10 Individuals)",
+#                             "Total FP10 Low Neighbourhood Safety Individuals (% of Total FP10 Individuals)",
+#                             "Total Poor Financial Situation Individuals (% of Total FP10 Individuals)",
+#                             "Total Private Rental Individuals (% of Total FP10 Individuals)",
+#                             "Median Monthly Household Disposable Income",
+#                             "Median Yearly Energy Expenditure",
+#                             "Median Monthly Household Rent.")
+
+rownames(tameside_output_table) <-  c("Households (% Total Households)",
+                            "Individuals (% of Total Individuals)",
+                            "Children (% of Total Children)",
+                            "Pensioners (% of Total Pensioners",
+                            "Low Housing Quality (% of Total FP10 Individuals)",
+                            "Low Neighbourhood Safety (% of Total FP10 Individuals)",
+                            "Poor Financial Situation (% of Total FP10 Individuals)",
+                            "Total Private Rental Individuals (% of Total FP10 Individuals)",#
+                            "Total Lonely Individuals (% of Total FP10 Individuals)",
+                            "Total high risk auditc score(% of Total FP10 Individuals)",
+                            "Median Monthly Household Disposable Income",
+                            "Median Yearly Energy Expenditure",
+                            "Median Monthly Household Rent.",
+                            "Mean Nutrition Quality")
+
+
+print(tameside_output_table)
+tameside_output_tex_table <- xtable(tameside_output_table, caption= "Percentage Change in Key Variables for the FP10 positive population  for the Tameside Local Authority.", label="tab: tameside_circumstances_table")
+print(manchester_output_tex_table, "manchester_output.test.tex", type='latex')
+```
+
+
+```{r}
+
+long_baseline_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "baseline", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "hidp", "hh_rent","hh_income", "ethnicity", "nutrition_quality", "nkids", "yearly_energy", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc", "age"))
+long_EPCG_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "EPCG", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "hidp", "hh_rent","hh_income", "ethnicity", "nutrition_quality", "nkids", "yearly_energy", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc", "age"))
+long_GBIS_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "GBIS", drop.dead=TRUE, select.columns = c("time", "housing_quality", "alive", "housing_sector", "ZoneID", "pidp", "hidp", "hh_rent","hh_income", "ethnicity", "nutrition_quality", "nkids", "yearly_energy", "neighbourhood_safety", "FP10", "loneliness",  "financial_situation", "auditc", "age"))
+
+lsoa_la_map <- read.csv(here::here("persistent_data", "spatial_data","LSOA11_WD22_LAD22_EW_LU.csv"))
+lsoa_la_map <- lsoa_la_map[, c("LSOA11CD", "LAD22NM")]
+colnames(lsoa_la_map) <- c("ZoneID", "LAD")
+
+long_baseline_data <- merge(long_baseline_data, lsoa_la_map, by="ZoneID")
+long_EPCG_data <- merge(long_EPCG_data, lsoa_la_map, by="ZoneID")
+long_GBIS_data <- merge(long_GBIS_data, lsoa_la_map, by="ZoneID")
+
+long_baseline_data <- long_baseline_data %>% filter(LAD == "Manchester")
+long_GBIS_data <- long_GBIS_data %>% filter(LAD == "Manchester")
+long_EPCG_data <- long_EPCG_data %>% filter(LAD == "Manchester")
+
+baseline_start <- long_baseline_data[which(long_baseline_data$time == 2021), ]
+EPCG_start <- long_EPCG_data[which(long_EPCG_data$time == 2021), ]
+GBIS_start <- long_GBIS_data[which(long_GBIS_data$time == 2021), ]
+
+baseline_mid <- long_baseline_data[which(long_baseline_data$time == 2026), ]
+EPCG_mid <- long_EPCG_data[which(long_EPCG_data$time == 2026), ]
+GBIS_mid <- long_GBIS_data[which(long_GBIS_data$time == 2026), ]
+
+baseline_end <- long_baseline_data[which(long_baseline_data$time == 2031), ]
+EPCG_end <- long_EPCG_data[which(long_EPCG_data$time == 2031), ]
+GBIS_end <- long_GBIS_data[which(long_GBIS_data$time == 2031), ]
+
+
+
+
+baseline_FP10_pidps <- baseline_start %>% filter(FP10==F) %>% select(pidp)
+baseline_FP10_pidps <- baseline_FP10_pidps$pidp
+
+baseline_start_summary <- output_summary_column(baseline_start %>% filter(pidp %in% baseline_FP10_pidps), baseline_start)
+baseline_mid_summary <- output_summary_column(  baseline_mid %>%  filter(pidp %in% baseline_FP10_pidps), baseline_mid)
+baseline_end_summary <- output_summary_column(  baseline_end %>%  filter(pidp %in% baseline_FP10_pidps), baseline_end)
+
+EPCG_mid_summary <- output_summary_column(EPCG_mid %>% filter(pidp %in% baseline_FP10_pidps), EPCG_mid)
+EPCG_end_summary <- output_summary_column(EPCG_end %>%  filter(pidp %in% baseline_FP10_pidps), EPCG_end)
+
+GBIS_mid_summary <- output_summary_column(GBIS_mid %>%  filter(pidp %in% baseline_FP10_pidps), GBIS_mid)
+GBIS_end_summary <- output_summary_column(GBIS_end %>%  filter(pidp %in% baseline_FP10_pidps), GBIS_end)
+
+manchester_output_table <- cbind(#baseline_start_summary,baseline_mid_summary, baseline_end_summary, 
+                                 EPCG_mid_summary, EPCG_end_summary, GBIS_mid_summary, GBIS_end_summary)
+
+colnames(manchester_output_table) <- c(#"Baseline 2020", "Baseline 2025", "Baseline 2030", 
+                            "EPCG 2025", "EPCG 2030", 
+                            "GBIS 2025", "GBIS 2030" )
+
+rownames(manchester_output_table) <- c("Households (% Total Households)",
+                            "Individuals (% of Total Individuals)",
+                            "Children (% of Total Children)",
+                            "Pensioners (% of Total Pensioners",
+                            "Low Housing Quality (% of Total FP10 Individuals)",
+                            "Low Neighbourhood Safety (% of Total FP10 Individuals)",
+                            "Poor Financial Situation (% of Total FP10 Individuals)",
+                            "Total Private Rental Individuals (% of Total FP10 Individuals)",#
+                            "Total Lonely Individuals (% of Total FP10 Individuals)",
+                            "Total high risk auditc score(% of Total FP10 Individuals)",
+                            "Median Monthly Household Disposable Income",
+                            "Median Yearly Energy Expenditure",
+                            "Median Monthly Household Rent.",
+                            "Mean Nutrition Quality")
+
+
+print(manchester_output_table)
+manchester_output_tex_table <- xtable(manchester_output_table, caption= "Percentage Change in Key Variables for the FP10 positive population for the Manchester Local Authority.", label="tab: manchester_circumstances_table")
+print(manchester_output_tex_table, "manchester_output.test.tex", type='latex')
+
+```
+```{r}
+print(GMCA_output_tex_table, file="GMCA_output.test.tex", type='latex', size="scriptsize")
+print(rochdale_output_tex_table, "rochdale_output.test.tex", type='latex', size="scriptsize")
+print(tameside_output_tex_table, "tameside_output.test.tex", type='latex', size="scriptsize")
+print(manchester_output_tex_table, "manchester_output.test.tex", type='latex', size="scriptsize")
+
+```

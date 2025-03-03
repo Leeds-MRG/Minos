@@ -1,5 +1,6 @@
 ### This utilities file deals only with reading in and formatting input and output data files
 
+library("data.table")    
 
 create.if.not.exists <- function(path) {
   if(!file.exists(path)) {
@@ -37,7 +38,7 @@ read_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
   return(dat)
 }
 
-read_first_singular_local_out <- function(out.path, scenario, drop.dead = FALSE) {
+read_first_singular_local_out <- function(out.path, scenario, drop.dead = FALSE, select.columns=NULL) {
   # Same as the above function but finds the first minos run of potentially many in a batch run.
   ## Start with scenario name
   # attach full output path
@@ -51,8 +52,13 @@ read_first_singular_local_out <- function(out.path, scenario, drop.dead = FALSE)
   files <- list.files(scen.path,
                       pattern = '0001_run_id_[0-9]{4}.csv',
                       full.names = TRUE)
-  dat <- do.call(rbind, lapply(files, read.csv))
-  
+  if (length(select.columns) >0){
+    dat <- do.call(rbind, lapply(files, fread, select=select.columns))
+    
+  }
+    else {
+      dat <- do.call(rbind, lapply(files, read.csv))
+    }
   # remove dead people
   if(drop.dead) {
     dat <- dat %>%

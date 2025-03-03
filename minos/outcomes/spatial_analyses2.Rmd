@@ -176,8 +176,11 @@ individual tracks as well.
 
 # load in 10 years of data
 # get individuals in effective LSOAs vs ineffective. cross over for households effective in GBIS but not in EPCG.
-long_epcg_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "EPCG", drop.dead=FALSE)
+long_epcg_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "EPCG", drop.dead=FALSE, select.columns = c("time", "housing_quality", "alive"))
+#long_epcg_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "EPCG", drop.dead=FALSE)
 long_epcg_data <- long_epcg_data[which(long_epcg_data$alive == "alive"), ]
+
+
 
 expensive_long_epcg_data <- long_epcg_data[which(long_epcg_data$ZoneID %in% epcg_expensive_lsoas$x), ]
 effective_long_epcg_data <- long_epcg_data[which(long_epcg_data$ZoneID %in% epcg_effective_lsoas$x), ]
@@ -189,8 +192,14 @@ effective_long_epcg_data_sample <- effective_long_epcg_data[which((effective_lon
 rm(long_epcg_data)
 
 
-long_baseline_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "baseline", drop.dead=FALSE)
+long_baseline_data <-read_first_singular_local_out("output/energy_manchester_scaled/", "baseline", drop.dead=FALSE, select.columns = c("time", "housing_quality", "alive"))
+#long_baseline_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "baseline", drop.dead=FALSE)
 long_baseline_data <- long_baseline_data[which(long_baseline_data$alive == "alive"), ]
+
+
+long_GBIS_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "GBIS", drop.dead=FALSE, select.columns = c("time", "housing_quality", "alive"))
+#long_GBIS_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "GBIS", drop.dead=FALSE)
+long_GBIS_data <- long_GBIS_data[which(long_GBIS_data$alive == "alive"), ]
 
 expensive_long_baseline_epcg_data_sample <- long_baseline_data[which(long_baseline_data$hidp %in% expensive_long_epcg_data_sample$hidp), ]
 effective_long_baseline_epcg_data_sample <- long_baseline_data[which(long_baseline_data$hidp %in% effective_long_epcg_data_sample$hidp), ]
@@ -277,10 +286,10 @@ ggplot(data = housing.norm, mapping = aes(x = time, y = prct, fill=!!sym(v))) +
 shall.we.save <-F
 save.path <- ""
 
-spaghetti_plot(expensive_long_baseline_epcg_data_sample, "SF_12_MCS")
+spaghetti_plot(expensive_long_baseline_epcg_data, "SF_12_MCS")
 spaghetti_plot(expensive_long_epcg_data_sample, "SF_12_MCS")
 
-discrete_barplot(expensive_long_baseline_epcg_data_sample, "housing_quality")
+discrete_barplot(expensive_long_baseline_epcg_data, "housing_quality")
 discrete_barplot(expensive_long_epcg_data_sample, "housing_quality")
 
 
@@ -300,6 +309,200 @@ discrete_barplot(effective_long_epcg_data_sample, "housing_quality")
 #discrete individual tracks?
 ```
 
+```{r}
+
+long_epcg_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "EPCG", drop.dead=FALSE, select.columns = c("time", "housing_quality", "alive"))
+#long_epcg_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "EPCG", drop.dead=FALSE)
+long_epcg_data <- long_epcg_data[which(long_epcg_data$alive == "alive"), ]
+
+
+long_baseline_data <-read_first_singular_local_out("output/energy_manchester_scaled/", "baseline", drop.dead=FALSE, select.columns = c("time", "housing_quality", "alive"))
+#long_baseline_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "baseline", drop.dead=FALSE)
+long_baseline_data <- long_baseline_data[which(long_baseline_data$alive == "alive"), ]
+
+
+long_GBIS_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "GBIS", drop.dead=FALSE, select.columns = c("time", "housing_quality", "alive"))
+long_GBIS_data <- long_GBIS_data[which(long_GBIS_data$alive == "alive"), ]
+
+
+d1 <- long_epcg_data%>% 
+  #pivot_longer(everything(), names_to = "time", values_to = "housing_quality") %>% 
+  group_by(time, housing_quality) %>% 
+  summarise(n = n()) %>%  
+  mutate(pct = n / sum(n)) #%>% 
+  #ungroup()
+#> `summarise()` has grouped output by 'time'. You can override using the `.groups` argument.
+
+d1$intervention <- "EPCG" 
+
+  
+d2 <- long_baseline_data%>% 
+  #pivot_longer(everything(), names_to = "time", values_to = "housing_quality") %>% 
+  group_by(time, housing_quality) %>% 
+  summarise(n = n()) %>%  
+  mutate(pct = n / sum(n)) #%>% 
+  #ungroup()
+#> `summarise()` has grouped output by 'time'. You can override using the `.groups` argument.
+
+d2$intervention <- "baseline"
+
+d3 <- long_GBIS_data %>% 
+  #pivot_longer(everything(), names_to = "time", values_to = "housing_quality") %>% 
+  group_by(time, housing_quality) %>% 
+  summarise(n = n()) %>%  
+  mutate(pct = n / sum(n)) #%>% 
+  #ungroup()
+#> `summarise()` has grouped output by 'time'. You can override using the `.groups` argument.
+
+d3$intervention <- "GBIS"
+
+
+traj_plot <- ggplot(d1[which(d1$housing_quality == "Low"),], aes(time, pct, color = intervention, linetype=intervention)) +
+  geom_line() +
+  geom_line(data =d2[which(d1$housing_quality == "Low"),]) +
+  geom_line(data =d3[which(d1$housing_quality == "Low"),]) +
+  labs(linetype="Intervention") +
+  scale_y_continuous(labels = scales::percent)
+
+print(traj_plot)
+
+traj_plot <- ggplot(d1[which(d1$housing_quality == "Medium"),], aes(time, pct, color = intervention, linetype=intervention)) +
+  geom_line() +
+  geom_line(data =d2[which(d1$housing_quality == "Medium"),]) +
+  geom_line(data =d3[which(d1$housing_quality == "Medium"),]) +
+  labs(linetype="Intervention") +
+  scale_y_continuous(labels = scales::percent)
+
+print(traj_plot)
+
+traj_plot <- ggplot(d1[which(d1$housing_quality == "High"),], aes(time, pct, color = intervention, linetype=intervention)) +
+  geom_line() +
+  geom_line(data =d2[which(d1$housing_quality == "High"),]) +
+  geom_line(data =d3[which(d1$housing_quality == "High"),]) +
+  labs(linetype="Intervention") +
+  scale_y_continuous(labels = scales::percent)
+
+print(traj_plot)
+
+
+```
+
+```{r}
+
+long_epcg_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "EPCG", drop.dead=FALSE, select.columns = c("time", "yearly_energy", "alive"))
+#long_epcg_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "EPCG", drop.dead=FALSE)
+long_epcg_data <- long_epcg_data[which(long_epcg_data$alive == "alive"), ]
+
+
+long_baseline_data <-read_first_singular_local_out("output/energy_manchester_scaled/", "baseline", drop.dead=FALSE, select.columns = c("time", "yearly_energy", "alive"))
+#long_baseline_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "baseline", drop.dead=FALSE)
+long_baseline_data <- long_baseline_data[which(long_baseline_data$alive == "alive"), ]
+
+
+long_GBIS_data <- read_first_singular_local_out("output/energy_manchester_scaled/", "GBIS", drop.dead=FALSE, select.columns = c("time", "yearly_energy", "alive"))
+
+
+d1 <- long_epcg_data %>% 
+  #pivot_longer(everything(), names_to = "time", values_to = "yearly_energy") %>% 
+  group_by(time) %>% 
+  summarise(med = median(yearly_energy))
+  #ungroup()
+#> `summarise()` has grouped output by 'time'. You can override using the `.groups` argument.
+
+d1$intervention <- "EPCG" 
+
+  
+d2 <- long_baseline_data %>% 
+  #pivot_longer(everything(), names_to = "time", values_to = "yearly_energy") %>% 
+  group_by(time) %>% 
+  summarise(med = median(yearly_energy))
+  #ungroup()
+#> `summarise()` has grouped output by 'time'. You can override using the `.groups` argument.
+
+d2$intervention <- "baseline"
+
+d3 <- long_GBIS_data%>% 
+  #pivot_longer(everything(), names_to = "time", values_to = "yearly_energy") %>% 
+  group_by(time) %>% 
+  summarise(med = median(yearly_energy))
+  #ungroup()
+#> `summarise()` has grouped output by 'time'. You can override using the `.groups` argument.
+
+d3$intervention <- "GBIS"
+
+
+traj_plot <- ggplot(d1, aes(time, med, color = intervention, linetype=intervention)) +
+  geom_line() +
+  geom_line(data =d2) +
+  geom_line(data =d3) +
+  labs(linetype="Intervention") +
+  scale_y_continuous(labels = scales::percent)
+
+print(traj_plot)
+
+
+```
+
+```{r}
+long_mean_lineplot <- function(v) {
+
+
+long_epcg_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "EPCG", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector"))
+long_baseline_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "baseline", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector"))
+long_GBIS_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "GBIS", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector"))
+
+d1 <- long_epcg_data %>% 
+  filter(housing_sector == 2) %>%
+  #pivot_longer(everything(), names_to = "time", values_to = "yearly_energy") %>% 
+  group_by(time) %>% 
+  summarise(Median = mean(!!sym(v)))
+  #ungroup()
+#> `summarise()` has grouped output by 'time'. You can override using the `.groups` argument.
+
+d1$intervention <- "EPCG" 
+
+  
+d2 <- long_baseline_data %>% 
+    filter(housing_sector == 2) %>%
+  #pivot_longer(everything(), names_to = "time", values_to = "yearly_energy") %>% 
+  group_by(time) %>% 
+  summarise(Median = mean(!!sym(v)))
+  #ungroup()
+#> `summarise()` has grouped output by 'time'. You can override using the `.groups` argument.
+
+d2$intervention <- "baseline"
+
+d3 <- long_GBIS_data%>% 
+    filter(housing_sector == 2) %>%
+  #pivot_longer(everything(), names_to = "time", values_to = "yearly_energy") %>% 
+  group_by(time) %>% 
+  summarise(Median = mean(!!sym(v)))
+  #ungroup()
+#> `summarise()` has grouped output by 'time'. You can override using the `.groups` argument.
+
+d3$intervention <- "GBIS"
+
+
+traj_plot <- ggplot(d1, aes(time, Median, color = intervention, linetype=intervention)) +
+  geom_line() +
+  geom_line(data =d2) +
+  geom_line(data =d3) +
+  labs(linetype="Intervention")
+
+print(traj_plot)
+
+}
+
+long_mean_lineplot("yearly_energy")
+long_mean_lineplot("SF_12_MCS")
+long_mean_lineplot("SF_12_PCS")
+
+```
+
+
+```{r}
+
+```
 
 
 
@@ -325,7 +528,7 @@ spatial_data[which(spatial_data$ZoneID %in% unique(epcg_effective_lsoas$x)), "is
 pdf(here::here("plots", "EPCG_cost_effectiveness_map.pdf"))
 epcg_map <-ggplot() +
     #geom_polygon() +
-    geom_sf(data = spatial_data, aes(geometry = geometry, fill=is_expensive), color='black', lwd=0.01) +
+    geom_sf(data = spatial_data, aes(geometry = geometry, fill=is_expensive), color=NA, lwd=0.01) +
     geom_sf(data=LA_data, col="black", fill=NA) +
     geom_sf_label(data=LA_data, aes(label=LAD21NM), alpha=0.25, label.size=NA) +
     ylab("Latitude") +
@@ -342,7 +545,7 @@ spatial_data[which(spatial_data$ZoneID %in% unique(gbis_effective_lsoas$x)), "is
 pdf(here::here("plots", "GBIS_cost_effectiveness_map.pdf"))
 gbis_map <- ggplot() +
     #geom_polygon() +
-    geom_sf(data = spatial_data, aes(geometry = geometry, fill=is_expensive), color='black', lwd=0.01) +
+    geom_sf(data = spatial_data, aes(geometry = geometry, fill=is_expensive), color=NA, lwd=0.01) +
     geom_sf(data=LA_data, col="black", fill=NA)+
     geom_sf_label(data=LA_data, aes(label=LAD21NM), alpha=0.25, label.size=NA) +
     ylab("Latitude") +
@@ -352,3 +555,347 @@ print(gbis_map)
 dev.off()
 
 ```
+
+```{r}
+
+transition_tables <- function(v){
+
+long_EPCG_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "EPCG", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector", "ZoneID", "pidp"))
+long_baseline_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "baseline", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector", "ZoneID", "pidp"))
+long_GBIS_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "GBIS", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector", "ZoneID", "pidp"))
+
+
+lsoa_la_map <- read.csv(here::here("persistent_data", "spatial_data","LSOA11_WD22_LAD22_EW_LU.csv"))
+lsoa_la_map <- lsoa_la_map[, c("LSOA11CD", "LAD22NM")]
+colnames(lsoa_la_map) <- c("ZoneID", "LAD")
+
+long_baseline_data <- merge(long_baseline_data, lsoa_la_map, by="ZoneID")
+long_EPCG_data <- merge(long_EPCG_data, lsoa_la_map, by="ZoneID")
+long_GBIS_data <- merge(long_GBIS_data, lsoa_la_map, by="ZoneID")
+
+#long_baseline_data <- long_baseline_data[which(long_baseline_data$ZoneID %in% manchester_lsoas), ]
+#long_EPCG_data <- long_EPCG_data[which(long_EPCG_data$ZoneID %in% manchester_lsoas), ]
+#long_GBIS_data <- long_GBIS_data[which(long_GBIS_data$ZoneID %in% manchester_lsoas), ]
+
+baseline_start <- long_baseline_data[which(long_baseline_data$time == 2021), ]
+EPCG_start <- long_EPCG_data[which(long_EPCG_data$time == 2021), ]
+GBIS_start <- long_GBIS_data[which(long_GBIS_data$time == 2021), ]
+
+baseline_mid <- long_baseline_data[which(long_baseline_data$time == 2026), ]
+EPCG_mid <- long_EPCG_data[which(long_EPCG_data$time == 2026), ]
+GBIS_mid <- long_GBIS_data[which(long_GBIS_data$time == 2026), ]
+
+baseline_end <- long_baseline_data[which(long_baseline_data$time == 2031), ]
+EPCG_end <- long_EPCG_data[which(long_EPCG_data$time == 2031), ]
+GBIS_end <- long_GBIS_data[which(long_GBIS_data$time == 2031), ]
+
+
+test <- merge(baseline_start, baseline_mid, by="pidp")
+t1 <- table(test[[paste0(v, ".x")]], test[[paste0(v, ".y")]])
+t1 <- t1  * 100/ rowSums(t1)
+
+test2 <- merge(EPCG_start, EPCG_mid, by="pidp")
+t2 <-  table(test2[[paste0(v, ".x")]], test2[[paste0(v, ".y")]])
+t2 <- t2  * 100/ rowSums(t2)
+
+test3 <- merge(GBIS_start, GBIS_mid, by="pidp")
+t3 <-  table(test3[[paste0(v, ".x")]], test3[[paste0(v, ".y")]])
+t3 <- t3  * 100/ rowSums(t3)
+
+print("Rochdale")
+rochdale_baseline_start <- baseline_start[which(baseline_start$LAD == "Rochdale")]
+rochdale_baseline_mid <- baseline_mid[which(baseline_mid$LAD == "Rochdale")]
+rochdale_baseline_end<- baseline_end[which(baseline_end$LAD == "Rochdale")]
+
+rochdale_EPCG_start <- EPCG_start[which(EPCG_start$LAD == "Rochdale")]
+rochdale_EPCG_mid <- EPCG_mid[which(EPCG_mid$LAD == "Rochdale")]
+rochdale_EPCG_end<- EPCG_end[which(EPCG_end$LAD == "Rochdale")]
+
+rochdale_GBIS_start <- GBIS_start[which(GBIS_start$LAD == "Rochdale")]
+rochdale_GBIS_mid <- GBIS_mid[which(GBIS_mid$LAD == "Rochdale")]
+rochdale_GBIS_end<- GBIS_end[which(GBIS_end$LAD == "Rochdale")]
+
+print("Baseline")
+test <- merge(rochdale_baseline_start, rochdale_baseline_mid, by="pidp")
+rochdale_t1 <- table(test[[paste0(v, ".x")]], test[[paste0(v, ".y")]])
+rochdale_t1 <- rochdale_t1  * 100/ rowSums(rochdale_t1)
+print(rochdale_t1)
+
+print("EPCG")
+test2 <- merge(rochdale_EPCG_start, rochdale_EPCG_mid, by="pidp")
+rochdale_t2 <-  table(test2[[paste0(v, ".x")]], test2[[paste0(v, ".y")]])
+rochdale_t2 <- rochdale_t2  * 100/ rowSums(rochdale_t2)
+print(rochdale_t2)
+
+print("GBIS")
+test3 <- merge(rochdale_GBIS_start, rochdale_GBIS_mid, by="pidp")
+rochdale_t3 <-  table(test3[[paste0(v, ".x")]], test3[[paste0(v, ".y")]])
+rochdale_t3 <- rochdale_t3  * 100/ rowSums(rochdale_t3)
+print(rochdale_t3)
+
+
+print("Tameside")
+tameside_baseline_start <- baseline_start[which(baseline_start$LAD == "Tameside")]
+tameside_baseline_mid <- baseline_mid[which(baseline_mid$LAD == "Tameside")]
+tameside_baseline_end<- baseline_end[which(baseline_end$LAD == "Tameside")]
+
+tameside_EPCG_start <- EPCG_start[which(EPCG_start$LAD == "Tameside")]
+tameside_EPCG_mid <- EPCG_mid[which(EPCG_mid$LAD == "Tameside")]
+tameside_EPCG_end<- EPCG_end[which(EPCG_end$LAD == "Tameside")]
+
+tameside_GBIS_start <- GBIS_start[which(GBIS_start$LAD == "Tameside")]
+tameside_GBIS_mid <- GBIS_mid[which(GBIS_mid$LAD == "Tameside")]
+tameside_GBIS_end<- GBIS_end[which(GBIS_end$LAD == "Tameside")]
+
+print("Baseline")
+test <- merge(tameside_baseline_start, tameside_baseline_mid, by="pidp")
+tameside_t1 <- table(test[[paste0(v, ".x")]], test[[paste0(v, ".y")]])
+tameside_t1 <- tameside_t1  * 100/ rowSums(tameside_t1)
+print(tameside_t1)
+
+print("EPCG")
+test2 <- merge(tameside_EPCG_start, tameside_EPCG_mid, by="pidp")
+tameside_t2 <- table(test2[[paste0(v, ".x")]], test2[[paste0(v, ".y")]])
+tameside_t2 <- tameside_t2  * 100/ rowSums(tameside_t2)
+print(tameside_t2)
+
+print("GBIS")
+test3 <- merge(tameside_GBIS_start, tameside_GBIS_mid, by="pidp")
+tameside_t3 <-  table(test3[[paste0(v, ".x")]], test3[[paste0(v, ".y")]])
+tameside_t3 <- tameside_t3  * 100/ rowSums(tameside_t3)
+print(tameside_t3)
+
+
+print("Manchester")
+manchester_baseline_start <- baseline_start[which(baseline_start$LAD == "Manchester")]
+manchester_baseline_mid <- baseline_mid[which(baseline_mid$LAD == "Manchester")]
+manchester_baseline_end<- baseline_end[which(baseline_end$LAD == "Manchester")]
+
+manchester_EPCG_start <- EPCG_start[which(EPCG_start$LAD == "Manchester")]
+manchester_EPCG_mid <- EPCG_mid[which(EPCG_mid$LAD == "Manchester")]
+manchester_EPCG_end<- EPCG_end[which(EPCG_end$LAD == "Manchester")]
+
+manchester_GBIS_start <- GBIS_start[which(GBIS_start$LAD == "Manchester")]
+manchester_GBIS_mid <- GBIS_mid[which(GBIS_mid$LAD == "Manchester")]
+manchester_GBIS_end<- GBIS_end[which(GBIS_end$LAD == "Manchester")]
+
+print("Baseline")
+test <- merge(manchester_baseline_start, manchester_baseline_mid, by="pidp")
+print(manchester_t1)
+manchester_t1 <- table(test[[paste0(v, ".x")]], test[[paste0(v, ".y")]])
+manchester_t1 <- manchester_t1  * 100/ rowSums(manchester_t1)
+print(manchester_t1)
+
+print("EPCG")
+test2 <- merge(manchester_EPCG_start, manchester_EPCG_mid, by="pidp")
+manchester_t2 <-  table(test2[[paste0(v, ".x")]], test2[[paste0(v, ".y")]])
+print(manchester_t2)
+manchester_t2 <- manchester_t2  * 100/ rowSums(manchester_t2)
+print(manchester_t2)
+
+print("GBIS")
+test3 <- merge(manchester_GBIS_start, manchester_GBIS_mid, by="pidp")
+manchester_t3 <- table(test3[[paste0(v, ".x")]], test3[[paste0(v, ".y")]])
+print(manchester_t3)
+manchester_t3 <- manchester_t3  * 100/ rowSums(manchester_t3)
+print(manchester_t3)
+
+}
+
+transition_tables("housing_quality")
+```
+
+```{r}
+
+
+long_EPCG_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "EPCG", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector", "ZoneID", "pidp", "neighbourhood_safety", "FP10", "loneliness"))
+long_baseline_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "baseline", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector", "ZoneID", "pidp", "neighbourhood_safety", "FP10", "loneliness"))
+long_GBIS_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "GBIS", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector", "ZoneID", "pidp", "neighbourhood_safety", "FP10", "loneliness"))
+
+
+lsoa_la_map <- read.csv(here::here("persistent_data", "spatial_data","LSOA11_WD22_LAD22_EW_LU.csv"))
+lsoa_la_map <- lsoa_la_map[, c("LSOA11CD", "LAD22NM")]
+colnames(lsoa_la_map) <- c("ZoneID", "LAD")
+
+long_baseline_data <- merge(long_baseline_data, lsoa_la_map, by="ZoneID")
+long_EPCG_data <- merge(long_EPCG_data, lsoa_la_map, by="ZoneID")
+long_GBIS_data <- merge(long_GBIS_data, lsoa_la_map, by="ZoneID")
+
+
+
+baseline_start <- long_baseline_data[which(long_baseline_data$time == 2021), ]
+EPCG_start <- long_EPCG_data[which(long_EPCG_data$time == 2021), ]
+GBIS_start <- long_GBIS_data[which(long_GBIS_data$time == 2021), ]
+
+baseline_mid <- long_baseline_data[which(long_baseline_data$time == 2026), ]
+EPCG_mid <- long_EPCG_data[which(long_EPCG_data$time == 2026), ]
+GBIS_mid <- long_GBIS_data[which(long_GBIS_data$time == 2026), ]
+
+baseline_end <- long_baseline_data[which(long_baseline_data$time == 2031), ]
+EPCG_end <- long_EPCG_data[which(long_EPCG_data$time == 2031), ]
+GBIS_end <- long_GBIS_data[which(long_GBIS_data$time == 2031), ]
+
+EPCG_mid$intervention <- "EPCG 2026"
+EPCG_start$intervention <- "Baseline 2021"
+GBIS_mid$intervention <- "GBIS 2026"
+baseline_mid$intervention <- "Baseline 2026"
+
+test2 <- rbind(EPCG_start, EPCG_mid, GBIS_mid)
+
+test3 <- test2 %>% 
+          group_by(intervention, LAD, time, housing_quality)  %>%
+            summarise(n= n()) %>%
+               mutate(pct = n / sum(n)) %>% 
+                 filter(housing_quality == "Low") 
+
+group_shift_plot3 <- ggplot(test3, aes(x=LAD, y=pct, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("housing low percentages")
+
+print(group_shift_plot3)
+
+
+
+test4 <- test2 %>% 
+          group_by(intervention, LAD, time, neighbourhood_safety)  %>%
+            summarise(n= n()) %>%
+               mutate(pct = n / sum(n)) %>% 
+                 filter(neighbourhood_safety == 1) 
+
+group_shift_plot4 <- ggplot(test4, aes(x=LAD, y=pct, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention)))+ ylab("neighbourhood low percentages")
+
+print(group_shift_plot4)
+
+
+test2a <- rbind(EPCG_start, EPCG_mid, GBIS_mid, baseline_mid)
+
+test5 <- test2a %>% 
+          group_by(intervention, LAD, time, FP10)  %>%
+            summarise(n= n()) %>%
+               mutate(pct = n / sum(n)) %>% 
+                 filter(FP10 == F) 
+
+group_shift_plot5 <- ggplot(test5, aes(x=LAD, y=pct, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("FP10 True percentages")
+
+print(group_shift_plot5)
+
+
+test6 <- test2a %>% 
+          group_by(intervention, LAD, time, loneliness)  %>%
+            summarise(n= n()) %>%
+               mutate(pct = n / sum(n)) %>% 
+                 filter(loneliness == 3) 
+
+group_shift_plot6 <- ggplot(test6, aes(x=LAD, y=pct, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("Constant Loneliness Percentages")
+
+print(group_shift_plot6)
+
+
+```
+
+
+```{r}
+long_EPCG_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "EPCG", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector", "ZoneID", "pidp", "yearly_energy", "hh_rent", "hh_income", "ethnicity"))
+long_baseline_data <-read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "baseline", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector", "ZoneID", "pidp", "yearly_energy", "hh_rent","hh_income", "ethnicity"))
+long_GBIS_data <- read_first_singular_local_out(here::here("output", "energy_manchester_scaled/"), "GBIS", drop.dead=TRUE, select.columns = c("time", v, "alive", "housing_sector", "ZoneID", "pidp", "yearly_energy", "hh_rent", "hh_income", "ethnicity"))
+
+
+lsoa_la_map <- read.csv(here::here("persistent_data", "spatial_data","LSOA11_WD22_LAD22_EW_LU.csv"))
+lsoa_la_map <- lsoa_la_map[, c("LSOA11CD", "LAD22NM")]
+colnames(lsoa_la_map) <- c("ZoneID", "LAD")
+
+long_baseline_data <- merge(long_baseline_data, lsoa_la_map, by="ZoneID")
+long_EPCG_data <- merge(long_EPCG_data, lsoa_la_map, by="ZoneID")
+long_GBIS_data <- merge(long_GBIS_data, lsoa_la_map, by="ZoneID")
+
+
+
+baseline_start <- long_baseline_data[which(long_baseline_data$time == 2021), ]
+EPCG_start <- long_EPCG_data[which(long_EPCG_data$time == 2021), ]
+GBIS_start <- long_GBIS_data[which(long_GBIS_data$time == 2021), ]
+
+baseline_mid <- long_baseline_data[which(long_baseline_data$time == 2026), ]
+EPCG_mid <- long_EPCG_data[which(long_EPCG_data$time == 2026), ]
+GBIS_mid <- long_GBIS_data[which(long_GBIS_data$time == 2026), ]
+
+baseline_end <- long_baseline_data[which(long_baseline_data$time == 2031), ]
+EPCG_end <- long_EPCG_data[which(long_EPCG_data$time == 2031), ]
+GBIS_end <- long_GBIS_data[which(long_GBIS_data$time == 2031), ]
+
+EPCG_mid$intervention <- "EPCG 2026"
+EPCG_start$intervention <- "Baseline 2021"
+GBIS_mid$intervention <- "GBIS 2026"
+baseline_mid$intervention <- "Baseline 2026"
+
+test2 <- rbind(EPCG_mid, GBIS_mid, baseline_mid, EPCG_start)
+
+test3 <- test2 %>% 
+          filter(housing_sector == 2) %>%
+          group_by(intervention, LAD, time)  %>%
+            summarise(Median= median(yearly_energy)) 
+
+group_shift_plot3 <- ggplot(test3, aes(x=LAD, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("Yearly Energy Means")
+
+print(group_shift_plot3)
+
+test3a <- test2 %>% 
+          filter(housing_sector == 2) %>%
+          group_by(intervention, ethnicity, time)  %>%
+            summarise(Median= median(yearly_energy)) 
+
+group_shift_plot3a <- ggplot(test3a, aes(x=ethnicity, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("Yearly Energy Means by ethnicity")
+
+print(group_shift_plot3a)
+
+
+
+test4 <- test2 %>% 
+          filter(hh_rent>0) %>%
+          group_by(intervention, LAD, time)  %>%
+            summarise(Median= mean(hh_rent)) 
+
+group_shift_plot4 <- ggplot(test4, aes(x=LAD, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("HH Rent Means")
+
+print(group_shift_plot4)
+
+test4a <- test2 %>% 
+          filter(hh_rent>0) %>%
+          group_by(intervention, ethnicity, time)  %>%
+            summarise(Median= mean(hh_rent)) 
+
+group_shift_plot4a <- ggplot(test4a, aes(x=ethnicity, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("HH Rent Means by ethnicity")
+
+print(group_shift_plot4a)
+
+
+
+test5 <- test2 %>% 
+          #filter(housing_sector == 2) %>%
+          group_by(intervention, LAD, time)  %>%
+            summarise(Median= mean(hh_income)) 
+
+group_shift_plot5 <- ggplot(test5, aes(x=LAD, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("HH Income Means")
+
+print(group_shift_plot5)
+
+
+test5a <- test2 %>% 
+          filter(housing_sector==2) %>%
+          group_by(intervention, ethnicity, time)  %>%
+            summarise(Median= mean(hh_income)) 
+
+group_shift_plot5a <- ggplot(test4a, aes(x=ethnicity, y=Median, group=factor(intervention), col=factor(intervention))) +
+  geom_line(aes(linetype=factor(intervention))) + ylab("HH Income Means by ethnicity")
+
+print(group_shift_plot5a)
+
+
+```
+

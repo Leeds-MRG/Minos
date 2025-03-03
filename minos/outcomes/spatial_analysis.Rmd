@@ -19,6 +19,7 @@ library(here)
 library(ggplot2)
 library(dplyr)
 library(xtable)
+library(stringr)
 
 # load 2020 data.
 full_pop_data <- read.csv(here::here("data", "scaled_manchester_aligned_US", "2020_US_cohort.csv"))
@@ -53,6 +54,7 @@ full_pop_data <- rbind(full_pop_data, full_pop_data_copy, full_pop_data_copy2)
 
 full_pop_data$housing_quality <- factor(full_pop_data$housing_quality, levels=c("Low", "Medium", "High"), ordered=T)
 ```
+
 
 ```{r}
 

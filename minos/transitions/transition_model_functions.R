@@ -79,7 +79,6 @@ estimate_yearly_clm <- function(data, formula, include_weights = FALSE, depend) 
 
 
 estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend) {
-  
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
   
@@ -100,7 +99,7 @@ estimate_yearly_logit <- function(data, formula, include_weights = FALSE, depend
 
 
 estimate_yearly_nnet <- function(data, formula, include_weights = FALSE, depend) {
-  
+
   data = replace.missing(data)
   # Sort out dependent type (factor)
   data[[depend]] <- as.factor(data[[depend]])
@@ -454,7 +453,7 @@ estimate_mixed_zip <- function(data, fixed_formula, include_weights = FALSE, dep
     #family = zi.poisson(), 
     #family = zi.negative.binomial(), 
     family = hurdle.lognormal(), 
-    max_coef_value=50)
+    max_coef_value=100)
   #family = zi.negative.binomial(), max_phis_value=40000)
   #browser()
   
