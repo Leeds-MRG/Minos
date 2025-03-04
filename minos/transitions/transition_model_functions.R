@@ -172,12 +172,15 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   
   if (reflect) {
     max_value <- nanmax(data[[depend]])
-    data[, c(depend)] <- max_value - data[, c(depend)] 
+    data[, c(depend)] <- max_value - data[, c(depend)] +0.01
   }
   if (yeo_johnson) {
     yj <- yeojohnson(data[,c(depend)])
     data[, c(depend)] <- predict(yj)
   }
+  
+  min_value <- nanmin(data[[depend]])
+  
   
   if (log_transform) {
     data[[depend]] <- log(data[[depend]])
@@ -201,6 +204,7 @@ estimate_longitudinal_lmm <- function(data, formula, include_weights = FALSE, de
   #model@transform <- yj 
   #model@min_value <- min_value
   #model@max_value <- max_value
+  attr(model, "min_value") <- min_value
   attr(model, "cov_matrix") <- vcov(model)
   return(model)
 }
@@ -276,7 +280,6 @@ estimate_longitudinal_glmm <- function(data, formula, include_weights = FALSE, d
   #browser()
   attr(model, "min_value") <- min_value
   attr(model, "cov_matrix") <- vcov(model)
-  
   
   #attr(model, "frame") <- list(terms=colnames(model@frame))
   

@@ -71,7 +71,8 @@ class SF_12_PCS(Base):
                         'loneliness',
                         'financial_situation',
                         'auditc',
-                        'active']
+                        'active',
+                        "net_hh_income"]
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -183,6 +184,7 @@ class lmmYJPCS(Base):
                         'time',
                         'weight',
                         'hh_income',
+                        'net_hh_income',
                         'SF_12_MCS',
                         #'SF_12_MCS_diff',
                         'SF_12_PCS',
@@ -233,10 +235,10 @@ class lmmYJPCS(Base):
         event : vivarium.population.PopulationEvent
             The event time_step that called this function.
         """
-
         self.year = event.time.year
         # Get living people to update their income
         pop = self.population_view.get(event.index, query="alive =='alive'")
+        std_ratio_old = np.std(pop['SF_12_PCS'])
         pop = pop.sort_values('pidp')  # sorting aligns index to make sure individual gets their correct prediction.
         pop["SF_12_PCS_last"] = pop["SF_12_PCS"]
         # Calculate min and max values for clipping later
@@ -249,13 +251,18 @@ class lmmYJPCS(Base):
         newWavePWB['SF_12_PCS'] = self.calculate_pwb(pop.copy())
         newWavePWB.index = pop.index
         #newWavePWB["SF_12_PCS"] -= 1
+        newWavePWB["SF_12_PCS"] -= 1
 
         # ### This chunk is to increase variance
         sf12_mean = np.mean(newWavePWB["SF_12_PCS"])
-        std_ratio = (10/np.std(newWavePWB["SF_12_PCS"]))
+        std_ratio = (10.5/np.std(newWavePWB["SF_12_PCS"]))
+        #std_ratio = (std_ratio_old/np.std(newWavePWB["SF_12_PCS"]))
         newWavePWB["SF_12_PCS"] *= std_ratio
         newWavePWB["SF_12_PCS"] -= ((std_ratio-1)*sf12_mean)
-        newWavePWB["SF_12_PCS"] += 1
+        newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], 0, 100) # keep within [0, 100] bounds of SF12.
+        newWavePWB.loc[newWavePWB["SF_12_PCS"]==0, "SF_12_PCS"] = np.random.normal(loc=10, scale=3, size=newWavePWB.loc[newWavePWB["SF_12_PCS"]==0, "SF_12_PCS"].shape[0])
+        newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], 0, 100) # keep within [0, 100] bounds of SF12.
+
         # #newWavePWB["SF_12_PCS"] += (49.3 - np.mean(newWavePWB["SF_12_PCS"]))
         # #newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], 0, 100) # keep within [0, 100] bounds of SF12.
 
@@ -266,6 +273,9 @@ class lmmYJPCS(Base):
         # Update population with new SF_12_PCS
         #print(np.mean(newWavePWB["SF_12_PCS"]))
         #print(np.std(newWavePWB["SF_12_PCS"]))
+        print(f"SF12 PCS mean: {np.mean(newWavePWB['SF_12_PCS'])}")
+        print(f"SF12 PCS std: {np.std(newWavePWB['SF_12_PCS'])}.")
+
         self.population_view.update(newWavePWB[['SF_12_PCS']])#, "SF_12_PCS_diff"]])
 
     def calculate_pwb(self, pop):
@@ -295,9 +305,9 @@ class lmmYJPCS(Base):
                                                                     self.rpy2Modules,
                                                                     pop,
                                                                     dependent='SF_12_PCS',
-                                                                    reflect=False,
+                                                                    reflect=True,
                                                                     log_transform=True,
-                                                                    noise_std=2)  #
+                                                                    noise_std=0.01) #1 #2
 
         # nextWavePWB = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
         #                                                        self.rpy2Modules,
