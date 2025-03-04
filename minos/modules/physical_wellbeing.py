@@ -260,6 +260,8 @@ class lmmYJPCS(Base):
         newWavePWB["SF_12_PCS"] *= std_ratio
         newWavePWB["SF_12_PCS"] -= ((std_ratio-1)*sf12_mean)
         newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], 0, 100) # keep within [0, 100] bounds of SF12.
+        newWavePWB.loc[newWavePWB["SF_12_PCS"]==0, "SF_12_PCS"] = np.random.normal(loc=10, scale=3, size=newWavePWB.loc[newWavePWB["SF_12_PCS"]==0, "SF_12_PCS"].shape[0])
+        newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], 0, 100) # keep within [0, 100] bounds of SF12.
 
         # #newWavePWB["SF_12_PCS"] += (49.3 - np.mean(newWavePWB["SF_12_PCS"]))
         # #newWavePWB["SF_12_PCS"] = np.clip(newWavePWB["SF_12_PCS"], 0, 100) # keep within [0, 100] bounds of SF12.
@@ -305,7 +307,7 @@ class lmmYJPCS(Base):
                                                                     dependent='SF_12_PCS',
                                                                     reflect=True,
                                                                     log_transform=True,
-                                                                    noise_std=0.025) #1 #2
+                                                                    noise_std=0.01) #1 #2
 
         # nextWavePWB = r_utils.predict_next_timestep_yj_gamma_glmm(self.gee_transition_model,
         #                                                        self.rpy2Modules,
