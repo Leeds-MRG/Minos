@@ -7,11 +7,11 @@ import pandas as pd
 import geopandas as gpd
 import yaml
 import matplotlib.pyplot as plt
-from minos import utils
-from minos.data_generation.US_format_raw_children_data import integer_child_ages_to_nkids as intch
+from minos.data_generation.US_format_raw_children_ind_data import *
 import random
 
 CURR_DIR = up(__file__)
+MINOS_PATH = up(CURR_DIR)
 PERSISTENT_PATH = os.path.join(up(CURR_DIR), 'persistent_data')
 FERT_REF_PATH = os.path.join(PERSISTENT_PATH, 'fertility_reference')
 OUTPUT_DEFAULT = os.path.join(up(CURR_DIR), 'output')
@@ -69,12 +69,6 @@ def get_config_data(file):
     return config_data
 
 
-# HR 20/12/24 To reformat age bins for plot labelling, etc.; takes Pandas (right closed) interval and returns string
-def format_age_bins(interval):
-    formatted = str(interval).strip('(').strip(']').replace(', ', '_')
-    return formatted
-
-
 # HR 20/12/24 Get range of years in sim output
 def get_sim_info(parity=False,
                   synthpop=False,
@@ -99,7 +93,7 @@ def get_latest_data_by_year(year,
     path, years = get_sim_info(parity=parity, synthpop=synthpop)
 
     if year not in years:
-        print('Year not in simulation years; returning None')
+        print('Year {} not in simulation years; returning None'.format(year))
         return None
 
     file = str(year) + '.csv'
@@ -117,7 +111,32 @@ def get_latest_data(parity=False,
 
     file_dict = {y: str(y) + '.csv' for y in years}
     # data = {y: pd.read_csv(os.path.join(path, f), low_memory=False)[COLUMNS_TO_READ] for y, f in file_dict.items()}
-    data = {y: pd.read_csv(os.path.join(path, f), low_memory=False) for y, f in file_dict.items()}
+    data = {y: pd.read_csv(os.path.join(path, f), low_memory=False, index_col=False) for y, f in file_dict.items()}
+    return data
+
+
+# HR 04/03/25 Get single year of Minos data by tag (raw, final, etc.)
+def get_minos_data_by_year(year,
+                           tag='imputed_final',
+                           ):
+    _path = os.path.join(MINOS_PATH, 'data', tag + '_US')
+    _file = str(year) + '_US_cohort.csv'
+    _fullpath = os.path.join(_path, _file)
+    try:
+        data = pd.read_csv(_fullpath)
+    except:
+        print('Could not find Minos data for {} with tag {}; returning None'.format(year, tag))
+        data = None
+    return data
+
+
+# HR 01/03/25 Get all Minos data by tag (raw, final, etc.)
+def get_minos_data(tag='imputed_final'):
+    _path = os.path.join(MINOS_PATH, 'data', tag + '_US')
+    minos_files = [file for file in os.listdir(_path) if file.endswith('_US_cohort.csv')]
+    minos_years = [int(file.split('_')[0]) for file in minos_files]
+    minos_data = [pd.read_csv(os.path.join(_path, file)) for file in minos_files]
+    data = dict(zip(minos_years, minos_data))
     return data
 
 
@@ -125,46 +144,94 @@ def get_latest_data(parity=False,
 # ONS user guide is here: https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/livebirths/methodologies/userguidetobirthstatistics#calculating-birth-and-fertility-rates
 
 INTERVAL_DEFAULT = 5
-BINS_DEFAULT = range(15, 50, INTERVAL_DEFAULT)  # These are standard bins for TFR, i.e. 15-19, ... , 45-49
-AGE_RANGE_DEFAULT = (16, 17, 18)
+INTERVAL_SINGLE_DEFAULT = 1
+AGE_RANGE_DEFAULT = (15, 45 + 1)
+BINS_DEFAULT = range(*AGE_RANGE_DEFAULT, INTERVAL_DEFAULT)  # These are standard bins for TFR, i.e. 15-19, ... , 40-44
+BINS_SINGLE_DEFAULT = range(*AGE_RANGE_DEFAULT, INTERVAL_SINGLE_DEFAULT)  # Single-year sequence for ASFRs and SMA
+YOUTH_RANGE_DEFAULT = (16, 17, 18)
+
+
+# HR 21/02/25 Get mortality rate from Minos output; this is NOT as general purpose as the fertility metrics,
+# so MUST pass whole population AND year, as inferring year might cause errors (e.g. in edge case of lots of dead people)
+# Should be about 0.8-1%
+def get_mortality_rate(pop, year=None):
+
+    # Filter for living people
+    alive = pop.loc[(pop['alive'] == 'alive')]
+
+    # Infer year if none given
+    if year is None:
+        year = alive['time'].mode()[0]
+
+    dead = pop.loc[(pop['alive'] == 'dead') & (pop['time'] == year - 1)]
+    mort = 100 * len(dead) / len(alive)
+    return mort
 
 
 # HR 21/02/25 General fertility rate (GFR) is calculated using births in all age groups as the numerator,
 # but the population of the 15-44 yo cohort (women only) x 1000 as the denominator
-# Additional tweak here to account for US/synthpop data only covering 16-49 yos:
+# Additional tweak here to account for US/synthpop data only covering 16-44 yos:
 # the size of the 15 yo cohort is estimated from the 16-18 yo cohort, i.e. the denominator (population size) is corrected
 # Assumes negligible no. of births in 15 yo cohort
 # Should be 50-60
-def get_gfr(pop, age_range=AGE_RANGE_DEFAULT):
-    women = pop.loc[pop.sex == 'Female']
-    n_new = women.nnewborn.sum()
-    n15 = len(women.loc[women.age.isin(age_range)]) / len(age_range)
-    women_gfr = women.loc[women.age.between(15, 44)]
-    gfr = 1000 * n_new / (len(women_gfr) + n15)
+def get_gfr(pop, age_range=YOUTH_RANGE_DEFAULT):
+
+    # Filter for living women
+    women = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive')]
+
+    n_new = women['nnewborn'].sum()
+    n15 = len(women.loc[women['age'].isin(age_range)]) / len(age_range)
+    women_gfr = women.loc[women['age'].between(15, 44)]
+    try:
+        gfr = 1000 * n_new / (len(women_gfr) + n15)
+    except:
+        gfr = 0.0
     return gfr
 
 
-# HR 21/02/25 Total fertility rate (TFR) is calculated using five-year age intervals, for 15-49 yo women
-# Additional tweak here to account for US/synthpop data only covering 16-49 yos:
-# a 5/4 factor is applied to the cohort size (i.e. the denominator) for the 15-19 group, as US only contains 16-19
+# HR 24/02/25 Auxiliary function to get ASFR per arbitrary cohort; used for both ASFR and SMA calculations
+# A reduction factor is applied to the cohort size (i.e. the denominator) for any 15 yo group, as US only contains 16-19,
+# e.g. 15 yo group only becomes zero; 15-19 yo cohort scaled by 4/5
 # Assumes negligible no. of births in 15 yo cohort
+def get_cohort_asfr(pop, age_group, interval):
+
+    # Filter for living women
+    pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive')]
+
+    if len(pop) == 0:  # Avoids division by zero
+        asfr = 0.0
+    else:
+        asfr = pop['nnewborn'].sum() / len(pop)
+        if age_group == 15:
+            asfr *= (interval - 1) / interval  # Correction to account for absense of 15 yo cohort in US/synthpop
+    return asfr
+
+
+# HR 24/03/25 Get age-standardised fertility rate (ASFR) by cohort, which can be single years
+# Default cohorts are five-year intervals from 15-44, as ONS
+def get_asfr(pop, bins=BINS_SINGLE_DEFAULT, interval=INTERVAL_SINGLE_DEFAULT):
+
+    # Filter for living women
+    pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive')].copy()  # Best to copy to avoid Pandas SettingWithCopyWarning when creating age_bracket column
+
+    pop['age_bracket'] = pd.cut(pop['age'], bins=bins, labels=bins[:-1], right=False)  # Apply left edges as labels for ease
+    sub = pop.loc[~pop['age_bracket'].isna()]  # Get women in correct age range
+    asfr = 1000 * sub.groupby('age_bracket').apply(lambda x: get_cohort_asfr(x, x.name, interval))
+    asfr = asfr.fillna(0)
+    asfr.index = asfr.index.astype(int)
+    return asfr
+
+
+# HR 21/02/25 Total fertility rate (TFR) is calculated using five-year age intervals, for 15-44 yo women
+# Additional tweak here to account for US/synthpop data only covering 16-44 yos (i.e. no 15 yos):
 # Should be 1.5-1.6
 def get_tfr(pop, bins=BINS_DEFAULT, interval=INTERVAL_DEFAULT):
-    def get_cohort_tfr(cohort, age_group):
-        try:
-            tfr = cohort['nnewborn'].sum() / len(cohort)
-        except:  # Sometimes get an exception if len(cohort) is zero
-            tfr = 0.0
-        if age_group == 15:
-            tfr *= (4.0 / 5.0)  # Correction to account for absense of 15 yo cohort in US/synthpop
-        return tfr
 
-    pop = pop.copy()  # Best to copy to avoid Pandas SettingWithCopyWarning when creating age_bracket column
-    pop['age_bracket'] = pd.cut(pop['age'], bins=bins, labels=bins[:-1], right=False)  # Apply left edges as labels for ease
-    sub = pop.loc[(pop['sex'] == 'Female') & (~pop['age_bracket'].isna())]  # Get women in correct age range
-    sums = sub.groupby('age_bracket').apply(lambda x: get_cohort_tfr(x, x.name))
-    tfr = interval * sum(sums)
+    # Filter for living women
+    pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive')]
 
+    asfr = get_asfr(pop, bins=bins, interval=interval)
+    tfr = interval * sum(asfr) / 1000
     return tfr
 
 
@@ -173,35 +240,92 @@ def get_tfr(pop, bins=BINS_DEFAULT, interval=INTERVAL_DEFAULT):
 # Assumes negligible no. of births in 15 yo cohort
 # Should be 10-12
 def get_cbr(pop):
+
+    # Filter for living people
+    pop = pop.loc[pop['alive'] == 'alive']
+
     n_adult = len(pop)
-    women = pop.loc[pop.sex == 'Female'].copy()
-    n_u16 = women.nresp.sum()
+    women = pop.loc[pop['sex'] == 'Female'].copy()
+    n_u16 = women['nresp'].sum()
     # Alternative method using child ages - not working as causes unexplained hang
-    # women['children_ind'] = women['child_ages_ind'].astype('int64').apply(intch)
+    # women['children_ind'] = women['child_ages_ind'].astype('int64').apply(integer_child_ages_to_nkids)
     # n_u16 = women['children_ind'].sum()
-    n_new = women.nnewborn.sum()
+    n_new = women['nnewborn'].sum()
     cbr = 1000 * n_new / (n_adult + n_u16)
     return cbr
 
 
-# HR 21/02/25 Get mortality rate from Minos output; this is NOT as general purpose as the fertility metrics,
-# so MUST pass whole population AND year, as inferring year might cause errors (e.g. in edge case of lots of dead people)
-# Should be about 0.8-1%
-def get_mortality_rate(pop, year):
-    alive = pop.loc[(pop.alive == 'alive')]
-    dead = pop.loc[(pop.alive == 'dead') & (pop.time == year - 1)]
-    mort = 100 * len(dead) / len(alive)
-    return mort
+# HR 24/02/25 Standard mean age (SMA) of mothers at their first birth
+# Interval can be specified, in line with ASFR calculations
+# Smaller intervals less likely to give meaningful results for smaller populations or less common ethnic groups
+# N.B. Correction factor 0.5 * interval only verified as correct for interval = 1, as this is only value in literature
+def get_sma(pop, bins=BINS_SINGLE_DEFAULT, interval=INTERVAL_SINGLE_DEFAULT):
+
+    # Filter for living women
+    pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive')].copy()
+
+    asfr = get_asfr(pop=pop, bins=bins, interval=interval).to_frame().reset_index().rename(columns={0: 'asfr'})
+    try:
+        sma = sum(asfr['age_bracket'] * asfr['asfr']) / sum(asfr['asfr'])
+        sma += 0.5 * interval
+    except:
+        sma = None
+    return sma
+
+
+# HR 29/01/25 Get birth spacing - i.e. years between ages of children - from integer-form child ages
+def get_birth_spacing(ages):
+    age_list = integer_child_ages_to_list(ages)
+    spacings = np.diff(age_list)
+    return spacings
+
+
+# HR 26/02/25 Add more detailed birth spacing information to pop
+def add_birth_data(pop):
+
+    pop['children_ind'] = pop['child_ages_ind'].astype('int64').apply(integer_child_ages_to_list)
+    pop['age_of_first_child'] = pop['children_ind'].str[0]
+    pop['age_zero'] = pop['age'] - pop['age_of_first_child']
+    pop['spacings'] = pop['child_ages_ind'].astype('int64').apply(get_birth_spacing)
+    pop.loc[pop['spacings'].map(len) == 0, 'spacings'] = np.nan  # Must replace empty lists with NaNs
+
+    # Get first n birth spacings and add random number if specified
+    s_max = 3  # Max. spacings to get
+    for i in range(s_max):
+        var_name = 'spacing_' + str(i + 1)
+        pop[var_name] = pop['spacings'].str[i]
+
+    pop.drop(columns=['children_ind', 'age_of_first_child'], inplace=True)
+    return pop
+
+
+DERIVED_VARS = ('age_zero', 'spacing_1', 'spacing_2', 'spacing_3')
+
+# HR 03/03/25 Get all derived birth data (age of first birth + spacings)
+def get_derived_birth_metrics(pop, vars_to_randomise=DERIVED_VARS):
+
+    # Filter for living women
+    pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive')].copy()
+
+    pop = add_birth_data(pop)
+
+    # Add random number on [-0.5, 0.5] so median gives sensible value
+    if vars_to_randomise:
+        for _var in vars_to_randomise:
+            pop[_var] = pop[_var].apply(lambda x: x + random.random() - 0.5)
+
+    metrics = {}
+    for _var in DERIVED_VARS:
+        metrics[_var] = pop[_var].median()
+
+    return metrics
 
 
 # HR 11/12/24 Get mortality and fertility metrics
 def get_metrics(pop,
-                year,
+                year=None,
                 ):
     metrics = {}
-
-    # Get all living individuals
-    alive = pop.loc[(pop.alive == 'alive')]
 
     # Mortality rate
     mort = get_mortality_rate(pop, year)
@@ -209,19 +333,28 @@ def get_metrics(pop,
     metrics['mort'] = mort
 
     # General fertility rate (GFR)
-    gfr = get_gfr(alive)
+    gfr = get_gfr(pop)
     # print('General fertility rate, births (all ages) per 1,000 women (15-44 only): {:.3f} ({}/{})'.format(gfr, len(has_newborn), len(women_gfr)))
     metrics['gfr'] = gfr
 
     # Total fertility rate (TFR)
-    tfr = get_tfr(alive)
+    tfr = get_tfr(pop)
     # print('TFR (children per woman): {:.3f}'.format(tfr))
     metrics['tfr'] = tfr
 
     # Crude birth rate (CBR)
-    cbr = get_cbr(alive)
+    cbr = get_cbr(pop)
     # print('CBR, births per 1,000 total pop: {:.3f}'.format(cbr))
     metrics['cbr'] = cbr
+
+    # Standardised mean age (SMA) at birth
+    sma = get_sma(pop)
+    # print('SMA, mean age at birth: {:.3f}'.format(sma))
+    metrics['sma'] = sma
+
+    # Add derived birth metrics
+    derived = get_derived_birth_metrics(pop)
+    metrics.update(derived)
 
     return metrics
 
@@ -262,44 +395,34 @@ def get_metrics_post(parity=False,
     return mdf
 
 
-# # HR 20/12/24 Get metrics in disaggregated form, i.e. by age group, ethnicity, parity and area
-# def get_metrics_post_disaggregated(disaggregator=None,
-#                                    parity=False,
-#                                    synthpop=False,
-#                                    cache=True,
-#                                    overwrite=False,
-#                                    outfile=METRICS_FILE,
-#                                    ):
-#     path, years = get_sim_info(parity=parity, synthpop=synthpop)
-#
-#     if disaggregator is None:
-#         gb = {'all', data}
-#     elif disaggregator == 'age':
-#         bins = [16, 18, 20, 25, 30, 35, 40, 50, 120]
-#         gb = data.groupby(pd.cut(data.age, bins))
-#     elif disaggregator == 'region':
-#         gb = data.groupby('region')
-#     elif disaggregator == 'ethnicity':
-#         eth_map = get_ethnicity_map()
-#         data['ethnicity_super'] = data['ethnicity'].map(ethnicity_map)
-#         gb = data.groupby('ethnicity_super')
-#     elif disaggregator == 'parity':
-#         gb = data.groupby('nkids_ind')
-#
-#     return
+# HR 26/02/25 Get birth spacing reference data, as different format to other metrics
+def get_birth_spacing_reference_data(fert_path=FERT_REF_PATH,
+                                     ):
+    _path = fert_path
+    _file = 'parentscharacteristics2022.xlsx'
+    _fullpath = os.path.join(_path, _file)
+    bs = pd.read_excel(_fullpath,
+                       sheet_name='Table_7',
+                       header=7 - 1)
+    bs.columns = ['year', 'spacing_1', 'spacing_2', 'spacing_3']
+    bs = bs.set_index('year')
+    return bs
 
 
 SOURCES_DEFAULT = {'mort': 'ons',
                    'tfr': 'ons',
                    'gfr': 'ons',
                    'cbr': 'ons',
+                   'sma': 'ons',
                    }
 
-def get_fertility_reference_data(sources=None):
+def get_fertility_reference_data(sources=None,
+                                 fert_path=FERT_REF_PATH,
+                                 ):
     if sources is None:
         sources = SOURCES_DEFAULT
 
-    fert_path = FERT_REF_PATH
+    refdata = pd.DataFrame()
 
     # Get EW mortality data
     if sources['mort'] == 'ons':
@@ -309,8 +432,9 @@ def get_fertility_reference_data(sources=None):
         mort_data = pd.read_excel(mort_fullpath,
                                   sheet_name='8',
                                   header=6 - 1,
-                                  nrows=10)
-        mort_data = mort_data.set_index('Year of registration')[['All causes']].loc[range(2013, 2021)]
+                                  nrows=35 - 7 + 1,
+                                  )
+        mort_data = mort_data.set_index('Year of registration')[['All causes']]
         mort_data /= 1000
 
     elif sources['mort'] == 'hfd':
@@ -334,7 +458,7 @@ def get_fertility_reference_data(sources=None):
         br2c = br2c.loc[br2.Age.astype(int).between(15, 44)]
         br2cg = br2c.groupby(br2c.index)['Exposure'].sum()
 
-        br_data = 1000*(br1cg / br2cg)[-8:].to_frame()
+        gfr_data = 1000*(br1cg / br2cg)[-8:].to_frame()
 
     elif sources['gfr'] == 'ons':
         gfr_path = fert_path
@@ -343,7 +467,7 @@ def get_fertility_reference_data(sources=None):
         gfr_data = pd.read_excel(gfr_fullpath,
                                 sheet_name='Table_1',
                                 header=9 - 1)
-        gfr_data = gfr_data.set_index('Year')[[gfr_data.columns[7]]][2:10]
+        gfr_data = gfr_data.set_index('Year')[[gfr_data.columns[7]]]
 
     if sources['tfr'] == 'hfd':
         # Get UK TFR (average kids per woman ever born)
@@ -360,7 +484,7 @@ def get_fertility_reference_data(sources=None):
         tfr_data = pd.read_excel(tfr_fullpath,
                                  sheet_name='Table_1',
                                  header=9 - 1)
-        tfr_data = tfr_data.set_index('Year')[[tfr_data.columns[6]]][2:10]
+        tfr_data = tfr_data.set_index('Year')[[tfr_data.columns[6]]]
 
     if sources['cbr'] == 'hfd':
         # Get UK CBR (births per 1,000 total pop)
@@ -377,154 +501,87 @@ def get_fertility_reference_data(sources=None):
         cbr_data = pd.read_excel(cbr_fullpath,
                                 sheet_name='Table_1',
                                 header=9 - 1)
-        cbr_data = cbr_data.set_index('Year')[[cbr_data.columns[8]]][2:10]
+        cbr_data = cbr_data.set_index('Year')[[cbr_data.columns[8]]]
 
-    refdata = pd.concat([mort_data, gfr_data, tfr_data, cbr_data], axis='columns')
+    if sources['sma'] == 'hfd':
+        sma_data = None
+
+    elif sources['sma'] == 'ons':
+        sma_path = fert_path
+        sma_ref = 'birthssummary2022refreshedpopulations.xlsx'
+        sma_fullpath = os.path.join(sma_path, sma_ref)
+        sma_data = pd.read_excel(sma_fullpath,
+                                 sheet_name='Table_1',
+                                 header=9 - 1)
+        sma_data = sma_data.set_index('Year')[[sma_data.columns[11]]]
+
+    refdata = pd.concat([mort_data, gfr_data, tfr_data, cbr_data, sma_data], axis=1)
     refdata.index.name = 'year'
-    refdata.columns = ['mort', 'gfr', 'tfr','cbr']
+    refdata.columns = ['mort', 'gfr', 'tfr', 'cbr', 'sma']
+
+    # Add derived birth metrics
+    spacing_data = get_birth_spacing_reference_data()
+    refdata = refdata.merge(spacing_data, how='left', on='year')
+
+    # Add '_ref' tag to everything
     refdata.columns = [el + '_ref' for el in refdata.columns]
+
     return refdata
 
 
-# HR 17/12/24 To plot metrics over time for different simulation configurations
-def plot_metrics(data,
-                 ref_data,
-                 outfile,
-                 ):
-
-    labels = ['US only w/o parity', 'US only with parity', 'Synthpop (1%) w/o parity', 'Synthpop (1%) with parity']
-
-    n = len(data[0].columns)
-    _vars = data[0].columns[-n:]
-    line_styles = ['--', '-', '--', '-']
-    line_colours = ['b', 'b', 'r', 'r']
-
-    fig, ax = plt.subplots(nrows=1, ncols=n, figsize=(16, 4))
-
-    for i, ax in enumerate(fig.axes):
-        for j, dataset in enumerate(data):
-            ax.plot(dataset.index[1:], dataset[_vars[i]][1:], linestyle=line_styles[j], color=line_colours[j])
-            # ax.plot(dataset.index, dataset[_vars[i]], linestyle=line_styles[j], color=line_colours[j])
-
-        ax.plot(ref_data.index, ref_data[ref_data.columns[i]], color='black')
-
-        ax.set(xlabel=_vars[i])
-
-    fig.legend(labels + ['External data'], loc='right', bbox_to_anchor=(1.07, 0.5))
-    # fig.legend(labels[0:2], loc='right', bbox_to_anchor=(1.07, 0.5))
-    fig_path = OUTPUT_DEFAULT
-    fig_full = os.path.join(fig_path, outfile)
-    fig.savefig(fig_full, bbox_inches='tight')
-
-
-# HR 17/02/25 Basic plotter for fertility data using LA boundaries
-def plot_gb_data(data_by_area, col_to_plot=None, boundaries_file=None, outfile=None, outformat='pdf', _save=True):
-
-    if boundaries_file is None:
-        boundaries_file = os.path.join(PERSISTENT_PATH, 'spatial_data', LA_BOUNDARIES_FILES[2022])
-
-    if outfile is None:
-        outfile = os.path.join(OUTPUT_DEFAULT, 'fertility_by_area.' + outformat)
-
-    # Convert to WSG 84/EPSG4326, else breaks plotting; then filter for GB
-    boundaries = gpd.read_file(boundaries_file).to_crs(epsg=4326)
-    boundaries = boundaries.loc[boundaries['LAD22CD'].str[0].isin(('E', 'S', 'W'))]
-
-    # Merge spatial data with pop data
-    if col_to_plot is None:
-        col_to_plot = 'random_number'  # Create random variable for testing
-        boundaries[col_to_plot] = random.sample(range(1, 2 * len(boundaries)), len(boundaries))
-
-    merged = boundaries.merge(data_by_area, right_index=True, left_on='LAD22CD')
-
-    # Plot and save
-    merged.plot(column=col_to_plot, edgecolor='black', legend=True, linewidth=0.1)
-    plt.tight_layout()
-    plt.axis('off')
-
-    if _save:
-        # Dump to file
-        print('Saving to {}'.format(outfile))
-        plt.savefig(outfile, bbox_inches='tight', pad_inches=0.01)
+# HR 25/02/25 Separate method for ASFR data as in a different format to the rest
+def get_asfr_reference_data(fert_path=FERT_REF_PATH,
+                            ):
+    _path = fert_path
+    _file = 'GBR_NPasfrRRbo.txt'
+    _fullpath = os.path.join(_path, _file)
+    _data = pd.read_csv(_fullpath, header=2, delim_whitespace=True)[['Year', 'Age', 'ASFR']]
+    _data = _data.loc[~_data['Age'].str.endswith(('-', '+'))]
+    _data['Age'] = _data['Age'].astype(int)
+    _data = _data.loc[_data['Age'].astype(int).between(15, 44)]
+    _data.columns = ['year', 'age', 'asfr']
+    _data.set_index(['year', 'age'], inplace=True)
+    return _data
 
 
 if __name__ == '__main__':
 
-    # ref_data = get_fertility_reference_data()
-    #
-    # ''' Plot up mort and fert metrics with and without synthpop and parity '''
-    # m1 = get_metrics_post(parity=False, synthpop=False)
-    # m2 = get_metrics_post(parity=True, synthpop=False)
-    # m3 = get_metrics_post(parity=False, synthpop=True)
-    # m4 = get_metrics_post(parity=True, synthpop=True)
-    #
-    # data = [m1, m2, m3, m4]
-    #
-    # plot_metrics(data=data,
-    #              ref_data=ref_data,
-    #              outfile='metrics_all.jpg')
+    # HR 04/03/25 Testing of improved metrics for use everywhere, i.e. with:
+    # 1. Minos processed data (i.e. pre-sim)
+    # 2. US-type simulation data (i.e. no synthpop)
+    # 3. Simulation data with synthpop
+    # 4. Get all reference data for comparison
 
-    # ''' Get latest data '''
-    # d1 = get_latest_data(parity=False, synthpop=False)
-    # d2 = get_latest_data(parity=True, synthpop=False)
-    # d3 = get_latest_data(parity=False, synthpop=True)
-    # d4 = get_latest_data(parity=True, synthpop=True)
-    #
-    # ''' Adding spatial attributes '''
-    # lsoa_col = 'LSOA11CD'
-    # ward_col = 'WD22CD'
-    # la_col = 'LAD22CD'
-    # region_col = 'RGN22CD'
-    # region_name_col = 'RGN22NM'
-    #
-    # m1 = utils.get_lsoa_to_ward_map()
-    # m2, m3, m4 = utils.get_ward_to_region_map()
-    # # to_add_spatial = [d1, d2, d3, d4]
-    #
-    # ### Workaround until LSOA11 linkage data available
-    # to_add_regional = [d1, d2]
-    # to_add_spatial = [d3, d4]
-    # m4_rev = {v: k for k, v in m4.items()}
-    #
-    # for dataset in to_add_regional:
-    #     for yr, ds in dataset.items():
-    #         ds[region_col] = ds['region'].map(m4_rev)
-    # ###
-    #
-    # for dataset in to_add_spatial:
-    #     for yr, ds in dataset.items():
-    #         ds = utils.add_spatial_attributes(ds)
-    #         ds['region'] = ds['RGN22CD'].map(m4)
-    #
-    # ''' Can now disaggregate and plot by groups '''
-    # # By age groups
-    # # bins = [16, 18, 20, 25, 30, 35, 40, 50, 120]
-    # # by_age_bin = {}
-    # # for i, ds in enumerate([d1, d2, d3, d4]):
-    # #     by_age_bin[i] = {}
-    # #     for y, d in ds.items():
-    # #         for _bin, g in d.groupby(pd.cut(d.age, bins)):
-    # #             by_age_bin[i][_bin] = get_metrics(g, y)
-    # #
-    # # for i, ds in [d1, d2, d3, d4]:
-    # #     for _bin, met in by_age_bin[i].items():
-    # #         label = '_age_' + '' + '.jpg'
-    #
-    #
-    # # By ethnicity
-    #
-    #
-    # # By region
-    #
-    #
-    # # By parity
+    # Required columns to reduce memory usage
+    cols_to_retain = ['age', 'child_ages', 'nkids', 'ethnicity', 'birth_year', 'time', 'region', 'pidp', 'nnewborn_hh',
+                      'child_ages_ind', 'sex', 'nnewborn', 'nkids_ind', 'nresp', 'alive']
+    cols_to_retain_sim = cols_to_retain + ['LSOA11CD']
 
+    # 1. Minos processed data (i.e. pre-sim)
+    mdata = get_minos_data_by_year(2020, tag='imputed_final')
+    mdata = mdata.loc[(mdata['region'] != 'Northern Ireland') & (~mdata['region'].isna())].copy()  # Drop NI data
+    mdata['alive'] = 'alive'  # To harmonise format with sim data
+    mdata = mdata[cols_to_retain]
+    mmetrics = get_metrics(mdata)
 
-    # HR 17/02/25 Get some synthpop fertility data and plot up
-    y = 2025
-    data = get_latest_data_by_year(year=y, synthpop=True, parity=False)
-    data = utils.add_spatial_attributes(data)  # Add wards, LAs and regions
-    fert_data_by_la = data.groupby('LAD22CD').apply(lambda x: get_metrics(x, y)).to_frame()[0].apply(pd.Series)  # Get mort/fert data by LA
-    # fert_data_by_region = data.groupby('RGN22CD').apply(lambda x: get_metrics(x, y)).to_frame()[0].apply(pd.Series)  # Get mort/fert data by region
+    # 2. US-type simulation data (i.e. no synthpop)
+    y1 = 2025
+    s1 = get_latest_data_by_year(year=y1, parity=False, synthpop=False)
+    s2 = get_latest_data_by_year(year=y1, parity=True, synthpop=False)
+    for data in (s1, s2):
+        data = data[cols_to_retain]
+    s1metrics = get_metrics(s1)
+    s2metrics = get_metrics(s2)
 
-    plot_gb_data(data_by_area=fert_data_by_la, col_to_plot='tfr', outformat='png')
+    # 3. Simulation data with synthpop
+    y2 = 2025
+    s3 = get_latest_data_by_year(year=y2, parity=False, synthpop=True)
+    s4 = get_latest_data_by_year(year=y2, parity=True, synthpop=True)
+    for data in (s3, s4):
+        data = data[cols_to_retain_sim]
+    s3metrics = get_metrics(s3)
+    s4metrics = get_metrics(s4)
+
+    # 4. Get all reference data for comparison
+    main_ref = get_fertility_reference_data()
+    asfr_ref = get_asfr_reference_data()
