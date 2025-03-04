@@ -91,9 +91,11 @@ def generate_composite_housing_quality(data):
     values = ['Low', 'Medium', 'High']
 
     # Now apply conditions with numpy.select(), solution found here: https://datagy.io/pandas-conditional-column/
-    data["housing_quality"] = np.select(conditions, values)
+    data["housing_quality"] = np.select(conditions, values, default="-9")
     # Set to -9 if missing (currently when housing_quality == 0)
-    data['housing_quality'][data['housing_quality'] == 0] = -9
+    #data['housing_quality'][data['housing_quality'] == 0] = -9
+    # Identify missing values: If ANY core_list or bonus_list variable is negative, set housing_quality to -9
+    data.loc[data[core_list + bonus_list].lt(0).any(axis=1), "housing_quality"] = "-9"
 
     print('Generating composite for SIPHER 7 housing_quality...')
     ## ALSO generate SIPHER 7 version of this variable (simple sum of factors)

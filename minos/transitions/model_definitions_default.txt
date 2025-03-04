@@ -1,15 +1,10 @@
-CLM : ncigs ~ scale(ncigs) + scale(age) + scale(nutrition_quality) + I(scale(age)**2) + factor(sex) +  factor(ethnicity) + scale(hh_income)
+CLM : ncigs ~ scale(age) + scale(nutrition_quality) + I(scale(age)**2) + factor(sex) +  factor(ethnicity) + scale(ncigs) + scale(hh_income)
 CLM : ncars ~ scale(ncars) + scale(age) +I(scale(age)**2) + factor(region) +  scale(hh_income) + scale(age) + factor(S7_labour_state) + scale(hh_income) + scale(yearly_energy)
-
-IGNORE_ZIP : ncars ~ scale(ncars) + scale(age) +I(scale(age)**2) + factor(region) +  scale(hh_income) + scale(age) + factor(S7_labour_state) | scale(ncars) + scale(hh_income) + factor(region) + scale(age)
-IGNORE_ZIP : ncigs ~ scale(ncigs) + scale(age) + scale(nutrition_quality) + I(scale(age)**2) + factor(sex) +  factor(ethnicity) | scale(ncigs) + scale(age) + factor(sex) +  factor(ethnicity)
-IGNORE_MZIP : ncars ~ scale(ncars) + scale(age) +I(scale(age)**2) + factor(region) +  scale(hh_income) + scale(age) + factor(S7_labour_state) | scale(ncars) + scale(hh_income) + factor(region) + scale(age)
-IGNORE_MZIP : ncigs ~ scale(ncigs) + I(scale(ncigs)**2) + I(scale(ncigs)**2 * factor(ncigs>0)) + scale(age) + scale(nutrition_quality) + I(scale(age)**2) + factor(sex) +  factor(ethnicity) + scale(time) | scale(ncigs) + scale(age) + factor(sex) +  factor(ethnicity)
 
 
 NNET : auditc ~ scale(age) + factor(sex) + factor(education_state) + factor(financial_situation) + scale(yearly_energy) + scale(SF_12_MCS) + factor(heating) + scale(SF_12_PCS) + scale(hh_income) + factor(ethnicity) + factor(region)
 LOGIT : active ~ scale(age) + factor(sex) + factor(education_state) + factor(financial_situation) + factor(behind_on_bills) + scale(yearly_energy) + scale(SF_12_MCS) + factor(heating) + scale(SF_12_PCS) + scale(hh_income) + factor(ethnicity)
-LMM : SF_12_PCS ~ scale(SF_12_PCS_last) + I(scale(SF_12_PCS_last)**2) + factor(financial_situation) + scale(yearly_energy) + factor(heating)+ factor(sex) + factor(ethnicity) + scale(age) + I(scale(age)**2) + factor(region) + factor(education_state) + factor(housing_quality) + scale(hh_income) + scale(nutrition_quality) + I(factor(ncigs>0)) + factor(loneliness) + factor(active) + factor(auditc) + (1|pidp) + time
+LMM : SF_12_PCS ~ scale(SF_12_PCS_last) + I(scale(SF_12_PCS_last)**2) + factor(financial_situation) + factor(behind_on_bills) + scale(yearly_energy) + factor(heating)+ factor(sex) + factor(ethnicity) + scale(age) + I(scale(age)**2) + factor(region) + factor(education_state) + factor(housing_quality) + scale(net_hh_income) + scale(hh_income) + scale(nutrition_quality) + I(factor(ncigs>0)) + scale(ncigs) + factor(loneliness) + factor(active) + factor(auditc) + (1|pidp)
 NNET : education_state ~ factor(sex) + factor(ethnicity) + factor(region)
 NNET : S7_labour_state ~ factor(financial_situation)+ factor(S7_labour_state) + scale(age) + factor(sex) + factor(ethnicity) + factor(region) + factor(education_state)
 NNET : housing_tenure ~ factor(financial_situation)+ scale(age) + factor(sex) + factor(ethnicity) + factor(region) + factor(education_state) + factor(housing_tenure) + factor(urban) + factor(financial_situation) + scale(hh_income)
@@ -35,3 +30,9 @@ CLM : S7_mental_health ~ scale(age) + factor(sex) + factor(ethnicity) + factor(r
 
 IGNORE_LOGIT : urban ~ scale(age) + factor(sex) + factor(ethnicity) + factor(region) + factor(education_state) + scale(hh_income)
 LOGIT : heating ~ factor(heating) + scale(yearly_energy) + factor(financial_situation) + factor(behind_on_bills) + scale(net_hh_income)
+
+IGNORE_ZIP : ncars ~ scale(ncars) + scale(age) +I(scale(age)**2) + factor(region) +  scale(hh_income) + scale(age) + factor(S7_labour_state) | scale(ncars) + scale(hh_income) + factor(region) + scale(age)
+IGNORE_ZIP : ncigs ~ scale(ncigs) + scale(age) + scale(nutrition_quality) + I(scale(age)**2) + factor(sex) +  factor(ethnicity) | scale(ncigs) + scale(age) + factor(sex) +  factor(ethnicity)
+IGNORE_MZIP : ncars ~ scale(ncars) + scale(age) +I(scale(age)**2) + factor(region) +  scale(hh_income) + scale(age) + factor(S7_labour_state) | scale(ncars) + scale(hh_income) + factor(region) + scale(age)
+IGNORE_MZIP : ncigs ~ scale(ncigs) + I(scale(ncigs)**2) + I(scale(ncigs)**2 * factor(ncigs>0)) + scale(age) + scale(nutrition_quality) + I(scale(age)**2) + factor(sex) +  factor(ethnicity) + scale(time) | scale(ncigs) + scale(age) + factor(sex) +  factor(ethnicity)
+

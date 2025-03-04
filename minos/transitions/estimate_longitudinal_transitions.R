@@ -194,6 +194,7 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     
     if (dependent == "SF_12_PCS" & mod.type=="LMM"){
       do_log_transform <- T
+      do.reflect <- T
     } else {
       do_log_transform <- F   
     }
@@ -259,16 +260,12 @@ run_longitudinal_models <- function(transitionDir_path, transitionSourceDir_path
     }
     
     #browser()
-    write_coefs <- F
-    create.if.not.exists("data/transitions/coefficients")
+    write_coefs <- T
     if (write_coefs && !(tolower(mod.type) %in% c("rf", "mzip")))
     {
-      create.if.not.exists("data/transitions/coefficients")
       texreg_file <- paste0("data/transitions/coefficients/", dependent, '_', mod.type, '.tex')
-      texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), digits=4, dcolumn=T, tabular=T)
+      texreg(model, file=texreg_file, stars = c(0.001, 0.01, 0.05, 0.1), single.row=T, digits=4, dcolumn=T, tabular=T, fontsize='scriptsize')
     }
-    
-    #browser()
     saveRDS(model, file=paste0(out.path2, dependent, "_", mod.type, '.rds')) # shorter file name with no years..
     print(paste0(mod.type, ' model for ', dependent, ' generated for years ', min(year.range), ' - ', max(year.range)))
     print(paste0("Finished for ", dependent, ", mod type ", mod.type, '.'))

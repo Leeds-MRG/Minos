@@ -336,7 +336,7 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
 
     # flip left skewed data to right skewed about its maximum.
     if reflect:
-        if dependent in ["SF_12_PCS", "SF_12_MCS_MCS"]:
+        if dependent in ["SF_12_PCS", "SF_12_MCS"]:
             max_value = model.do_slot("max_value")
             min_value = model.do_slot("min_value")
         max_value = model.do_slot("max_value")
@@ -368,15 +368,6 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
     #     print(min(dependent_list))
     #     print(max(dependent_list))
 
-    # flip left skewed data to right skewed about its maximum.
-    if reflect:
-        max_value = model.do_slot("max_value")
-        currentRDF[currentRDF.names.index(dependent)] = max_value.ro - currentRDF.rx2(dependent)
-
-    if log_transform:
-        prediction = base.exp(prediction)
-
-
     valid_dependents = ['hh_income', 'hh_income_new', 'nutrition_quality_new', 'nutrition_quality',
                         'nutrition_quality_diff', 'SF_12_PCS', 'SF_12_MCS_MCS']
     if dependent == "SF_12_MCS" and noise_std:
@@ -386,6 +377,14 @@ def predict_next_timestep_yj_gaussian_lmm(model, rpy2_modules, current, dependen
         prediction = prediction.ro + VGAM.rlaplace(current.shape[0], 0, noise_std)  # add gaussian noise.
     else:
         prediction = prediction # no noise is added.
+
+    if log_transform:
+        prediction = base.exp(prediction)
+
+    # flip left skewed data to right skewed about its maximum.
+    if reflect:
+        prediction = max_value.ro - prediction # invert shift to strictly positive values.
+
 
     # R predict method returns a Vector of predicted values, so need to be bound to original df and converter to Pandas
     # Convert back to pandas
