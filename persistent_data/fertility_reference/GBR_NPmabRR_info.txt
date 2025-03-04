@@ -1,0 +1,2 @@
+# HR 25/02/25 Standardised mean age (SMA) at birth for mothers, all-UK data, all birth orders combined, 2013-2020, from the HFD
+# Downloaded from here: https://www.humanfertility.org/Country/Country?cntr=GBR_NP

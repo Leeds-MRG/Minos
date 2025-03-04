@@ -1,0 +1,2 @@
+# HR 25/02/25 Age-specific fertility rate (ASFR) by age, year and birth order, all-UK data, 2013-2020, from HFD as couldn't find ONS data
+# Downloaded from here: https://www.humanfertility.org/Country/Country?cntr=GBR_NP
