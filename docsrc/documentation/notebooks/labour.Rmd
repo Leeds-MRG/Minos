@@ -60,7 +60,7 @@ discrete_barplot(obs)
 discrete_barplot2(obs, preds, "S7_labour_state")
 ```
 
-# Transition Model
+## Transition Model
 
 Labour state is a complex categorical data type. Single layer neural network is a simple way to estimate this state. Use multinom function from R's [nnet](https://www.rdocumentation.org/packages/nnet/versions/7.3-20) package. Formula for weights included given as.
 
