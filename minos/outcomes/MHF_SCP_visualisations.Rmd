@@ -17,7 +17,7 @@ output:
 
 
 
-```{r "setup", include=FALSE}
+```{r setup, include=FALSE}
 
 library(tidyverse)
 library(ggplot2)
@@ -25,14 +25,14 @@ library(RColorBrewer)
 library(stringr)
 library(grid)
 
-workingDir <- "/home/luke/Documents/WORK/MINOS/SCP_ARC_SUMMARIES/test_NEW/"
+workingDir <- "/home/luke/Documents/WORK/MINOS/SCP_ARC_SUMMARIES/"
 knitr::opts_knit$set(root.dir = workingDir)
 rm(workingDir)
 ```
 
 
 
-```{r "data", include=FALSE}
+```{r data, include=FALSE}
 # whole pop to start
 # base.whole <- read.csv(file = sprintf('%s/combined_summary_whole_pop.csv', 'baseline'))
 # base.UC <- read.csv(file = sprintf('%s/combined_summary_UC.csv', 'baseline'))
@@ -93,7 +93,7 @@ scen.list.25_100 <- c('baseline', '25UniversalCredit', '50UniversalCredit',
 
 # Functions
 
-```{r "datain", include=FALSE}
+```{r datain, include=FALSE}
 generate_df_list <- function(summary, scen.list) {
   df.list <- lapply(scen.list, function(scen) {
     df <- read.csv(file = sprintf('%s/combined_summary_%s.csv', scen, summary))
@@ -107,7 +107,7 @@ generate_df_list <- function(summary, scen.list) {
 
 
 
-```{r "cost_ratio_functions", include=FALSE}
+```{r cost_ratio_functions, include=FALSE}
 
 SF_12_cost_ratio <- function(summary_type, scen_list, palette = my_palette) {
   
@@ -299,7 +299,7 @@ SF_12_cost_ratio_cumul <- function(summary_type, scen_list, palette = my_palette
 
 
 
-```{r "rel_abs_functions", include=FALSE}
+```{r rel_abs_functions, include=FALSE}
 
 compare_relative_absolute <- function(comparison_scen, kids = FALSE) {
   
@@ -489,7 +489,7 @@ compare_init_relative_absolute <- function(comparison_scen, kids = FALSE) {
 
 
 
-```{r "gender_function", include=FALSE}
+```{r gender_function, include=FALSE}
 compare_gender <- function(comparison_scen) {
   scen.list <- c('baseline', comparison_scen)
   UC.gender <- do.call(rbind, generate_df_list('UC_gender', scen.list))
@@ -514,21 +514,33 @@ compare_gender <- function(comparison_scen) {
               mean_SF12_change = mean(diff_SF_12),
               margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
               lower = mean_SF12_change - margin,
-              upper = mean_SF12_change + margin)
+              upper = mean_SF12_change + margin) %>%
+    rename(Sex = sex)
   
   comparison_scen <- gsub("[a-zA-Z ]", "", comparison_scen)
   comparison_scen <- paste0("£", comparison_scen)
   
-  p1 <- ggplot(data = gender.confint, aes(x = year, y = mean_SF12_change, group = sex, colour = sex, fill = sex)) +
+  p1 <- ggplot(data = gender.confint, aes(x = year, y = mean_SF12_change, group = Sex, colour = Sex, fill = Sex)) +
     geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
-    geom_line(aes(color = sex), linetype = 'dashed') +
+    geom_line(aes(color = Sex), linetype = 'dashed') +
     geom_point() +
     geom_hline(yintercept = 0, linetype = 'dashed') +
     scale_fill_manual(values = c("#E69F00", "#56B4E9")) +
     scale_color_manual(values = c("#E69F00", "#56B4E9")) +
     labs(subtitle = comparison_scen) +
+    ylim(c(-0.1, 2.2)) +
     xlab('Year') +
-    ylab('SF-12 Change')
+    ylab('SF-12 Change') +
+    theme_minimal() +
+    theme(
+        legend.position = c(0.2, 0.7),  # Position the legend inside the plot
+        legend.text = element_text(size = 8),  # Increase the text size for better readability
+        legend.key.size = unit(0.8, 'cm'),  # Reduce the key size to fit more entries
+        legend.spacing.y = unit(0.1, 'cm')  # Add vertical space between legend items
+    ) +
+    guides(fill = guide_legend(title = 'Sex'),
+           color = guide_legend(title = 'Sex'),
+           group = guide_legend(title = 'Sex'))
   
   p2 <- ggplot(data = gender.confint, aes(x = year, y = mean_SF12_change, group = sex, colour = sex, fill = sex)) +
     geom_smooth() +
@@ -540,13 +552,86 @@ compare_gender <- function(comparison_scen) {
   print(p1)
   #print(p2)
   
-  ggsave(filename = paste('gender_comparison', comparison_scen, '.png', sep = '_'),
+  ggsave(filename = paste0('gender_comparison_', comparison_scen, '.png'),
          plot <- p1,
+         path = 'plots')
+}
+
+compare_subpop <- function(summary_group, comparison_scen) {
+  
+  if(summary_group == 'UC_gender') { comparison.group <- 'sex' }
+  if(summary_group == 'priority_child_under_one_UC') { comparison.group <- 'child_under_one' }
+  if(summary_group == 'priority_disabled_UC') { comparison.group <- 'disabled_family' }
+  if(summary_group == 'priority_ethnicity_UC') { comparison.group <- 'ethnic_minority' }
+  if(summary_group == 'priority_lone_parent_UC') { comparison.group <- 'lone_parent_flag' }
+  if(summary_group == 'priority_mother_under_25_UC') { comparison.group <- 'mother_under_25' }
+  if(summary_group == 'priority_mother_three_plus_children') { comparison.group <- 'three_plus_children' }
+  
+  scen.list <- c('baseline', comparison_scen)
+  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  
+  if(summary_group == 'UC_gender') { 
+    data <- data %>%
+      filter(universal_credit == 1)
+  }
+  
+  data[[comparison.group]] <- factor(data[[comparison.group]])
+  
+  subpop.change <- data %>%
+    select(run_id, .data[[comparison.group]], SF_12, mean_cost, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"),
+                 names_to = c(".value", "scen"),
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline') %>%
+    select(run_id, .data[[comparison.group]], year, diff_SF_12)
+  
+  subpop.confint <- subpop.change %>%
+    group_by(.data[[comparison.group]], year) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+  
+  comparison_scen <- gsub("[a-zA-Z ]", "", comparison_scen)
+  comparison_scen <- paste0("£", comparison_scen)
+  
+  return(subpop.confint)
+  
+  p1 <- ggplot(data = subpop.confint, aes(x = year, y = mean_SF12_change, group = .data[[comparison.group]], colour = .data[[comparison.group]], fill = .data[[comparison.group]])) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(aes(color = .data[[comparison.group]]), linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    scale_fill_manual(values = c("#E69F00", "#56B4E9")) +
+    scale_color_manual(values = c("#E69F00", "#56B4E9")) +
+    labs(subtitle = comparison_scen) +
+    xlab('Year') +
+    ylab('SF-12 MCS Change') +
+    theme_minimal()
+  
+  p2 <- ggplot(data = subpop.confint, aes(x = year, y = mean_SF12_change, group = .data[[comparison.group]], colour = .data[[comparison.group]], fill = .data[[comparison.group]])) +
+    geom_smooth() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    labs(subtitle = comparison_scen) +
+    xlab('Year') +
+    ylab('SF-12 MCS Change')
+  
+  print(p1)
+  #print(p2)
+  
+  ggsave(filename = paste0(comparison.group, '_comparison_', comparison_scen, '.png'),
+         plot = p1,
          path = 'plots')
 }
 ```
 
-```{r "lone_parent_function", include=FALSE}
+```{r lone_parent_function, include=FALSE}
 compare_lone_parent <- function(comparison_scen) {
   scen.list <- c('baseline', comparison_scen)
   UC.lone_parent <- do.call(rbind, generate_df_list('priority_lone_parent_UC', scen.list))
@@ -570,23 +655,26 @@ compare_lone_parent <- function(comparison_scen) {
               mean_SF12_change = mean(diff_SF_12),
               margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
               lower = mean_SF12_change - margin,
-              upper = mean_SF12_change + margin)
+              upper = mean_SF12_change + margin) %>%
+    rename(`Lone Parent` = lone_parent_flag)
   
   comparison_scen <- gsub("[a-zA-Z ]", "", comparison_scen)
   comparison_scen <- paste0("£", comparison_scen)
   
-  lone_parent.confint$lone_parent_flag <- ifelse(lone_parent.confint$lone_parent_flag == 1, 'TRUE', 'FALSE')
+  lone_parent.confint$`Lone Parent` <- ifelse(lone_parent.confint$`Lone Parent` == 1, 'TRUE', 'FALSE')
   
-  p1 <- ggplot(data = lone_parent.confint, aes(x = year, y = mean_SF12_change, group = lone_parent_flag, colour = lone_parent_flag, fill = lone_parent_flag)) +
+  p1 <- ggplot(data = lone_parent.confint, aes(x = year, y = mean_SF12_change, group = `Lone Parent`, colour = `Lone Parent`, fill = `Lone Parent`)) +
     geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
-    geom_line(aes(color = lone_parent_flag), linetype = 'dashed') +
+    geom_line(aes(color = `Lone Parent`), linetype = 'dashed') +
     geom_point() +
     geom_hline(yintercept = 0, linetype = 'dashed') +
     scale_fill_manual(values = c("#49a04d", "#3f3d9e")) +
     scale_color_manual(values = c("#49a04d", "#3f3d9e")) +
     labs(subtitle = comparison_scen) +
+    ylim(c(0, 5.0)) +
     xlab('Year') +
     ylab('SF-12 Change') +
+    theme_minimal() +
     theme(
         legend.position = c(0.2, 0.7),  # Position the legend inside the plot
         legend.text = element_text(size = 8),  # Increase the text size for better readability
@@ -607,14 +695,14 @@ compare_lone_parent <- function(comparison_scen) {
   print(p1)
   #print(p2)
   
-  ggsave(filename = paste('lone_parent_comparison', comparison_scen, '.png', sep = '_'),
+  ggsave(filename = paste0('lone_parent_comparison_', comparison_scen, '.png'),
          plot <- p1,
          path = 'plots')
 }
 ```
 
 
-```{r "mental_illness_risk_plots", include=FALSE}
+```{r mental_illness_risk_plots, include=FALSE}
 mental_illness_risk_plots <- function(summary_group, scen.list, palette = my_palette, scale = scaling_factor) {
 
   tit <- ' '
@@ -913,6 +1001,100 @@ mental_illness_risk_plots_interval <- function(summary_group, scen.list, palette
 }
 ```
 
+```{r mental_illness_risk_plots_subpop}
+mental_illness_risk_plots_subpop <- function(summary_group, comparison_scen) {
+  
+  if(summary_group == 'UC_MIR_families_sex') { comparison.group <- 'sex' }
+  if(summary_group == 'UC_MIR_families_lone_parent') { comparison.group <- 'lone_parent' }
+  if(summary_group == 'UC_MIR_families_three_plus_children') { comparison.group <- 'three_plus_children' }
+  if(summary_group == 'UC_MIR_families_ethnicity') { comparison.group <- 'ethnic_minority' }
+  if(summary_group == 'UC_MIR_families_disabled_family') { comparison.group <- 'disabled_family' }
+  if(summary_group == 'UC_MIR_families_mother_under_25') { comparison.group <- 'mother_under_25' }
+  
+  scen.list <- c('baseline', comparison_scen)
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  
+  data[[comparison.group]] <- factor(data[[comparison.group]])
+  
+  data <- data %>%
+    mutate_at("scen", str_replace, "UniversalCredit", "") %>%
+    mutate(scen = if_else(scen == "baseline", scen, paste0("£", scen)))
+  
+  plot_data1 <- data %>%
+    filter(mental_health_risk == 'TRUE') %>%
+    #select(-prop, -mental_health_risk) %>%
+    select(run_id, .data[[comparison.group]], count, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = count) %>%
+    mutate(across(starts_with("£"), ~ . - baseline, .names = "diff_{.col}")) %>%
+    select(run_id, year, .data[[comparison.group]], starts_with('diff')) %>%
+    pivot_longer(cols = starts_with("diff"),
+                 names_sep = '_',
+                 names_to = c("diff", "scen"),
+                 values_to = 'Count') %>%
+    select(run_id, year, .data[[comparison.group]], Count)
+  
+  gender.confint <- plot_data1 %>%
+    group_by(.data[[comparison.group]], year) %>%
+    summarise(n = n(),
+              Mean_Count = mean(Count),
+              margin = qt(0.975, df = n - 1) * (sd(Count) / sqrt(n)),
+              lower = Mean_Count - margin,
+              upper = Mean_Count + margin)
+  
+  comparison_scen <- gsub("[a-zA-Z ]", "", comparison_scen)
+  comparison_scen <- paste0("£", comparison_scen)
+  
+  
+  p1 <- ggplot(gender.confint, aes(x = year, y = Mean_Count, group = .data[[comparison.group]], colour = .data[[comparison.group]], fill = .data[[comparison.group]])) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(aes(color = .data[[comparison.group]]), linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    scale_fill_manual(values = c("#E69F00", "#56B4E9")) +
+    scale_color_manual(values = c("#E69F00", "#56B4E9")) +
+    xlab('Year') +
+    ylab('Mean Change')
+  
+  
+  plot_data_2 <- data %>%
+    filter(mental_health_risk == 'TRUE') %>%
+    select(run_id, .data[[comparison.group]], prop, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = prop) %>%
+    mutate(across(starts_with("£"), ~ . - baseline, .names = "diff_{.col}")) %>%
+    select(run_id, year, .data[[comparison.group]], starts_with('diff')) %>%
+    pivot_longer(cols = starts_with("diff"),
+                 names_sep = '_',
+                 names_to = c("diff", "scen"),
+                 values_to = 'Proportion')
+  
+  plot_data2_confint <- plot_data_2 %>%
+    mutate(Proportion = Proportion * 100) %>%
+    group_by(year, .data[[comparison.group]]) %>%
+    summarise(n = n(),
+              Mean_Proportion = mean(Proportion),
+              margin = qt(0.975, df = n - 1) * (sd(Proportion) / sqrt(n)),
+              lower = Mean_Proportion - margin,
+              upper = Mean_Proportion + margin)
+  
+  p2 <- ggplot(plot_data2_confint, aes(x = year, y = Mean_Proportion, group = .data[[comparison.group]], colour = .data[[comparison.group]], fill = .data[[comparison.group]])) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(aes(color = .data[[comparison.group]]), linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    scale_fill_manual(values = c("#E69F00", "#56B4E9")) +
+    scale_color_manual(values = c("#E69F00", "#56B4E9")) +
+    xlab('Year') +
+    ylab('Mean Change (%)')
+  
+  print(p1)
+  print(p2)
+}
+```
+
+
 # Sample Size Calculations
 
 ```{r}
@@ -1100,10 +1282,17 @@ SF_12_cost_ratio_cumul(summary_type = 'UC', scen_list = scen.list.10_100)
 ## Gender
 
 ```{r}
+compare_gender(comparison_scen = '10UniversalCredit')
 compare_gender(comparison_scen = '25UniversalCredit')
 compare_gender(comparison_scen = '50UniversalCredit')
 compare_gender(comparison_scen = '70UniversalCredit')
 compare_gender(comparison_scen = '100UniversalCredit')
+
+# compare_subpop(summary_group = 'UC_gender', comparison_scen = '10UniversalCredit')
+# compare_subpop(summary_group = 'UC_gender', comparison_scen = '25UniversalCredit')
+# compare_subpop(summary_group = 'UC_gender', comparison_scen = '50UniversalCredit')
+# compare_subpop(summary_group = 'UC_gender', comparison_scen = '70UniversalCredit')
+# compare_subpop(summary_group = 'UC_gender', comparison_scen = '100UniversalCredit')
 ```
 
 ## Lone Parent
@@ -1114,7 +1303,34 @@ compare_lone_parent(comparison_scen = '25UniversalCredit')
 compare_lone_parent(comparison_scen = '50UniversalCredit')
 compare_lone_parent(comparison_scen = '70UniversalCredit')
 compare_lone_parent(comparison_scen = '100UniversalCredit')
+
+# compare_subpop(summary_group = 'priority_lone_parent_UC', comparison_scen = '10UniversalCredit')
+# compare_subpop(summary_group = 'priority_lone_parent_UC', comparison_scen = '25UniversalCredit')
+# compare_subpop(summary_group = 'priority_lone_parent_UC', comparison_scen = '50UniversalCredit')
+# compare_subpop(summary_group = 'priority_lone_parent_UC', comparison_scen = '70UniversalCredit')
+# compare_subpop(summary_group = 'priority_lone_parent_UC', comparison_scen = '100UniversalCredit')
 ```
+
+## Child Under One
+
+```{r}
+compare_subpop(summary_group = 'priority_child_under_one_UC', comparison_scen = '10UniversalCredit')
+compare_subpop(summary_group = 'priority_child_under_one_UC', comparison_scen = '25UniversalCredit')
+compare_subpop(summary_group = 'priority_child_under_one_UC', comparison_scen = '50UniversalCredit')
+compare_subpop(summary_group = 'priority_child_under_one_UC', comparison_scen = '70UniversalCredit')
+compare_subpop(summary_group = 'priority_child_under_one_UC', comparison_scen = '100UniversalCredit')
+```
+
+## Child Under One
+
+```{r}
+compare_subpop(summary_group = 'priority_ethnicity_UC', comparison_scen = '10UniversalCredit')
+compare_subpop(summary_group = 'priority_ethnicity_UC', comparison_scen = '25UniversalCredit')
+compare_subpop(summary_group = 'priority_ethnicity_UC', comparison_scen = '50UniversalCredit')
+compare_subpop(summary_group = 'priority_ethnicity_UC', comparison_scen = '70UniversalCredit')
+compare_subpop(summary_group = 'priority_ethnicity_UC', comparison_scen = '100UniversalCredit')
+```
+
 
 # Mental Illness Risk
 
@@ -1276,8 +1492,79 @@ mental_illness_risk_plots_interval('UC_families_men_illness_risk', scen.list = s
 
 
 
+# Mental Illness Risk SUBPOPULATIONS
 
+## Gender
 
+```{r}
+sum <- 'UC_MIR_families_sex'
+
+mental_illness_risk_plots_subpop(sum, comparison_scen = '10UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '25UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '50UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '70UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '100UniversalCredit')
+```
+
+## Lone Parents
+
+```{r}
+sum <- 'UC_MIR_families_lone_parent'
+
+mental_illness_risk_plots_subpop(sum, comparison_scen = '10UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '25UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '50UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '70UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '100UniversalCredit')
+```
+
+## Three Plus Children
+
+```{r}
+sum <- 'UC_MIR_families_three_plus_children'
+
+mental_illness_risk_plots_subpop(sum, comparison_scen = '10UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '25UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '50UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '70UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '100UniversalCredit')
+```
+
+## Ethnicity
+
+```{r}
+sum <- 'UC_MIR_families_ethnicity'
+
+mental_illness_risk_plots_subpop(sum, comparison_scen = '10UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '25UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '50UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '70UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '100UniversalCredit')
+```
+
+## Mother Under 25
+
+```{r}
+sum <- 'UC_MIR_families_mother_under_25'
+
+mental_illness_risk_plots_subpop(sum, comparison_scen = '10UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '25UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '50UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '70UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '100UniversalCredit')
+```
+
+## Mother Under 25
+
+```{r}
+sum <- 'UC_MIR_families_disabled_family'
+
+mental_illness_risk_plots_subpop(sum, comparison_scen = '10UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '25UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '50UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '70UniversalCredit')
+mental_illness_risk_plots_subpop(sum, comparison_scen = '100UniversalCredit')
+```
 
 # OLD OR UNWANTED
 
