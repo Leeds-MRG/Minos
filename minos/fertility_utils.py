@@ -2,11 +2,10 @@
 # To include all post-processing, validation and visualisation
 
 import os
+import sys
 from os.path import dirname as up
 import pandas as pd
-import geopandas as gpd
 import yaml
-import matplotlib.pyplot as plt
 from minos.data_generation.US_format_raw_children_ind_data import *
 import random
 
@@ -71,8 +70,8 @@ def get_config_data(file):
 
 # HR 20/12/24 Get range of years in sim output
 def get_sim_info(parity=False,
-                  synthpop=False,
-                  ):
+                 synthpop=False,
+                 ):
     path = get_latest(parity=parity, synthpop=synthpop)
     config_fullpath = os.path.join(path, 'config_file.yml')
     cd = get_config_data(config_fullpath)
@@ -164,7 +163,10 @@ def get_mortality_rate(pop, year=None):
         year = alive['time'].mode()[0]
 
     dead = pop.loc[(pop['alive'] == 'dead') & (pop['time'] == year - 1)]
-    mort = 100 * len(dead) / len(alive)
+    try:
+        mort = 100 * len(dead) / len(alive)
+    except:
+        mort = 0.0
     return mort
 
 
@@ -269,7 +271,7 @@ def get_sma(pop, bins=BINS_SINGLE_DEFAULT, interval=INTERVAL_SINGLE_DEFAULT):
         sma = sum(asfr['age_bracket'] * asfr['asfr']) / sum(asfr['asfr'])
         sma += 0.5 * interval
     except:
-        sma = None
+        sma = np.nan
     return sma
 
 
@@ -304,19 +306,25 @@ DERIVED_VARS = ('age_zero', 'spacing_1', 'spacing_2', 'spacing_3')
 # HR 03/03/25 Get all derived birth data (age of first birth + spacings)
 def get_derived_birth_metrics(pop, vars_to_randomise=DERIVED_VARS):
 
-    # Filter for living women
-    pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive')].copy()
-
-    pop = add_birth_data(pop)
-
-    # Add random number on [-0.5, 0.5] so median gives sensible value
-    if vars_to_randomise:
-        for _var in vars_to_randomise:
-            pop[_var] = pop[_var].apply(lambda x: x + random.random() - 0.5)
-
+    # Filter for living women; must also remove child_ages_ind below zero (pipeline error to be resolved)
+    pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive') & (pop['child_ages_ind'] >= 0)].copy()
     metrics = {}
-    for _var in DERIVED_VARS:
-        metrics[_var] = pop[_var].median()
+
+    # Must check if empty, as otherwise produced wacky results
+    if not pop.empty:
+        pop = add_birth_data(pop)
+
+        # Add random number on [-0.5, 0.5] so median gives sensible value
+        if vars_to_randomise:
+            for _var in vars_to_randomise:
+                pop[_var] = pop[_var].apply(lambda x: x + random.random() - 0.5)
+
+        for _var in DERIVED_VARS:
+            metrics[_var] = pop[_var].median()
+
+    # If empty, just set to nan
+    else:
+        metrics.update({v: np.nan for v in DERIVED_VARS})
 
     return metrics
 
@@ -352,6 +360,8 @@ def get_metrics(pop,
     # print('SMA, mean age at birth: {:.3f}'.format(sma))
     metrics['sma'] = sma
 
+    # print('Done main metrics')
+
     # Add derived birth metrics
     derived = get_derived_birth_metrics(pop)
     metrics.update(derived)
@@ -360,17 +370,23 @@ def get_metrics(pop,
 
 
 # HR 17/12/24 To compute/cache/retrieve metrics
+# HR 05/03/25 Updated to create general-purpose disaggregation functionality on arbitrary variables
 def get_metrics_post(parity=False,
                      synthpop=False,
-                     cache=True,
-                     overwrite=False,
+                     disaggregator=None,
+                     cache=False,
+                     recalculate=False,
                      outfile=METRICS_FILE,
                      ):
 
-    latest = get_latest(parity=parity, synthpop=synthpop)
-    metrics_fullpath = os.path.join(latest, outfile)
+    path, years = get_sim_info(parity=parity, synthpop=synthpop)
+    latest_path = get_latest(parity=parity, synthpop=synthpop)
+    metrics_fullpath = os.path.join(latest_path, outfile)
 
-    if not overwrite:
+    print('Running metrics post for years {}'.format(list(years)))
+    print('Disaggregator(s): {}'.format(disaggregator))
+
+    if not recalculate:
         try:
             print('Trying to load metrics file from {}...'.format(metrics_fullpath))
             mdf = pd.read_csv(metrics_fullpath, index_col=0)
@@ -379,14 +395,30 @@ def get_metrics_post(parity=False,
         except:
             print("Couldn't find it; computing...")
 
-    year_dict = get_latest_data(parity=parity, synthpop=synthpop)
-    for year, data in year_dict.items():
-        m = get_metrics(data, year)
-        try:
-            mdf.loc[year] = m
-        except:
-            mdf = pd.DataFrame.from_dict({year: m}, orient='index')
-            mdf.index.name = 'year'
+    mdf = pd.DataFrame()
+    leny = len(years)
+    for i, year in enumerate(years):
+
+        sys.stdout.write('\rYear: {} ({} of {})'.format(year, i + 1, leny))
+
+        data = get_latest_data_by_year(year=year, parity=parity, synthpop=synthpop)
+
+        # If no disaggregator given, default to entire dataset; fiddly but works
+        if disaggregator is None:
+            data['all'] = 'all'
+            disagg_vars = 'all'
+        else:
+            disagg_vars = disaggregator
+
+        m = data.groupby(disagg_vars).apply(lambda x: get_metrics(x, year)).to_frame()[0].apply(pd.Series)
+        m.insert(0, 'year', year)
+        mdf = pd.concat([mdf, m])
+    print('\n')
+
+    # Rearrange columns so year always first
+    mdf.reset_index(inplace=True)
+    popped = mdf.pop('year')
+    mdf.insert(0, "year", popped)
 
     if cache:
         print('Caching to {}'.format(metrics_fullpath))
@@ -546,42 +578,49 @@ def get_asfr_reference_data(fert_path=FERT_REF_PATH,
 
 if __name__ == '__main__':
 
-    # HR 04/03/25 Testing of improved metrics for use everywhere, i.e. with:
-    # 1. Minos processed data (i.e. pre-sim)
-    # 2. US-type simulation data (i.e. no synthpop)
-    # 3. Simulation data with synthpop
-    # 4. Get all reference data for comparison
+    # # HR 04/03/25 Testing of improved metrics for use everywhere, i.e. with:
+    # # 1. Minos processed data (i.e. pre-sim)
+    # # 2. US-type simulation data (i.e. no synthpop)
+    # # 3. Simulation data with synthpop
+    # # 4. Get all reference data for comparison
+    #
+    # # Required columns to reduce memory usage
+    # cols_to_retain = ['age', 'child_ages', 'nkids', 'ethnicity', 'birth_year', 'time', 'region', 'pidp', 'nnewborn_hh',
+    #                   'child_ages_ind', 'sex', 'nnewborn', 'nkids_ind', 'nresp', 'alive']
+    # cols_to_retain_sim = cols_to_retain + ['LSOA11CD']
+    #
+    # # 1. Minos processed data (i.e. pre-sim)
+    # mdata = get_minos_data_by_year(2020, tag='imputed_final')
+    # mdata = mdata.loc[(mdata['region'] != 'Northern Ireland') & (~mdata['region'].isna())].copy()  # Drop NI data
+    # mdata['alive'] = 'alive'  # To harmonise format with sim data
+    # mdata = mdata[cols_to_retain]
+    # mmetrics = get_metrics(mdata)
+    #
+    # # 2. US-type simulation data (i.e. no synthpop)
+    # y1 = 2025
+    # s1 = get_latest_data_by_year(year=y1, parity=False, synthpop=False)
+    # s2 = get_latest_data_by_year(year=y1, parity=True, synthpop=False)
+    # for data in (s1, s2):
+    #     data = data[cols_to_retain]
+    # s1metrics = get_metrics(s1)
+    # s2metrics = get_metrics(s2)
+    #
+    # # 3. Simulation data with synthpop
+    # y2 = 2025
+    # s3 = get_latest_data_by_year(year=y2, parity=False, synthpop=True)
+    # s4 = get_latest_data_by_year(year=y2, parity=True, synthpop=True)
+    # for data in (s3, s4):
+    #     data = data[cols_to_retain_sim]
+    # s3metrics = get_metrics(s3)
+    # s4metrics = get_metrics(s4)
+    #
+    # # 4. Get all reference data for comparison
+    # main_ref = get_fertility_reference_data()
+    # asfr_ref = get_asfr_reference_data()
 
-    # Required columns to reduce memory usage
-    cols_to_retain = ['age', 'child_ages', 'nkids', 'ethnicity', 'birth_year', 'time', 'region', 'pidp', 'nnewborn_hh',
-                      'child_ages_ind', 'sex', 'nnewborn', 'nkids_ind', 'nresp', 'alive']
-    cols_to_retain_sim = cols_to_retain + ['LSOA11CD']
 
-    # 1. Minos processed data (i.e. pre-sim)
-    mdata = get_minos_data_by_year(2020, tag='imputed_final')
-    mdata = mdata.loc[(mdata['region'] != 'Northern Ireland') & (~mdata['region'].isna())].copy()  # Drop NI data
-    mdata['alive'] = 'alive'  # To harmonise format with sim data
-    mdata = mdata[cols_to_retain]
-    mmetrics = get_metrics(mdata)
+    pop25 = get_latest_data_by_year(year=2025, parity=True, synthpop=False)
+    mp25 = get_metrics(pop=pop25, year=2025)
+    # mpall = get_metrics_post(parity=True, synthpop=True, recalculate=True, cache=False, disaggregator=['region'])
+    mpall = get_metrics_post(parity=True, synthpop=False, recalculate=True, cache=False)
 
-    # 2. US-type simulation data (i.e. no synthpop)
-    y1 = 2025
-    s1 = get_latest_data_by_year(year=y1, parity=False, synthpop=False)
-    s2 = get_latest_data_by_year(year=y1, parity=True, synthpop=False)
-    for data in (s1, s2):
-        data = data[cols_to_retain]
-    s1metrics = get_metrics(s1)
-    s2metrics = get_metrics(s2)
-
-    # 3. Simulation data with synthpop
-    y2 = 2025
-    s3 = get_latest_data_by_year(year=y2, parity=False, synthpop=True)
-    s4 = get_latest_data_by_year(year=y2, parity=True, synthpop=True)
-    for data in (s3, s4):
-        data = data[cols_to_retain_sim]
-    s3metrics = get_metrics(s3)
-    s4metrics = get_metrics(s4)
-
-    # 4. Get all reference data for comparison
-    main_ref = get_fertility_reference_data()
-    asfr_ref = get_asfr_reference_data()
