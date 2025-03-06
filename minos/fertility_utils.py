@@ -9,6 +9,10 @@ import yaml
 from minos.data_generation.US_format_raw_children_ind_data import *
 import random
 
+import warnings
+# warnings.filterwarnings('error')
+warnings.filterwarnings("ignore", category=RuntimeWarning)  # Suppress warning produced during metrics calculations
+
 CURR_DIR = up(__file__)
 MINOS_PATH = up(CURR_DIR)
 PERSISTENT_PATH = os.path.join(up(CURR_DIR), 'persistent_data')
@@ -622,5 +626,5 @@ if __name__ == '__main__':
     pop25 = get_latest_data_by_year(year=2025, parity=True, synthpop=False)
     mp25 = get_metrics(pop=pop25, year=2025)
     # mpall = get_metrics_post(parity=True, synthpop=True, recalculate=True, cache=False, disaggregator=['region'])
-    mpall = get_metrics_post(parity=True, synthpop=False, recalculate=True, cache=False)
+    mpall = get_metrics_post(parity=True, synthpop=False, recalculate=True, cache=False, disaggregator=['region', 'ethnicity'])
 
