@@ -5,8 +5,10 @@ import os
 import sys
 from os.path import dirname as up
 import pandas as pd
+import geopandas as gpd
 import yaml
 from minos.data_generation.US_format_raw_children_ind_data import *
+from minos.utils import *
 import random
 
 import warnings
@@ -121,12 +123,15 @@ def get_latest_data(parity=False,
 # HR 04/03/25 Get single year of Minos data by tag (raw, final, etc.)
 def get_minos_data_by_year(year,
                            tag='imputed_final',
+                           add_alive=True,
                            ):
     _path = os.path.join(MINOS_PATH, 'data', tag + '_US')
     _file = str(year) + '_US_cohort.csv'
     _fullpath = os.path.join(_path, _file)
     try:
         data = pd.read_csv(_fullpath)
+        if add_alive:
+            data['alive'] = 'alive'
     except:
         print('Could not find Minos data for {} with tag {}; returning None'.format(year, tag))
         data = None
@@ -134,11 +139,19 @@ def get_minos_data_by_year(year,
 
 
 # HR 01/03/25 Get all Minos data by tag (raw, final, etc.)
-def get_minos_data(tag='imputed_final'):
+def get_minos_data(tag='imputed_final',
+                   add_alive=True,
+                   ):
+    def _add_alive(df):
+        df['alive'] = 'alive'
+        return df
+
     _path = os.path.join(MINOS_PATH, 'data', tag + '_US')
     minos_files = [file for file in os.listdir(_path) if file.endswith('_US_cohort.csv')]
     minos_years = [int(file.split('_')[0]) for file in minos_files]
     minos_data = [pd.read_csv(os.path.join(_path, file)) for file in minos_files]
+    if add_alive:
+        minos_data = [_add_alive(x) for x in minos_data]
     data = dict(zip(minos_years, minos_data))
     return data
 
@@ -157,7 +170,9 @@ YOUTH_RANGE_DEFAULT = (16, 17, 18)
 # HR 21/02/25 Get mortality rate from Minos output; this is NOT as general purpose as the fertility metrics,
 # so MUST pass whole population AND year, as inferring year might cause errors (e.g. in edge case of lots of dead people)
 # Should be about 0.8-1%
-def get_mortality_rate(pop, year=None):
+def get_mortality_rate(pop,
+                       year=None,
+                       ):
 
     # Filter for living people
     alive = pop.loc[(pop['alive'] == 'alive')]
@@ -180,7 +195,9 @@ def get_mortality_rate(pop, year=None):
 # the size of the 15 yo cohort is estimated from the 16-18 yo cohort, i.e. the denominator (population size) is corrected
 # Assumes negligible no. of births in 15 yo cohort
 # Should be 50-60
-def get_gfr(pop, age_range=YOUTH_RANGE_DEFAULT):
+def get_gfr(pop,
+            age_range=YOUTH_RANGE_DEFAULT,
+            ):
 
     # Filter for living women
     women = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive')]
@@ -199,7 +216,10 @@ def get_gfr(pop, age_range=YOUTH_RANGE_DEFAULT):
 # A reduction factor is applied to the cohort size (i.e. the denominator) for any 15 yo group, as US only contains 16-19,
 # e.g. 15 yo group only becomes zero; 15-19 yo cohort scaled by 4/5
 # Assumes negligible no. of births in 15 yo cohort
-def get_cohort_asfr(pop, age_group, interval):
+def get_cohort_asfr(pop,
+                    age_group,
+                    interval,
+                    ):
 
     # Filter for living women
     pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive')]
@@ -213,14 +233,34 @@ def get_cohort_asfr(pop, age_group, interval):
     return asfr
 
 
+# HR 07/02/25 Standalone function to apply age brackets, as used in at least ASFR calculations and later in metrics subsetting
+def apply_age_bracket(pop,
+                      bins=BINS_DEFAULT,
+                      ):
+    pop['age_bracket'] = pd.cut(pop['age'], bins=bins, labels=bins[:-1], right=False)  # Apply left edges as labels for ease
+    return pop
+
+
+# HR 07/02/25 Standalone function to apply ethnicity groups, for use in metrics subsetting
+def apply_ethnicity_group(pop,
+                          ):
+    eth_group_map = get_ethnicity_map()
+    pop['eth_group'] = pop['ethnicity'].map(eth_group_map)
+    return pop
+
+
 # HR 24/03/25 Get age-standardised fertility rate (ASFR) by cohort, which can be single years
 # Default cohorts are five-year intervals from 15-44, as ONS
-def get_asfr(pop, bins=BINS_SINGLE_DEFAULT, interval=INTERVAL_SINGLE_DEFAULT):
+def get_asfr(pop,
+             bins=BINS_SINGLE_DEFAULT,
+             interval=INTERVAL_SINGLE_DEFAULT,
+             ):
 
     # Filter for living women
     pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive')].copy()  # Best to copy to avoid Pandas SettingWithCopyWarning when creating age_bracket column
 
-    pop['age_bracket'] = pd.cut(pop['age'], bins=bins, labels=bins[:-1], right=False)  # Apply left edges as labels for ease
+    # pop['age_bracket'] = pd.cut(pop['age'], bins=bins, labels=bins[:-1], right=False)  # Apply left edges as labels for ease
+    pop = apply_age_bracket(pop=pop, bins=bins)
     sub = pop.loc[~pop['age_bracket'].isna()]  # Get women in correct age range
     asfr = 1000 * sub.groupby('age_bracket').apply(lambda x: get_cohort_asfr(x, x.name, interval))
     asfr = asfr.fillna(0)
@@ -231,7 +271,10 @@ def get_asfr(pop, bins=BINS_SINGLE_DEFAULT, interval=INTERVAL_SINGLE_DEFAULT):
 # HR 21/02/25 Total fertility rate (TFR) is calculated using five-year age intervals, for 15-44 yo women
 # Additional tweak here to account for US/synthpop data only covering 16-44 yos (i.e. no 15 yos):
 # Should be 1.5-1.6
-def get_tfr(pop, bins=BINS_DEFAULT, interval=INTERVAL_DEFAULT):
+def get_tfr(pop,
+            bins=BINS_DEFAULT,
+            interval=INTERVAL_DEFAULT,
+            ):
 
     # Filter for living women
     pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive')]
@@ -265,7 +308,10 @@ def get_cbr(pop):
 # Interval can be specified, in line with ASFR calculations
 # Smaller intervals less likely to give meaningful results for smaller populations or less common ethnic groups
 # N.B. Correction factor 0.5 * interval only verified as correct for interval = 1, as this is only value in literature
-def get_sma(pop, bins=BINS_SINGLE_DEFAULT, interval=INTERVAL_SINGLE_DEFAULT):
+def get_sma(pop,
+            bins=BINS_SINGLE_DEFAULT,
+            interval=INTERVAL_SINGLE_DEFAULT,
+            ):
 
     # Filter for living women
     pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive')].copy()
@@ -287,8 +333,13 @@ def get_birth_spacing(ages):
 
 
 # HR 26/02/25 Add more detailed birth spacing information to pop
+# N.b. mutates input dataframe
 def add_birth_data(pop):
 
+    # Filter for living women; must also remove child_ages_ind below zero (pipeline error to be resolved)
+    pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive') & (pop['child_ages_ind'] >= 0)].copy()
+
+    # Compute additional birth-related variables
     pop['children_ind'] = pop['child_ages_ind'].astype('int64').apply(integer_child_ages_to_list)
     pop['age_of_first_child'] = pop['children_ind'].str[0]
     pop['age_zero'] = pop['age'] - pop['age_of_first_child']
@@ -308,10 +359,10 @@ def add_birth_data(pop):
 DERIVED_VARS = ('age_zero', 'spacing_1', 'spacing_2', 'spacing_3')
 
 # HR 03/03/25 Get all derived birth data (age of first birth + spacings)
-def get_derived_birth_metrics(pop, vars_to_randomise=DERIVED_VARS):
+def get_derived_birth_metrics(pop,
+                              vars_to_randomise=DERIVED_VARS,
+                              ):
 
-    # Filter for living women; must also remove child_ages_ind below zero (pipeline error to be resolved)
-    pop = pop.loc[(pop['sex'] == 'Female') & (pop['alive'] == 'alive') & (pop['child_ages_ind'] >= 0)].copy()
     metrics = {}
 
     # Must check if empty, as otherwise produced wacky results
@@ -325,6 +376,8 @@ def get_derived_birth_metrics(pop, vars_to_randomise=DERIVED_VARS):
 
         for _var in DERIVED_VARS:
             metrics[_var] = pop[_var].median()
+            if 'spacing' in _var:
+                metrics[_var] *= 12.0  # Convert to months as this is standard unit
 
     # If empty, just set to nan
     else:
@@ -399,6 +452,12 @@ def get_metrics_post(parity=False,
         except:
             print("Couldn't find it; computing...")
 
+    # Configure disaggregator; if none given, default to entire dataset; fiddly but works
+    if disaggregator is None:
+        disagg_vars = ['all']
+    else:
+        disagg_vars = disaggregator
+
     mdf = pd.DataFrame()
     leny = len(years)
     for i, year in enumerate(years):
@@ -407,22 +466,27 @@ def get_metrics_post(parity=False,
 
         data = get_latest_data_by_year(year=year, parity=parity, synthpop=synthpop)
 
-        # If no disaggregator given, default to entire dataset; fiddly but works
-        if disaggregator is None:
+        # Add derived columns for metrics subsetting
+        if 'eth_group' in disagg_vars:
+            data = apply_ethnicity_group(data)
+        if 'age_bracket' in disagg_vars:
+            data = apply_age_bracket(data)
+
+        # Must add dummy column if using whole pop
+        if disagg_vars == ['all']:
             data['all'] = 'all'
-            disagg_vars = 'all'
-        else:
-            disagg_vars = disaggregator
 
         m = data.groupby(disagg_vars).apply(lambda x: get_metrics(x, year)).to_frame()[0].apply(pd.Series)
-        m.insert(0, 'year', year)
+        m['year'] = year
         mdf = pd.concat([mdf, m])
+        del data
     print('\n')
 
     # Rearrange columns so year always first
     mdf.reset_index(inplace=True)
     popped = mdf.pop('year')
     mdf.insert(0, "year", popped)
+    mdf.set_index(['year'] + disagg_vars, inplace=True)
 
     if cache:
         print('Caching to {}'.format(metrics_fullpath))
@@ -623,8 +687,8 @@ if __name__ == '__main__':
     # asfr_ref = get_asfr_reference_data()
 
 
-    pop25 = get_latest_data_by_year(year=2025, parity=True, synthpop=False)
+    pop25 = get_latest_data_by_year(year=2025, parity=True, synthpop=True)
     mp25 = get_metrics(pop=pop25, year=2025)
     # mpall = get_metrics_post(parity=True, synthpop=True, recalculate=True, cache=False, disaggregator=['region'])
-    mpall = get_metrics_post(parity=True, synthpop=False, recalculate=True, cache=False, disaggregator=['region', 'ethnicity'])
-
+    # mpall = get_metrics_post(parity=True, synthpop=False, recalculate=True, cache=False, disaggregator=['region', 'ethnicity'])
+    # mpall = get_metrics_post(parity=True, synthpop=False, recalculate=True, cache=False)
