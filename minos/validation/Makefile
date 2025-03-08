@@ -61,3 +61,8 @@ cross_validation_S7: cv_S7_setup cv_SIPHER7 cv_S7_render
 cv_S7_render:
 	$(RSCRIPT) -e "require(rmarkdown); render('$(VALIDATION)/cross_validation_S7.Rmd')"
 	firefox file://$(VALIDATION)/cross_validation_S7.html
+
+########### Fertility visualisation ###########
+
+fertility_validation:
+	jupyter nbconvert --execute --to html fertility_validation.ipynb
