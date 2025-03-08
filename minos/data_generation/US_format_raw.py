@@ -174,6 +174,131 @@ def format_time(data, year):
     return data
 
 
+# TODO probably worth splitting these by dataset  source. indresp/hhresp etc.
+# Converted these into one dict because its annoying to edit two data frames.
+attribute_dict = {'birthy': "birth_year",  # birth year.
+                  'cduse5': 'fridge_freezer',  # has fridge
+                  'cduse6': 'washing_machine',  # has washing machine
+                  'cduse7': 'tumble_dryer',  # has tumble dryer
+                  'cduse8': 'dishwasher',  # has dishwasher
+                  'cduse9': 'microwave',  # has microwave
+                  'crburg': 'burglaries',  # neighbourhood burglaries
+                  'crcar': 'car_crime',  # neighbourhood car crime
+                  'crdrnk': 'drunks',  # neighbourhood drunks
+                  'crmugg': 'muggings',  # neighbourhood muggings
+                  'crrace': 'racial_abuse',  # neighbourhood racial abuse
+                  'crteen': 'teenagers',  # neighbourhood teenager issues
+                  'crvand': 'vandalism',  # neighbourhood vandalism issues
+                  'ctband_dv': 'council_tax',  # council tax derived.
+                  'dvage': 'age',  # age derived.
+                  'fihhmnnet1_dv': 'hh_netinc',  # household net income derived
+                  'gor_dv': 'region',  # government region
+                  'hheat': 'heating',  # household heating
+                  'hidp': 'hidp',  # household id
+                  'ieqmoecd_dv': 'oecd_equiv',  # Modified OECD equivalence scale
+                  'intdatem': 'hh_int_m',  # household interview month
+                  'intdatey': 'hh_int_y',  # household interview year
+                  'jbbgm': 'job_duration_m',  # what month started job.
+                  'jbbgy': 'job_duration_y',  # what year started job
+                  'jbft_dv': 'emp_type',  # part or full time employment
+                  'jbnssec8_dv': 'job_sec',  # job nssec code
+                  'jbsic07_cc': 'job_industry',  # Standard Industry SIC 2007 codes.
+                  # Note SIC/SOC are updated every decade but have been consistently mapped for all 13 waves.
+                  'jbsoc10_cc': 'job_occupation',  # Standard Occupation SOC 2010 codes.
+                  'jbstat': 'labour_state_raw',  # labour state
+                  'ncigs': 'ncigs',  # typical daily cigarettes smoked.
+                  # TODO no ncigs data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
+                  #  not really applicable without random generation.
+                  'pidp': 'pidp',  # personal identifier
+                  'qfhigh_dv': 'education_state',  # highest education state
+                  'nqfhigh_dv': 'newest_education_state', # has any new qualification been achieved.
+                  # TODO another ethnicity var seems to have fewer missing? https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ethn_dv
+                  'racel_dv': 'ethnicity',  # ethnicity derived.
+                  'rentgrs_dv': 'hh_rent',  # household monthly rent.
+                  #'scghqi': 'depression_change',  # depression change GHQ.
+                  'sclonely': 'loneliness',  # is lonely.
+                  # sclonely only available in waves 9-11. scsf7 may be a good substitute.
+                  'sex': 'sex',  # biological sex.
+                  'sf12mcs_dv': 'SF_12',  # SF12 mental component summary
+                  'sf12pcs_dv': 'SF_12p',  # SF12 physical component summary
+                  'smoker': 'smoker',  # Currently smokes.
+                  # TODO waves present roughly matches ncigs. no data for waves 1-5.
+                  # for waves 2 and 5 similar variable 'smnow' could be used.
+                  'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
+                  'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
+                  ## ---------------------
+                  ## Weight variables
+                  'indscus_xw': "weight1",  # Cross-sectional analysis weight (wave 1)
+                  'indscub_xw': "weight2_5",  # Cross-sectional analysis weight (waves 2-5)
+                  'indscui_xw': "weight6p",  # Cross-sectional analysis weight (waves 6+)
+                  ## ---------------------
+                  ## All variables relating to number of children
+                  'nkids_dv': 'nkids',  # Number of children in household
+                  'lnprnt': 'nkids_ind_raw',  # Number of children ever had by individual at first interview
+                  # 'preg': 'nkids_ind_new',  # Whether had a child (actually a pregnancy) since last interview
+                  # 'nchresp': 'nresp',  # Number of children under 16 that person is responsible for
+                  'nnewborn': 'nnewborn',  # Number of newborns since last interview
+                  ## ---------------------
+                  'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
+                  'xpelecy': 'yearly_electric',  # yearly electricity expenditure
+                  'xpgasy': 'yearly_gas',  # yearly gas expenditure
+                  'xpduely': 'yearly_gas_electric',  # yearly both expenditure.
+                  'xpoily': 'yearly_oil',  # yearly oil expenditure.
+                  'xpsfly': 'yearly_other_fuel',  # yearly other fuel (wood?)
+                  'fuelhave1': 'has_electric',  # spends money on electricity
+                  'fuelhave2': 'has_gas',  # spends money on gas
+                  'fuelhave3': 'has_oil',  # spends money on oil
+                  'fuelhave4': 'has_other',  # has some other fuel source.
+                  'fuelhave96': 'has_none',  # has no fuel source.
+                  'fuelduel': 'gas_electric_combined',  # are gas and electric bills separate or combined?
+                  # Nutrition vars
+                  'wkfruit': 'fruit_days',  # number of days respondent eats fruit per week
+                  'fruitamt': 'fruit_per_day',  # amount of fruit eaten on days when eating fruit
+                  'wkvege': 'veg_days',  # no. days respondent eats veg per week
+                  'vegeamt': 'veg_per_day',  # amt. veg eaten on veg eating days
+                  # hourly wage stuff (Keeping self-employed and small business vars just in case)
+                  'basrate': 'hourly_rate',  # basic pay hourly rate
+                  'paygu_dv': 'gross_paypm',  # usual gross pay per month: current job
+                  'jspayg': 'gross_pay_se',  # Monthly self-employed gross pay
+                  'jbhrs': 'job_hours',  # no. of hours normally worked in a week
+                  'jshrs': 'job_hours_se',  # s/emp: hours normally worked in a week
+                  'jspayu': 'job_inc',  # average income from job/business
+                  'jspayw': 'jb_inc_per',  # job/business income: pay period (weeks)
+                  # Private/Public sector var for living wage intervention
+                  'jbsect': 'job_sector',  # Whether employee of private or non-private organisation
+                  # SF12 MICE vars
+                  'rentinc2': 'energy_in_rent',  # is it combined into rent?
+                  'xphsdba': 'behind_on_bills',  # behind on energy bills?
+                  'finnow': 'financial_situation',  # financial situation
+                  'finfut': 'future_financial_situation',  # expected near future financial situation.
+                  'lkmove': "likely_move",  # likelihood of moving house
+                  'scghqi': 'ghq_depression',  # ghq depression
+                  'scghql': 'ghq_happiness',  # ghq general happiness
+                  # 'sf1': 'sf1', # sf1 score
+                  'hcondn17': 'clinical_depression',  # has clinical depression.
+                  'scsf1': 'scsf1',  # sf1 score including proxy surveys
+                  'scsf2a': 'phealth_limits_modact',  # physical health limits moderate activities
+                  'scsf2b': 'phealth_limits_stairs',  # physical health limits several flights of stairs
+                  'scsf3a': 'S7_physical_health',  # physical health limits work.
+                  'scsf3b': 'phealth_limits_work_type',  # physical health limits kind of work
+                  'scsf4a': 'S7_mental_health',  # mental health limits work.
+                  'scsf5': 'pain_interfere_work',  # pain interfered with work
+                  'scsf7': 'health_limits_social',  # health limits social life.
+                  'hhtype_dv': 'hh_composition',  # household composition
+                  'mastat_dv': 'marstat',  # marital status
+                  'hhsize': 'hhsize',  # number of people in household
+                  'tenure_dv': 'housing_tenure',  # housing tenure type (owned, rented etc.)
+                  'urban_dv': 'urban',  # urban or rural household.
+                  # There are dozens of benefits variables in US this seems like
+                  # the simplest and most complete for our purposes.
+                  'benbase4': 'universal_credit',
+                  # receives core benefits (I.E. universal credit/means tested benefits).
+                  # Healthcare Utilisation variables
+                  'hosp': 'hosp_visits',
+                  'hl2gp': 'gp_visits',
+                  }
+
+
 ######################
 # ukhls Wave Functions
 ######################
@@ -193,129 +318,6 @@ def format_ukhls_columns(year):
         The attribute_columns names directly from US data. Which columns will be extracted.
         The simplified column_names that are used in the microsim.
     """
-    # TODO probably worth splitting these by dataset  source. indresp/hhresp etc.
-    # Converted these into one dict because its annoying to edit two data frames.
-    attribute_dict = {'birthy': "birth_year",  # birth year.
-                      'cduse5': 'fridge_freezer',  # has fridge
-                      'cduse6': 'washing_machine',  # has washing machine
-                      'cduse7': 'tumble_dryer',  # has tumble dryer
-                      'cduse8': 'dishwasher',  # has dishwasher
-                      'cduse9': 'microwave',  # has microwave
-                      'crburg': 'burglaries',  # neighbourhood burglaries
-                      'crcar': 'car_crime',  # neighbourhood car crime
-                      'crdrnk': 'drunks',  # neighbourhood drunks
-                      'crmugg': 'muggings',  # neighbourhood muggings
-                      'crrace': 'racial_abuse',  # neighbourhood racial abuse
-                      'crteen': 'teenagers',  # neighbourhood teenager issues
-                      'crvand': 'vandalism',  # neighbourhood vandalism issues
-                      'ctband_dv': 'council_tax',  # council tax derived.
-                      'dvage': 'age',  # age derived.
-                      'fihhmnnet1_dv': 'hh_netinc',  # household net income derived
-                      'gor_dv': 'region',  # government region
-                      'hheat': 'heating',  # household heating
-                      'hidp': 'hidp',  # household id
-                      'ieqmoecd_dv': 'oecd_equiv',  # Modified OECD equivalence scale
-                      'intdatem': 'hh_int_m',  # household interview month
-                      'intdatey': 'hh_int_y',  # household interview year
-                      'jbbgm': 'job_duration_m',  # what month started job.
-                      'jbbgy': 'job_duration_y',  # what year started job
-                      'jbft_dv': 'emp_type',  # part or full time employment
-                      'jbnssec8_dv': 'job_sec',  # job nssec code
-                      'jbsic07_cc': 'job_industry',  # Standard Industry SIC 2007 codes.
-                      # Note SIC/SOC are updated every decade but have been consistently mapped for all 13 waves.
-                      'jbsoc10_cc': 'job_occupation',  # Standard Occupation SOC 2010 codes.
-                      'jbstat': 'labour_state_raw',  # labour state
-                      'ncigs': 'ncigs',  # typical daily cigarettes smoked.
-                      # TODO no ncigs data for waves 1, 3, 4. There is 'smofrq' variable for 3 and 4 but uses binned ordinal values.
-                      #  not really applicable without random generation.
-                      'pidp': 'pidp',  # personal identifier
-                      'qfhigh_dv': 'education_state',  # highest education state
-                      'nqfhigh_dv': 'newest_education_state', # has any new qualification been achieved.
-                      # TODO another ethnicity var seems to have fewer missing? https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ethn_dv
-                      'racel_dv': 'ethnicity',  # ethnicity derived.
-                      'rentgrs_dv': 'hh_rent',  # household monthly rent.
-                      #'scghqi': 'depression_change',  # depression change GHQ.
-                      'sclonely': 'loneliness',  # is lonely.
-                      # sclonely only available in waves 9-11. scsf7 may be a good substitute.
-                      'sex': 'sex',  # biological sex.
-                      'sf12mcs_dv': 'SF_12',  # SF12 mental component summary
-                      'sf12pcs_dv': 'SF_12p',  # SF12 physical component summary
-                      'smoker': 'smoker',  # Currently smokes.
-                      # TODO waves present roughly matches ncigs. no data for waves 1-5.
-                      # for waves 2 and 5 similar variable 'smnow' could be used.
-                      'xpmg_dv': 'hh_mortgage',  # household monthly mortgage payments.
-                      'xpaltob_g3': "alcohol_spending",  # monthly household spending on alcohol.
-                      ## ---------------------
-                      ## Weight variables
-                      'indscus_xw': "weight1",  # Cross-sectional analysis weight (wave 1)
-                      'indscub_xw': "weight2_5",  # Cross-sectional analysis weight (waves 2-5)
-                      'indscui_xw': "weight6p",  # Cross-sectional analysis weight (waves 6+)
-                      ## ---------------------
-                      ## All variables relating to number of children
-                      'nkids_dv': 'nkids',  # Number of children in household
-                      'lnprnt': 'nkids_ind_raw',  # Number of children ever had by individual at first interview
-                      # 'preg': 'nkids_ind_new',  # Whether had a child (actually a pregnancy) since last interview
-                      'nchresp': 'nresp',  # Number of children under 16 that person is responsible for
-                      'nnewborn': 'nnewborn',  # Number of newborns since last interview
-                      ## ---------------------
-                      'ypdklm': 'ndrinks',  # last month number of drinks. audit scores probably better.
-                      'xpelecy': 'yearly_electric',  # yearly electricity expenditure
-                      'xpgasy': 'yearly_gas',  # yearly gas expenditure
-                      'xpduely': 'yearly_gas_electric',  # yearly both expenditure.
-                      'xpoily': 'yearly_oil',  # yearly oil expenditure.
-                      'xpsfly': 'yearly_other_fuel',  # yearly other fuel (wood?)
-                      'fuelhave1': 'has_electric',  # spends money on electricity
-                      'fuelhave2': 'has_gas',  # spends money on gas
-                      'fuelhave3': 'has_oil',  # spends money on oil
-                      'fuelhave4': 'has_other',  # has some other fuel source.
-                      'fuelhave96': 'has_none',  # has no fuel source.
-                      'fuelduel': 'gas_electric_combined',  # are gas and electric bills separate or combined?
-                      # Nutrition vars
-                      'wkfruit': 'fruit_days',  # number of days respondent eats fruit per week
-                      'fruitamt': 'fruit_per_day',  # amount of fruit eaten on days when eating fruit
-                      'wkvege': 'veg_days',  # no. days respondent eats veg per week
-                      'vegeamt': 'veg_per_day',  # amt. veg eaten on veg eating days
-                      # hourly wage stuff (Keeping self-employed and small business vars just in case)
-                      'basrate': 'hourly_rate',  # basic pay hourly rate
-                      'paygu_dv': 'gross_paypm',  # usual gross pay per month: current job
-                      'jspayg': 'gross_pay_se',  # Monthly self-employed gross pay
-                      'jbhrs': 'job_hours',  # no. of hours normally worked in a week
-                      'jshrs': 'job_hours_se',  # s/emp: hours normally worked in a week
-                      'jspayu': 'job_inc',  # average income from job/business
-                      'jspayw': 'jb_inc_per',  # job/business income: pay period (weeks)
-                      # Private/Public sector var for living wage intervention
-                      'jbsect': 'job_sector',  # Whether employee of private or non-private organisation
-                      # SF12 MICE vars
-                      'rentinc2': 'energy_in_rent',  # is it combined into rent?
-                      'xphsdba': 'behind_on_bills',  # behind on energy bills?
-                      'finnow': 'financial_situation',  # financial situation
-                      'finfut': 'future_financial_situation',  # expected near future financial situation.
-                      'lkmove': "likely_move",  # likelihood of moving house
-                      'scghqi': 'ghq_depression',  # ghq depression
-                      'scghql': 'ghq_happiness',  # ghq general happiness
-                      # 'sf1': 'sf1', # sf1 score
-                      'hcondn17': 'clinical_depression',  # has clinical depression.
-                      'scsf1': 'scsf1',  # sf1 score including proxy surveys
-                      'scsf2a': 'phealth_limits_modact',  # physical health limits moderate activities
-                      'scsf2b': 'phealth_limits_stairs',  # physical health limits several flights of stairs
-                      'scsf3a': 'S7_physical_health',  # physical health limits work.
-                      'scsf3b': 'phealth_limits_work_type',  # physical health limits kind of work
-                      'scsf4a': 'S7_mental_health',  # mental health limits work.
-                      'scsf5': 'pain_interfere_work',  # pain interfered with work
-                      'scsf7': 'health_limits_social',  # health limits social life.
-                      'hhtype_dv': 'hh_composition',  # household composition
-                      'mastat_dv': 'marstat',  # marital status
-                      'hhsize': 'hhsize',  # number of people in household
-                      'tenure_dv': 'housing_tenure',  # housing tenure type (owned, rented etc.)
-                      'urban_dv': 'urban',  # urban or rural household.
-                      # There are dozens of benefits variables in US this seems like
-                      # the simplest and most complete for our purposes.
-                      'benbase4': 'universal_credit',
-                      # receives core benefits (I.E. universal credit/means tested benefits).
-                      # Healthcare Utilisation variables
-                      'hosp': 'hosp_visits',
-                      'hl2gp': 'gp_visits',
-                      }
 
     # Some variables change names halfway through UKHLS.
     # Assign different keys to variable names depending on year.
@@ -617,3 +619,9 @@ if __name__ == "__main__":
     output = "data/raw_US/"
 
     main(years, source, verbose, output)
+
+
+    # Grab variable list for Adam
+    # ad = [k for k in attribute_dict.keys()]
+    # ad = pd.DataFrame({'vars': ad})
+    # ad.to_csv('us_vars.csv')

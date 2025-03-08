@@ -67,6 +67,7 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
     - sphinx-rtd-theme
     - sphinxcontrib-bibtex
     - nbsphinx
+    - nbconvert
     - geopandas
     - topojson
     - uuid

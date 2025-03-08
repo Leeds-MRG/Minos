@@ -1,0 +1,3 @@
+# HR 26/02/25 Various birth-related statistics
+# Includes median birth interval for 1-2, 2-3 and 3-4 in months, sheet "Table_7" (see contents sheet) for all UK, 2001-2022
+# Downloaded from here: https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/livebirths/datasets/birthsbyparentscharacteristics
