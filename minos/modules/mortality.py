@@ -6,6 +6,7 @@ The Core Mortality Model
 This module contains tools modeling all cause mortality.
 
 """
+import os
 import pandas as pd
 from pathlib import Path
 import random
@@ -40,14 +41,16 @@ class Mortality(Base):
         # Must call parent method as overridden here; ensures priority set correctly
         super().pre_setup(config, simulation)
 
-        # Define path to mortality rate data.
-        config.update({
-            'path_to_mortality_file': f"{config.persistent_data_dir}/{config.mortality_file}"
-        }, source=str(Path(__file__).resolve()))
+        # # Define path to mortality rate data.
+        # config.update({
+        #     'path_to_mortality_file': f"{config.persistent_data_dir}/{config.mortality_file}"
+        # }, source=str(Path(__file__).resolve()))
 
-        # Load in mortality rate table data and append it to the simulation object.
+        # Set up rate table and update simulation config accordingly
         asfr_mortality = MortalityRateTable(configuration=config)
         asfr_mortality.set_rate_table()
+        mortality_file = os.path.join(config.persistent_data_dir, asfr_mortality.source_file)
+        config.update({'path_to_mortality_file': mortality_file})
 
         simulation._data.write("cause.all_causes.cause_specific_mortality_rate",
                                asfr_mortality.rate_table)

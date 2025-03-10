@@ -48,9 +48,9 @@ def complete_case_custom_years(data, var, years):
     print("Processing {} for custom years {}".format(var, years))
 
     # Replace all missing values in years (below 0) with NA, and drop the NAs
-    data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
-    # data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan, inplace=True) # Avoids Pandas SettingWithCopyWarning
-    data = data[~(data['time'].isin(years) & data[var].isna())]
+    # data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
+    data.loc[data['time'].isin(years), var] = data.loc[data['time'].isin(years), var].replace(US_utils.missing_types, np.nan)  # Avoids Pandas SettingWithCopyWarning
+    data = data.loc[~(data['time'].isin(years) & data[var].isna())]
 
     return data
 
@@ -73,11 +73,14 @@ if __name__ == "__main__":
 
     complete_case_vars = ['marital_status', 'yearly_energy', "job_sec", 'housing_quality',
                           "education_state", 'region', "age", 'financial_situation', #'SF_12',
-                          "housing_tenure", "nkids_ind", 'S7_labour_state', "behind_on_bills"]
-    # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage',
+                          "housing_tenure", "nkids_ind", 'nnewborn', 'S7_labour_state', "behind_on_bills"]
+    # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage'
 
     data = complete_case_varlist(data, complete_case_vars)
-    data = data.loc[~(data['child_ages'].str.contains('-9') == True)]  # remove any household with dodgy age chains.
+    #. don't think we have any of these anymore as of november 24.
+    data = data.loc[data['child_ages'] != -9, ]  # remove any household with dodgy age chains
+    data = data.loc[~data['nkids'].isna(), ] # removing the ~10 households with missing nkids.
+    data['nkids'] = data['nkids'].astype('int64')
 
     # Need to do correction on some variables individually as they are only in the dataset in specific years
     # doing complete case without the year range taken into account removes the whole years data
@@ -92,7 +95,8 @@ if __name__ == "__main__":
     data = complete_case_custom_years(data, 'nutrition_quality', years=[2015, 2017, 2019, 2021])
     # ncigs missing for wave 1, 3 & 4 (although smoker missing for wave 5 (2013) which causes trouble)
     # therefore going to set all -8 (inapplicable due to non-smoker) to 0 for 2013 only
-    data['ncigs'][(data['time'] == 2013) & (data['ncigs'] == -8)] = 0
+    # data['ncigs'][(data['time'] == 2013) & (data['ncigs'] == -8)] = 0
+    data.loc[(data['time'] == 2013) & (data['ncigs'] == -8), 'ncigs'] = 0  # Avoids Pandas SettingWithCopyWarning
     data = complete_case_custom_years(data, 'ncigs', years=list(range(2013, 2022, 1)))
 
     # Complete case for some vars in 2015 as it was messing up the cross-validation runs
