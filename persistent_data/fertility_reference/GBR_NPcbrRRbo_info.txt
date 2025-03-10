@@ -1,0 +1,3 @@
+# HR 17/06/24 Crude birth rate (CBR, births per 1,000 total population), all UK, 2013-2020
+# Downloaded from here: https://www.humanfertility.org/File/GetDocument/Files/GBR_NP/20230104/GBR_NPcbrRRbo.txt
+# via here: https://www.humanfertility.org/Country/Country?cntr=GBR_NP

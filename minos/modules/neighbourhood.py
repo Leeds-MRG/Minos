@@ -38,7 +38,7 @@ class Neighbourhood(Base):
         #self.transition_coefficients = builder.
 
         # Assign randomness streams if necessary.
-        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -107,7 +107,6 @@ class Neighbourhood(Base):
         # Update population with new neighbourhood
         self.population_view.update(neighbourhood_prob_df['neighbourhood_safety'])
 
-
     def calculate_neighbourhood(self, pop):
         """Calculate neighbourhood transition distribution based on provided people/indices
 
@@ -147,7 +146,7 @@ class Neighbourhood(Base):
         prob_df = r_utils.predict_next_rf_ordinal(self.nhs_transition_model,
                                                   self.rpy2Modules,
                                                   pop,
-                                                  dependent='neighbourhood_safety')
+                                                  seed=self.run_seed)
 
         return prob_df
 

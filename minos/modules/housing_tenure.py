@@ -50,7 +50,7 @@ class HousingTenure(Base):
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
 
         # Assign randomness streams if necessary. Only useful if seeding counterfactuals.
-        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -151,7 +151,8 @@ class HousingTenure(Base):
         prob_df = r_utils.predict_nnet(self.transition_model,
                                        self.rpy2Modules,
                                        pop,
-                                       cols)
+                                       cols,
+                                       seed=self.run_seed)
         return prob_df
 
     def plot(self, pop, config):

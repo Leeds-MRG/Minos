@@ -49,7 +49,7 @@ class Housing(Base):
         # Typically this is registering rate/lookup tables. See vivarium docs/other modules for examples.
 
         # Assign randomness streams if necessary. Only useful if seeding counterfactuals.
-        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
 
 
         # Determine which subset of the main population is used in this module.
@@ -124,8 +124,8 @@ class Housing(Base):
 
         # convert numeric prediction into string factors (low, medium, high)
         # NOTE: These strings obviously do not match with the numbers, but when switching to the rfo model
-        housing_factor_dict = {1: 'Medium',
-                               2: 'Low',
+        housing_factor_dict = {1: 'Low',
+                               2: 'Medium',
                                3: 'High'}
         housing_prob_df.replace({'housing_quality': housing_factor_dict},
                                 inplace=True)
@@ -176,7 +176,7 @@ class Housing(Base):
         newWaveHousingQuality = r_utils.predict_next_rf_ordinal(self.hq_transition_model,
                                                                 self.rpy2Modules,
                                                                 pop,
-                                                                dependent='housing_quality')
+                                                                seed=self.run_seed)
 
         return newWaveHousingQuality
         #return prob_df

@@ -1,0 +1,32 @@
+randomness:
+    key_columns: ['entrance_time', 'age']
+time:
+    start: {year: 2020, month: 10, day: 15}
+    end:   {year: 2035, month: 10, day: 15}
+    step_size: 365.25  # Days
+    num_years: 15
+population:
+    age_start: 0
+    age_end: 100
+
+parity: True
+
+base_input_data_dir: "data/scaled_uk_US"
+persistent_data_dir: "persistent_data"
+output_data_dir: "output"
+
+transition_dir: 'data/transitions'
+replenishing_dir: 'data/replenishing/uk_scaled'
+
+cross_validation: FALSE
+synthetic: TRUE
+
+# Correct ordering of components is automated in RunPipeline, so can be passed in any order here
+components: [nkidsFertilityAgeSpecificRates(), Ageing(), Mortality(), Replenishment()]
+
+scale_rates:
+    method: "constant"
+    constant:
+        education: 1
+        mortality: 1
+        fertility: 1

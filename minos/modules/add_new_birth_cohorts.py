@@ -280,13 +280,13 @@ class nkidsFertilityAgeSpecificRates(Base):
         # This determines the rates at which sims give birth over the simulation time step.
         self.fertility_rate = builder.value.register_rate_producer('fertility rate',
                                                                    source=fertility_rate,
-                                                                   requires_columns=['sex', 'ethnicity', 'nkids_ind'])
+                                                                   requires_columns=['sex', 'region', 'ethnicity', 'nkids_ind'])
 
         # CRN stream for seeding births.
         self.randomness = builder.randomness.get_stream('fertility')
 
         view_columns = ['sex', 'ethnicity', 'age', 'hidp', 'pidp',
-                        'nkids', 'nkids_ind',
+                        'nkids', 'nkids_ind', 'nresp',
                         'child_ages', 'child_ages_ind',
                         'nnewborn_hh', 'nnewborn']
         columns_created = []
@@ -349,6 +349,12 @@ class nkidsFertilityAgeSpecificRates(Base):
         population.loc[who_had_children_individuals, 'nkids_ind'] += 1
         population.loc[who_had_children_individuals, 'child_ages_ind'] += 1
 
+        # HR 12/12/24 Also updating nresp and randomly decrementing 1/16 of individuals by one to account for ageing out of 0-15 age range
+        # This is an imperfect solution as it doesn't account for actual child ages explicitly
+        population.loc[who_had_children_individuals, 'nresp'] += 1
+        ageout_sample = population.loc[who_had_children_individuals].sample(frac=1).sample(frac=1/16).index  # Shuffle then sample
+        population.loc[ageout_sample, 'nresp'] -= 1
+
         # 2. Find everyone in a household who has had children and calculate/add number of newborns per hh
         had_children_hidps = population.loc[had_children, 'hidp'].unique()  # Get all HIDPs of people who've had children
         who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index  # Get all individuals who live in HH that has had one or more new children
@@ -363,9 +369,10 @@ class nkidsFertilityAgeSpecificRates(Base):
         population.loc[who_had_children_households, 'child_ages'] += population['nnewborn_hh']  # Add new child to children ages chain.
 
         # 4. Update population + type corrections (grrr)
-        population['nnewborn'] = population['nnewborn'].astype(float)  # HR 10/12/24 Annoying but this is easiest workaround
-        population['nnewborn_hh'] = population['nnewborn_hh'].astype(float)
-        self.population_view.update(population[['nkids', 'nkids_ind',
+        # population['nnewborn'] = population['nnewborn'].astype('int64')  # HR 10/12/24 Annoying but this is easiest workaround
+        population['nnewborn_hh'] = population['nnewborn_hh'].astype('int64')
+
+        self.population_view.update(population[['nkids', 'nkids_ind', 'nresp',
                                                 'child_ages', 'child_ages_ind',
                                                 'nnewborn', 'nnewborn_hh']])
 

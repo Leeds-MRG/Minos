@@ -12,13 +12,13 @@ invlogit <- function(x){
   # Practically any invlogit(x) for x > 100 is close enough to 1 (within 10^-16) 
   # to be indistinguishable. 
   if (is.na(x)){
-  out = NA
+  out <- NA
   }
   else if (x > 100){
-    out = 1
+    out <- 1
   }
   else{
-    out = 1/(1 + exp(-x))
+    out <- 1/(1 + exp(-x))
   }
   return (out)
 }
@@ -50,7 +50,7 @@ create.if.not.exists <- function(path) {
 }
 
 get_US_file_names <- function(source, years, extension){
-  file_names = c()
+  file_names <- c()
   for(year in years){
     # loop over years and load in files.
     file_name <- concat(source, str(year))
@@ -64,7 +64,7 @@ get_US_data <- function(file_names){
   first_time <- T
   for(file in file_names){
     new_data <- read.csv(file)
-    if (first_time==T){
+    if (first_time == T){
       first_time <- F
       data <- new_data
     }
@@ -113,8 +113,8 @@ format_US_housing_data <- function(data){
                       "heating",
                       "hh_netinc")
   # Remove anyone with fewer than 2 entries
-  complete_pidps<- strtoi(rownames(data.frame(which(table(data$pidp)>=2))))
-  data<- data[which(data$pidp%in%complete_pidps),]
+  complete_pidps <- strtoi(rownames(data.frame(which(table(data$pidp) >= 2))))
+  data <- data[which(data$pidp%in%complete_pidps),]
   # household variables to be composited together. heating is not for now. 
   # anyone missing one of the 5 variables is missing all of them. suggesting 
   # data collection error due to proxy or attrition. 
@@ -127,7 +127,7 @@ format_US_housing_data <- function(data){
   # 1440/ cases that are missing just heating.
   # 
   # [1] 0 suggesting anyone missing one is missing all of them. 
-  household_vars = c("fridge_freezer",
+  household_vars <- c("fridge_freezer",
                      "washing_machine",
                      "tumble_dryer",
                      "dishwasher",
@@ -149,18 +149,18 @@ format_US_housing_data <- function(data){
 
 format_employment_data <- function(source, years){
   
-  first_time = T # if its the first year in the loop create the data frame.
+  first_time <- T # if its the first year in the loop create the data frame.
   for(year in years){
     # loop over years and load in files.
     file_name <- concat(source, str(year))
     file_name <- paste0(concat(file_name, "_US_cohort.csv"))
     new_data <- read.csv(file_name)
-    if (first_time==T){
+    if (first_time == T){
       first_time <- F
       data <- new_data
     }
     else{
-      data<- rbind(data, new_data)
+      data <- rbind(data, new_data)
     }
   }
   columns <- c("pidp", "sex", "age", "time", "education_state", "depression_state", "labour_state", "job_sec", "ethnicity")
@@ -172,20 +172,20 @@ format_employment_data <- function(source, years){
                           "Employed",
                           "Self-employed")
   # who is in the desired final labour states
-  who_not_omitted<- which(data$labour_state %in% final_labour_states) 
+  who_not_omitted <- which(data$labour_state %in% final_labour_states)
   # remove irrelvalant columns and those in undesired labour states
-  data<- data[who_not_omitted, columns]
+  data <- data[who_not_omitted, columns]
   
   #Simplify depression state.
-  who_decreasing = which(data$depression_state <= 2)
-  who_increasing = which(data$depression_state > 2)
+  who_decreasing <- which(data$depression_state <= 2)
+  who_increasing <- which(data$depression_state > 2)
   
-  data[who_decreasing,]$depression_state = 0
-  data[who_increasing,]$depression_state = 1
+  data[who_decreasing,]$depression_state <- 0
+  data[who_increasing,]$depression_state <- 1
   
   # Remove anyone with fewer than 3 entries
-  complete_pidps<- strtoi(rownames(data.frame(which(table(data$pidp)>=3))))
-  data<- data[which(data$pidp%in%complete_pidps),]
+  complete_pidps <- strtoi(rownames(data.frame(which(table(data$pidp) >= 3))))
+  data <- data[which(data$pidp%in%complete_pidps),]
   return(data)  
 }
 

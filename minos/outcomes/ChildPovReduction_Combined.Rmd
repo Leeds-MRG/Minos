@@ -1,0 +1,907 @@
+---
+title: "Scottish Child Poverty Briefing Plots"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    collapsed: false
+    number_sections: true
+    df_print: paged
+    code_folding: hide
+  pdf_document:
+    toc: true
+---
+
+
+WS5 (Dynamic Microsimulation): What are the impacts on mental health of meeting the targets?
+·        Across the population? 
+·        Population by income quintile (looking at absolute/relative inequalities)?
+·        For families only? By income quintile (looking at absolute/relative inequalities)?
+·        For families that meet criteria of 0/1/2+ of the priority family groups?
+·        Differential impacts of UK package of policies only, and then UK package with SG policies?
+
+
+```{r "setup", include=FALSE}
+
+require(tidyverse)
+require(ggplot2)
+
+#workingDir <- "/home/luke/Documents/WORK/MINOS/Minos/output/default_config/scp_summary_out/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/Minos/output/default_config/cpr_summary_out/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/SCP_ARC_SUMMARIES/"
+workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/psub/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/default_US/"
+#workingDir <- "/home/luke/Documents/WORK/MINOS/CPR_ARC_SUMMARIES/old/old8_scot/"
+knitr::opts_knit$set(root.dir = workingDir)
+rm(workingDir)
+```
+
+```{r "data_in_functions", include=FALSE}
+
+generate_df_list <- function(summary, scen.list) {
+  df.list <- lapply(scen.list, function(scen) {
+    df <- read.csv(file = sprintf('%s/combined_summary_%s.csv', scen, summary))
+    df$scen <- scen
+    return(df)
+  })
+  return(df.list)
+}
+
+```
+
+```{r "SF12_change_simple_functions", include=FALSE}
+SF12_change_simple <- function(summary_group, scen.list) {
+  
+  tit <- ' '
+  if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
+  if (summary_group == 'families') { tit <- 'Families' }
+  if (summary_group == 'treated_relative') { tit <- 'Treated' }
+  if (summary_group == 'treated_absolute') { tit <- 'Treated' }
+  if (summary_group == 'priority_any') { tit <- 'Any Priority Subgroup' }
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  
+  plot_data <- data %>%
+    select(run_id, SF_12, mean_cost, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"), 
+                 names_to = c(".value", "scen"), 
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline')
+  
+  plot_data_confint <- plot_data %>%
+    group_by(year) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+  
+  plot_data_confint2 <- plot_data %>%
+    group_by(year) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qnorm(0.975) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+    
+  
+  p1 <- ggplot(plot_data, aes(x = year, y = diff_SF_12)) +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted') +
+    geom_smooth() +
+    labs(title = tit) +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  p2 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+    labs(title = tit) +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  p3 <- ggplot(plot_data_confint2, aes(x = year, y = mean_SF12_change)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+    labs(title = tit) +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  print(p1)
+  print(p2)
+  #print(p3)
+}
+
+SF12_change_ind_trajectories <- function(summary_group, scen.list) {
+  
+  tit <- ' '
+  if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
+  if (summary_group == 'families') { tit <- 'Families' }
+  if (summary_group == 'priority_any') { tit <- 'Any Priority Subgroup' }
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  
+  plot_data <- data %>%
+    select(run_id, SF_12, mean_cost, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"), 
+                 names_to = c(".value", "scen"), 
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline')
+  
+  plot_data_confint <- plot_data %>%
+    group_by(year) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+  
+  p1 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(linetype = 'dashed') +
+    geom_point() +
+    geom_line(data = plot_data, aes(x = year, y = diff_SF_12, group = run_id), alpha = 0.2) +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+    labs(title = tit) +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  print(p1)
+}
+
+```
+
+```{r "SF12_change_income_quint", include=FALSE}
+SF12_change_income_quint <- function(summary_group, scen.list) {
+  
+  tit <- ' '
+  if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
+  if (summary_group == 'families') { tit <- 'Families' }
+  
+  summary_group <- paste0(summary_group, '_income_quint')
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  
+  plot_data <- data %>%
+    select(run_id, income_quintile, SF_12, mean_cost, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"),
+                 names_to = c(".value", "scen"),
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline') %>%
+    select(-scen)
+  
+  plot_data$income_quintile <- factor(plot_data$income_quintile)
+  
+  plot_data_confint <- plot_data %>%
+    group_by(year, income_quintile) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+  
+  plot_data_confint2 <- plot_data %>%
+    group_by(year, income_quintile) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qnorm(0.975) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+    
+  
+  p1 <- ggplot(plot_data, aes(x = year, y = diff_SF_12, group = income_quintile, colour = income_quintile, fill = income_quintile)) +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted') +
+    geom_smooth() +
+    labs(title = tit, subtitle = 'Income Quintile') +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  p2 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change, group = income_quintile, colour = income_quintile, fill = income_quintile)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+    labs(title = tit, subtitle = 'Income Quintile') +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  p3 <- ggplot(plot_data_confint2, aes(x = year, y = mean_SF12_change, group = income_quintile, colour = income_quintile, fill = income_quintile)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+    labs(title = tit, subtitle = 'Income Quintile') +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  print(p1)
+  print(p2)
+}
+
+SF12_change_income_quint2 <- function(summary_group, scen) {
+  
+  tit <- ' '
+  if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
+  if (summary_group == 'families') { tit <- 'Families' }
+  
+  summary_group <- paste0(summary_group, '_income_quint_together')
+  scen <- paste0(scen, '_together')
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen))
+  
+  plot_data <- data %>%
+    select(run_id, SF_12, income_quintile, year, scenario) %>%
+    pivot_wider(names_from = scenario,
+                values_from = SF_12,
+                names_sep = '.',
+                values_fn = list(SF_12 = function(x) x[1])) %>%
+    mutate(diff_SF12 = intervention - baseline) %>%
+    pivot_longer(cols = starts_with("diff"),
+                 names_to = c(".value", "scenario"),
+                 names_sep = "\\.") %>%
+    select(run_id, income_quintile, year, diff_SF12)
+  
+  plot_data_confint <- plot_data %>%
+      group_by(year, income_quintile) %>%
+      summarise(n = n(),
+                mean_SF12_change = mean(diff_SF12),
+                margin_SF12 = qt(0.975, df = n - 1) * (sd(diff_SF12) / sqrt(n)),
+                lower_SF12 = mean_SF12_change - margin_SF12,
+                upper_SF12 = mean_SF12_change + margin_SF12)
+  
+  plot_data_confint$income_quintile <- factor(plot_data_confint$income_quintile)
+  
+  # p1 <- ggplot(plot_data, aes(x = year, y = diff_SF_12)) +
+  #     geom_hline(yintercept = 0, linetype = 'dashed') +
+  #     geom_vline(xintercept = 2030, linetype = 'dotted') +
+  #     geom_smooth() +
+  #     labs(title = 'Treatment on the Treated',
+  #          subtitle = 'SF_12') +
+  #     xlab('Year') +
+  #     ylab('Change in mean SF-12')
+  
+  p2 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change, group = income_quintile, color = income_quintile, fill = income_quintile)) +
+      geom_ribbon(aes(ymin = lower_SF12, ymax = upper_SF12), linetype = 'dotted', alpha = 0.3) +
+      geom_line(linetype = 'dashed') +
+      geom_point() +
+      geom_hline(yintercept = 0, linetype = 'dashed') +
+      geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+      labs(title = tit, 
+           subtitle = 'Income Quintile') +
+      xlab('Year') +
+      ylab('Change in mean SF-12')
+  
+  #print(p1)
+  print(p2)
+}
+```
+
+```{r "SF12_change_num_priority_groups", include=FALSE}
+SF12_change_num_priority_groups <- function(scen.list) {
+
+  summary_group <- 'priority_num'
+  
+  tit <- 'Number of Priority Subgroups'
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  
+  #data <- replace_na(data, list(num_priority_groups=0))
+  
+  plot_data <- data %>%
+    select(run_id, num_priority_groups, SF_12, mean_cost, year, scen) %>%
+    pivot_wider(names_from = scen,
+                values_from = c(SF_12, mean_cost),
+                names_sep = '.') %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    pivot_longer(cols = starts_with("diff") | starts_with("mean_cost"),
+                 names_to = c(".value", "scen"),
+                 names_sep = "\\.") %>%
+    filter(scen != 'baseline') %>%
+    select(-scen)
+  
+  plot_data$num_priority_groups <- factor(plot_data$num_priority_groups)
+  
+  plot_data_confint <- plot_data %>%
+    group_by(year, num_priority_groups) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+  
+  plot_data_confint2 <- plot_data %>%
+    group_by(year, num_priority_groups) %>%
+    summarise(n = n(),
+              mean_SF12_change = mean(diff_SF_12),
+              margin = qnorm(0.975) * (sd(diff_SF_12) / sqrt(n)),
+              lower = mean_SF12_change - margin,
+              upper = mean_SF12_change + margin)
+  
+  
+  p1 <- ggplot(plot_data, aes(x = year, y = diff_SF_12, group = num_priority_groups, colour = num_priority_groups, fill = num_priority_groups)) +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted') +
+    geom_smooth() +
+    labs(title = tit) +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  p2 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change, group = num_priority_groups, colour = num_priority_groups, fill = num_priority_groups)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+    labs(title = tit) +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  p3 <- ggplot(plot_data_confint2, aes(x = year, y = mean_SF12_change, group = num_priority_groups, colour = num_priority_groups, fill = num_priority_groups)) +
+    geom_ribbon(aes(ymin = lower, ymax = upper), linetype = 'dotted', alpha = 0.3) +
+    geom_line(linetype = 'dashed') +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = 'dashed') +
+    geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+    labs(title = tit) +
+    xlab('Year') +
+    ylab('Change in SF-12')
+  
+  print(p1)
+  print(p2)
+}
+```
+
+```{r "inequality_plots", include=FALSE}
+inequality_plots <- function(summary_group, scen) {
+  
+  tit <- ' '
+  if (summary_group == 'whole_pop') { tit <- 'Whole Population' }
+  if (summary_group == 'families') { tit <- 'Families' }
+  
+  summary_group <- paste0(summary_group, '_income_quint_together')
+  scen <- paste0(scen, '_together')
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen))
+  
+  data$income_quintile <- factor(data$income_quintile)
+  
+  # Combine the data
+  data_combined <- data %>%
+    mutate(scenario = ifelse(scenario == 'baseline', 'Baseline', 'Intervention'))
+  
+  p1 <- ggplot(data_combined, aes(x = year, y = SF_12, group = interaction(income_quintile, scenario), color = income_quintile, linetype = scenario)) +
+    geom_smooth(alpha = 0.7) +
+    scale_color_manual(name = "Income Quintile", 
+                       values = c("red", "blue", "green", "orange", "purple")) +
+    scale_linetype_manual(name = "Scenario", 
+                          values = c("Baseline" = "solid", "Intervention" = "dotted")) +
+    labs(title = "SF_12 Scores by Income Quintile",
+         subtitle = tit,
+         x = "Year",
+         y = "Mean SF_12 MCS") +
+    theme_minimal() +
+    theme(legend.position = "right",
+          legend.title = element_text(size = 12),
+          legend.text = element_text(size = 10))
+  
+  # Aggregate data
+  agg_data <- data %>%
+    mutate(scenario = ifelse(scenario == 'baseline', 'Baseline', 'Intervention')) %>%
+    group_by(year, income_quintile, scenario) %>%
+    summarize(mean_SF_12 = mean(SF_12, na.rm = TRUE)) %>%
+    spread(scenario, mean_SF_12) %>%
+    mutate(difference = Intervention - Baseline)
+  
+  p2 <- ggplot(agg_data, aes(x = year, y = difference, fill = income_quintile)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    scale_fill_manual(name = "Income Quintile", 
+                      values = c("red", "blue", "green", "orange", "purple")) +
+    labs(title = "Average Difference in SF_12 Scores by Income Quintile",
+         subtitle = tit,
+         x = "Year",
+         y = "Difference in SF_12 Score") +
+    theme_minimal() +
+    theme(legend.position = "right",
+          legend.title = element_text(size = 12),
+          legend.text = element_text(size = 10))
+  
+  print(p1)
+  print(p2)
+}
+```
+
+```{r "mental_illness_risk_plots", include=FALSE}
+mental_illness_risk_counts <- function(summary_group, scen.list) {
+  
+  tit <- ' '
+  if (summary_group == 'men_illness_risk') { tit <- 'Whole Population' }
+  if (summary_group == 'men_illness_risk_families') { tit <- 'Families' }
+  
+  # scen.list.test <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
+  # summary_group <- 'men_illness_risk'
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen.list))
+  
+  plot_data <- data %>%
+    filter(mental_health_risk == 'TRUE') %>%
+    select(-prop, -mental_health_risk) %>%
+    pivot_wider(names_from = scen,
+                values_from = count) %>%
+    rename(intervention = contains(scen.list[[2]])) %>%
+    mutate(MHR_diff = intervention - baseline) %>%
+    select(run_id, year, MHR_diff) %>%
+    group_by(year) %>%
+    summarise(MHR_diff = mean(MHR_diff))
+  
+  p1 <- ggplot(data = plot_data, aes(x = year, y = MHR_diff)) +
+    geom_point() +
+    geom_line() +
+    labs(title = "Difference in count of individuals at risk of mental health issues",
+         subtitle = tit) +
+    xlab('Year') +
+    ylab('Count')
+  
+  plot_data_2 <- data %>%
+    filter(mental_health_risk == 'TRUE') %>%
+    select(-mental_health_risk, -count) %>%
+    pivot_wider(names_from = scen,
+                values_from = prop) %>%
+    rename(intervention = contains(scen.list[[2]])) %>%
+    mutate(MHR_prop_diff = intervention - baseline) %>%
+    select(run_id, year, MHR_prop_diff) %>%
+    group_by(year) %>%
+    summarise(MHR_prop_diff = mean(MHR_prop_diff) * 100)
+  
+  p2 <- ggplot(data = plot_data_2, aes(x = year, y = MHR_prop_diff)) +
+    geom_point() +
+    geom_line() +
+    labs(title = "Difference in proportion of individuals at risk of mental health issues",
+         subtitle = tit) +
+    xlab('Year') +
+    ylab('Percentage')
+  
+  print(p1)
+  print(p2)
+}
+```
+
+```{r "treated_population", include=FALSE}
+SF12_change_treated <- function(scen) {
+  
+  summary_group <- 'treated'
+  scen <- paste0(scen, '_together')
+  #scen <- c('ChildPovertyReductionRELATIVE_2_together')
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen))
+  
+  plot_data <- data %>%
+    select(run_id, SF_12, hh_income, year, scenario) %>%
+    pivot_wider(names_from = scenario,
+                values_from = c(SF_12, hh_income),
+                names_sep = '.') %>%
+    unnest(cols = c(starts_with("SF_12"), starts_with("hh_income"))) %>%
+    mutate(across(starts_with("SF_12"), ~ . - SF_12.baseline),
+           across(starts_with("hh_income"), ~ . - hh_income.baseline)) %>%
+    rename_with(~ paste0("diff_", .), starts_with("SF_12")) %>%
+    rename_with(~ paste0("diff_", .), starts_with("hh_income")) %>%
+    pivot_longer(cols = starts_with("diff"),
+                 names_to = c(".value", "scenario"),
+                 names_sep = "\\.") %>%
+    filter(scenario != 'baseline')
+  
+  plot_data_confint <- plot_data %>%
+      group_by(year) %>%
+      summarise(n = n(),
+                mean_SF12_change = mean(diff_SF_12),
+                margin_SF12 = qt(0.975, df = n - 1) * (sd(diff_SF_12) / sqrt(n)),
+                lower_SF12 = mean_SF12_change - margin_SF12,
+                upper_SF12 = mean_SF12_change + margin_SF12,
+                mean_hh_income_change = mean(diff_hh_income),
+                margin_hh_income = qt(0.975, df = n - 1) * (sd(diff_hh_income) / sqrt(n)),
+                lower_hh_income = mean_hh_income_change - margin_hh_income,
+                upper_hh_income = mean_hh_income_change + margin_hh_income,)
+  
+  # p1 <- ggplot(plot_data, aes(x = year, y = diff_SF_12)) +
+  #     geom_hline(yintercept = 0, linetype = 'dashed') +
+  #     geom_vline(xintercept = 2030, linetype = 'dotted') +
+  #     geom_smooth() +
+  #     labs(title = 'Treatment on the Treated',
+  #          subtitle = 'SF_12') +
+  #     xlab('Year') +
+  #     ylab('Change in mean SF-12')
+  
+  p2 <- ggplot(plot_data_confint, aes(x = year, y = mean_SF12_change)) +
+      geom_ribbon(aes(ymin = lower_SF12, ymax = upper_SF12), linetype = 'dotted', alpha = 0.3) +
+      geom_line(linetype = 'dashed') +
+      geom_point() +
+      geom_hline(yintercept = 0, linetype = 'dashed') +
+      geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+      labs(title = 'Treatment on the Treated',
+           subtitle = 'SF_12') +
+      xlab('Year') +
+      ylab('Change in mean SF-12')
+  
+  # p3 <- ggplot(plot_data, aes(x = year, y = diff_hh_income)) +
+  #     geom_hline(yintercept = 0, linetype = 'dashed') +
+  #     geom_vline(xintercept = 2030, linetype = 'dotted') +
+  #     geom_smooth() +
+  #     labs(title = 'Treatment on the Treated',
+  #          subtitle = 'Household Income') +
+  #     xlab('Year') +
+  #     ylab('Change in mean hh_income')
+  
+  p4 <- ggplot(plot_data_confint, aes(x = year, y = mean_hh_income_change)) +
+      geom_ribbon(aes(ymin = lower_hh_income, ymax = upper_hh_income), linetype = 'dotted', alpha = 0.3) +
+      geom_line(linetype = 'dashed') +
+      geom_point() +
+      geom_hline(yintercept = 0, linetype = 'dashed') +
+      geom_vline(xintercept = 2030, linetype = 'dotted', alpha = 0.5) +
+      labs(title = 'Treatment on the Treated',
+           subtitle = 'Household Income') +
+      xlab('Year') +
+      ylab('Change in mean hh_income')
+  
+  #print(p1)
+  print(p2)
+  #print(p3)
+  print(p4)
+}
+```
+
+```{r "synthpop_uncertainty_plot", include=FALSE}
+synthpop_uncertainty <- function(summary_group, scen, var) {
+  # summary_group <- 'whole_pop'
+  # scen.list <- 'baseline'  # , 'ChildPovertyReductionRELATIVE_2'
+  
+  data <- do.call(rbind, generate_df_list(summary_group, scen))
+  
+  #data$pop_sample <- mutate(data, pop_sample = ceiling(run_id / 10))
+  
+  data <- data %>%
+    select(run_id, .data[[var]], mean_cost, year, scen) %>%
+    mutate(pop_sample = ceiling(run_id / 10))
+  
+  plot_data_local <- data %>%
+    group_by(pop_sample, year) %>%
+    summarise(var_mean = mean(.data[[var]]))
+  
+  plot_data_global <- data %>%
+    group_by(year) %>%
+    summarise(global_var_mean = mean(.data[[var]]))
+  
+  p1 <- ggplot(plot_data_local, aes(x = year, y = var_mean)) +
+    geom_line(aes(group = pop_sample), alpha = 0.4) +
+    geom_line(data = plot_data_global, aes(x = year, y = global_var_mean), color = 'red') +
+    labs(title = paste0(var, ' uncertainty in Synthetic Population Sample'),
+         subtitle = 'Global mean (red) vs local means (grey)') +
+    xlab('Year') +
+    ylab(paste0('Mean ', var))
+  
+  print(p1)
+}
+```
+
+
+```{r "Data", include=FALSE}
+scen.list.rel <- c('baseline', 'ChildPovertyReductionRELATIVE_2')
+scen.rel <- 'ChildPovertyReductionRELATIVE_2'
+scen.list.abs <- c('baseline', 'ChildPovertyReductionABSOLUTE')
+scen.abs <- 'ChildPovertyReductionABSOLUTE'
+# scen.list.rel <- c('baseline', 'ChildPovertyReductionRELATIVE_psub')
+# scen.rel <- 'ChildPovertyReductionRELATIVE_psub'
+# scen.list.abs <- c('baseline', 'ChildPovertyReductionABSOLUTE_psub')
+# scen.abs <- 'ChildPovertyReductionABSOLUTE_psub'
+```
+
+# MCS Change to QALY Example
+
+We use an equation derived from table 4 (below) in [this paper by Lawrence and Fleishman](https://pubmed.ncbi.nlm.nih.gov/15090102/) to calculate QALYs from SF-12 Mental Component Score (MCS) and Physical Component Score (PCS). 
+
+#![L&F Table 4](L&F_table4.png)
+
+```{r}
+# formula to find the utility score from mean MCS and PCS scores of a population
+utility_score <- function(pcs, mcs) {
+  utility_score <- 
+    1.6984 + 
+    (pcs * 0.07927) +
+    (mcs * 0.02859) +
+    ((pcs * mcs) * -0.000126) +
+    ((pcs * pcs) * -0.00141) +
+    ((mcs * mcs) * -0.00014) +
+    ((pcs * pcs * pcs) * 0.0000107)
+  return(utility_score)
+}
+
+# Calculate utility score for hypothetical baseline (MCS & PCS == 45.0)
+initial_conditions <- utility_score(pcs = 45.0,
+                                    mcs = 45.0)
+# Calculate utility score for 0.1 improvement in MCS (MCS now == 45.1)
+intervention <- utility_score(pcs = 45.0,
+                              mcs = 45.1)
+
+print("Utility score for hypothetical baseline (assuming mean MCS and PCS both equal 45.0):")
+print(initial_conditions)
+print("Utility score for population given a 0.1 mean improvement in MCS:")
+print(intervention)
+
+print("Gain in utility score per person:")
+gain <- intervention - initial_conditions
+print(gain)
+
+print("Gain in utiliy for the total Scotland population (assuming 5.5m). This is equivalent to QALYs gained:")
+print(gain * 5500000)
+```
+
+This rough calculation shows that a 0.1 absolute change in mean SF_12 across the Scottish population would equal over 5000 additional QALYs in a single year. These improvements can also accumulate over time. If we were able to achieve a 0.1 improvement in mean MCS for Scotland in year 1, and maintain this 0.1 improvement for 10 years, the resulting improvement in QALYs would be 56,000+.
+
+NOTE: This calculation assumes that PCS is unchanged when MCS can vary. This is not realistic, but the calculation is still useful to provide context for the results to follow.
+
+# SAMPLE UNCERTAINTY
+
+When running MINOS with a synthetic population, due to the size of the synthetic populations and the demands of the model, we have to take a reduced sample as our starting population. For the Scotland synthetic runs we take a 10% sample, which reduces the population size from roughly 5.5m to 550,000. 
+
+We therefore have to also account for the uncertainty in model outputs that comes from this reduced sample. As a somewhat temporary fix for this, we have done the following:
+
+- Generate 10 different 10% samples from our synthetic population
+  - Generate a replenishing population from each of these samples
+- Use each distinct 10% sample for 10 runs each, totalling 100 runs
+- Plot the local mean from each 10 run block, and the global mean from all 100 runs
+
+```{r}
+synthpop_uncertainty(summary_group = 'whole_pop',
+                     scen = 'baseline',
+                     var = 'hh_income')
+
+synthpop_uncertainty(summary_group = 'whole_pop',
+                     scen = 'baseline',
+                     var = 'SF_12')
+```
+
+
+# RELATIVE POVERTY INTERVENTION
+
+Reducing the proportion of children in poverty to 10% or lower by 2030.
+
+## Whole Population
+
+What are the impacts on mental health of meeting the targets:
+
+- Across the population?
+- Population by income quintile?
+
+```{r}
+SF12_change_simple(summary_group = 'whole_pop',
+                   scen.list = scen.list.rel)
+
+SF12_change_ind_trajectories(summary_group = 'whole_pop',
+                             scen.list <- scen.list.rel)
+
+mental_illness_risk_counts(summary_group = 'men_illness_risk',
+                           scen.list = scen.list.rel)
+```
+
+### Income Quintiles
+
+```{r}
+# SF12_change_income_quint(summary_group = 'whole_pop',
+#                                     scen.list = scen.list.rel)
+SF12_change_income_quint2(summary_group = 'whole_pop',
+                                    scen = scen.rel)
+```
+
+### SF_12 Inequality
+
+```{r}
+inequality_plots(summary_group = 'whole_pop',
+                 scen = scen.rel)
+```
+
+
+## Families
+
+What are the impacts on mental health of meeting the targets:
+
+- For families only? By income quintile
+
+```{r}
+SF12_change_simple(summary_group = 'families',
+                       scen.list = scen.list.rel)
+
+SF12_change_ind_trajectories(summary_group = 'families',
+                             scen.list <- scen.list.rel)
+
+mental_illness_risk_counts(summary_group = 'men_illness_risk_families',
+                           scen.list = scen.list.rel)
+```
+
+### Income Quintile
+
+```{r}
+# SF12_change_income_quint(summary_group = 'families',
+#                                     scen.list = scen.list.rel)
+SF12_change_income_quint2(summary_group = 'families',
+                                    scen = scen.rel)
+```
+
+### SF_12 Inequality
+
+```{r}
+inequality_plots(summary_group = 'families',
+                 scen = scen.rel)
+```
+
+## Priority Subgroups
+
+What are the impacts on mental health of meeting the targets:
+
+- For families that meet the criteria of 0/1/2+ of the priority family groups?
+
+```{r}
+SF12_change_simple(summary_group = 'priority_any',
+                       scen.list = scen.list.rel)
+```
+
+### Number of Priority Subgroups
+
+Results disaggregated by if household belongs to 0, 1, 2, 3+ priority subgroups.
+
+```{r}
+SF12_change_num_priority_groups(scen.list.rel)
+```
+
+## Treated Population
+
+```{r}
+# SF12_change_simple(summary_group = 'treated_relative',
+#                    scen.list = scen.list.rel)
+
+SF12_change_treated(scen = scen.rel)
+```
+
+
+## Differential Impacts of UK vs SG
+
+What are the impacts on mental health of meeting the targets?
+
+- Differential impacts of UK package of policies only, and then UK package with SG policies?
+
+
+
+# ABSOLUTE POVERTY INTERVENTION
+
+Reducing the proportion of children in poverty to 10% or lower by 2030.
+
+## Whole Population
+
+What are the impacts on mental health of meeting the targets:
+
+- Across the population?
+- Population by income quintile?
+
+```{r}
+SF12_change_simple(summary_group = 'whole_pop',
+                       scen.list = scen.list.abs)
+
+SF12_change_ind_trajectories(summary_group = 'whole_pop',
+                             scen.list <- scen.list.abs)
+
+mental_illness_risk_counts(summary_group = 'men_illness_risk',
+                           scen.list = scen.list.abs)
+```
+
+### Income Quintile
+
+```{r}
+# SF12_change_income_quint(summary_group = 'whole_pop',
+#                                     scen.list = scen.list.abs)
+SF12_change_income_quint2(summary_group = 'whole_pop',
+                                    scen = scen.abs)
+```
+
+### SF_12 Inequality
+
+```{r}
+inequality_plots(summary_group = 'whole_pop',
+                 scen = scen.abs)
+```
+
+## Families
+
+What are the impacts on mental health of meeting the targets:
+
+- For families only? By income quintile
+
+```{r}
+SF12_change_simple(summary_group = 'families',
+                       scen.list = scen.list.abs)
+
+SF12_change_ind_trajectories(summary_group = 'families',
+                             scen.list <- scen.list.abs)
+
+mental_illness_risk_counts(summary_group = 'men_illness_risk_families',
+                           scen.list = scen.list.abs)
+```
+
+### Income Quintile
+
+```{r}
+# SF12_change_income_quint(summary_group = 'families',
+#                                     scen.list = scen.list.abs)
+SF12_change_income_quint2(summary_group = 'families',
+                                    scen = scen.abs)
+```
+
+### SF_12 Inequality
+
+```{r}
+inequality_plots(summary_group = 'families',
+                 scen = scen.abs)
+```
+
+## Priority Subgroups
+
+What are the impacts on mental health of meeting the targets:
+
+- For families that meet the criteria of 0/1/2+ of the priority family groups?
+
+```{r}
+SF12_change_simple(summary_group = 'priority_any',
+                                    scen.list = scen.list.abs)
+```
+
+### Number of Priority Subgroups
+
+Results disaggregated by if household belongs to 0, 1, 2, 3+ priority subgroups.
+
+```{r}
+SF12_change_num_priority_groups(scen.list.abs)
+```
+
+## Treated Population
+
+```{r}
+# SF12_change_simple(summary_group = 'treated_absolute',
+#                    scen.list = scen.list.abs)
+
+SF12_change_treated(scen = scen.abs)
+```
+
+## Differential Impacts of UK vs SG
+
+What are the impacts on mental health of meeting the targets?
+
+- Differential impacts of UK package of policies only, and then UK package with SG policies?
+
+
+```{r}
+
+```
+

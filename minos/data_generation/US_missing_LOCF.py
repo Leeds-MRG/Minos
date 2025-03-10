@@ -14,6 +14,7 @@ from itertools import repeat
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
+
 def applyParallelLOCF(dfGrouped, func, columns):
     """ Apply pandas.apply() methods in parallel on groupby object.
 
@@ -34,6 +35,7 @@ def applyParallelLOCF(dfGrouped, func, columns):
         ret_list = p.starmap(func, zip(dfGrouped, repeat(columns)))
     return pd.concat(ret_list)
 
+
 def ffill_groupby(pid_groupby, f_columns):
     """ forward fill groupby object
 
@@ -48,6 +50,7 @@ def ffill_groupby(pid_groupby, f_columns):
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill"))
     return pid_groupby[f_columns].ffill()
+
 
 def bfill_groupby(pid_groupby, b_columns):
     """ back fill groupby object
@@ -64,6 +67,7 @@ def bfill_groupby(pid_groupby, b_columns):
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="bfill"))
     return pid_groupby[b_columns].bfill()
 
+
 def fbfill_groupby(pid_groupby, fb_columns):
     """ forward and back fill groupby object
     Parameters
@@ -76,6 +80,7 @@ def fbfill_groupby(pid_groupby, fb_columns):
     """
     #return pid_groupby.apply(lambda x: x.replace(US_utils.missing_types, method="ffill").replace(US_utils.missing_types, method="bfill"))
     return pid_groupby[fb_columns].ffill().bfill()
+
 
 def mffill_groupby(pid_groupby, mf_columns):
     """
@@ -96,6 +101,7 @@ def mffill_groupby(pid_groupby, mf_columns):
     """
     return pid_groupby[mf_columns].apply(
         lambda x: pd.DataFrame.cummax(x))
+
 
 def interpolate(data, interpolate_columns, type='linear'):
     """ Interpolate column based on year time index.
@@ -126,6 +132,7 @@ def interpolate(data, interpolate_columns, type='linear'):
     new_columns.columns = interpolate_columns
     data[interpolate_columns] = new_columns
     return data
+
 
 def linear_interpolator_groupby(pid_groupby, type="forward"):
     """ Linear interpolation for deterministic increases like age.
@@ -160,6 +167,7 @@ def linear_interpolator_groupby(pid_groupby, type="forward"):
     return pid_groupby.apply(lambda x: x.interpolate(method="linear", limit_direction=type))
     #return pid_groupby.apply(lambda x: interpolate.interp1d(x["time"], x["age"])(x["age"]))
 
+
 def locf_sort(data, sort_vars, group_vars):
     """ Put data into pandas groupby for LOCF interpolation
 
@@ -184,7 +192,8 @@ def locf_sort(data, sort_vars, group_vars):
     pid_groupby = data.groupby(by=["pidp"], sort=False, as_index=False)
     return pid_groupby
 
-def locf(data, f_columns = None, b_columns = None, fb_columns = None, mf_columns=None):
+
+def locf(data, f_columns=None, b_columns=None, fb_columns=None, mf_columns=None):
     """ Last observation carrying for correcting missing data.
 
     Data is often only recorded when someone either enters the study for
@@ -252,10 +261,24 @@ def main(data, save=False):
     #             "job_industry", "job_sec", "heating"]  # add more variables here.
     # define columns to be forward filled, back filled, and linearly interpolated.
     # note columns can be forward and back filled for immutables like ethnicity.
+
+#     f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'heating',
+#                  'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',
+#                  'nkids_ind_raw', 'region',  # 'ncigs', 'ndrinks']
+#                  'loneliness',
+#                  'burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse', 'teenagers', 'vandalism',  # nh_safety
+#                  'fruit_days', 'fruit_per_day', 'veg_days', 'veg_per_day']
+#     fb_columns = ["sex", "ethnicity", "birth_year", 'pidp', 'nkids_ind_raw', 'nresp']  # or here if they're immutable.
+#     mf_columns = ['education_state', 'nkids_ind_raw', 'pidp']
+
     f_columns = ['education_state', 'labour_state_raw', 'job_sec', 'ethnicity', 'sex', 'birth_year',
-                 'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker'] # 'ncigs', 'ndrinks']
-    fb_columns = ["sex", "ethnicity", "birth_year", 'heating']  # or here if they're immutable.
-    mf_columns = ['education_state', 'nkids_ind_raw']
+                 'yearly_gas', 'yearly_electric', 'yearly_gas_electric', 'yearly_oil', 'yearly_other_fuel', 'smoker',  # 'ncigs', 'ndrinks']
+                 'nkids_ind_raw', 'region',
+                 'loneliness',
+                 'burglaries', 'car_crime', 'drunks', 'muggings', 'racial_abuse', 'teenagers', 'vandalism',  # nh_safety
+                 'fruit_days', 'fruit_per_day', 'veg_days', 'veg_per_day']
+    fb_columns = ["sex", "ethnicity", "birth_year", 'pidp', 'nkids_ind_raw', 'nresp']  # or here if they're immutable.
+    mf_columns = ['education_state', 'nkids_ind_raw', 'pidp']
     li_columns = ["age"]
 
     # replace missing types in all columns to be imputed with NA. put them back alter to preserve missing data types.

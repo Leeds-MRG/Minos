@@ -47,7 +47,7 @@ class S7Labour(Base):
         # same CRN seed for every run.
         #self.random = builder.randomness.get_stream(f"labour")
         # random CRN seed for every run.
-        self.random = builder.randomness.get_stream(self.generate_random_crn_key())
+        self.random = builder.randomness.get_stream(self.generate_run_crn_key())
 
         # Determine which subset of the main population is used in this module.
         # columns_created is the columns created by this module.
@@ -129,7 +129,11 @@ class S7Labour(Base):
             #self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "nnet")
 
         # returns probability matrix (9xn) of next ordinal state.
-        prob_df = r_utils.predict_nnet(self.transition_model, self.rpy2Modules, pop, cols)
+        prob_df = r_utils.predict_nnet(self.transition_model,
+                                       self.rpy2Modules,
+                                       pop,
+                                       cols,
+                                       seed=self.run_seed)
         return prob_df
 
     def plot(self, pop, config):

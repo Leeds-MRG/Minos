@@ -20,7 +20,7 @@ def lower_bound(x, bands):
     region = x["region"]
     band = x["council_tax"]
     # if both na return na.
-    if region != region or band != band:
+    if region != region or band != band or region == 'Northern Ireland':
         return np.nan
     else:
         return bands.loc[region, band]
@@ -32,7 +32,7 @@ def upper_bound(x, bands):
     region = x["region"]
 
     # if both na return na.
-    if region != region or band != band:
+    if region != region or band != band or region == 'Northern Ireland':
         return np.nan
 
     # which integer tax band are we in (0-9).

@@ -1,13 +1,10 @@
-""" To match up children to adults and construct child age chains. See how this lines up with indresp dataset and how much
-missing data (if any) there is.
-# HR 13/01/25 Update for ind-level parentage, i.e. for tracking how many children individual adults have
-# Previous hh-level version attached nkids per household
-# This new version attaches nkids_ind per individual
+""" HR 13/01/25 Update for ind-level parentage, i.e. for tracking how many children individual adults have
+    Previous hh-level version attached nkids per household
+    This new version attaches nkids_ind per individual
 """
 
-import US_utils
-from US_utils import missing_types as mt
-from US_format_raw_children_data import age_64bit_integer_stack, integer_child_ages_to_nkids
+from minos.data_generation import US_utils
+from minos.data_generation.US_format_raw_children_data import age_64bit_integer_stack, integer_child_ages_to_nkids
 import pandas as pd
 import numpy as np
 from collections import Counter
@@ -17,14 +14,6 @@ import os
 from os.path import dirname as up
 
 DATA_PATH = os.path.join(up(up(up(__file__))))
-
-
-# HR 29/01/25 Get birth spacing - i.e. years between ages of children - from integer-form child ages
-def get_birth_spacing(ages):
-    spacings = []
-    age_list = integer_child_ages_to_list(ages)
-    spacings = np.diff(age_list)
-    return spacings
 
 
 # HR 29/01/25 Get list of child ages from integer-form child ages
@@ -141,6 +130,7 @@ def main(adult_data, year):
     ### BLOCK FOR TESTING
     # # Count unassigned children, i.e. children with no parents given
     # all_children = len(child_data)
+    # mt = US_utils.missing_types
     # no_parents_natural = len(child_data.loc[(child_data['pn1pid'].isin(mt)) &
     #                                         (child_data['pn2pid'].isin(mt))])
     # no_parents_any = len(child_data.loc[(child_data['pn1pid'].isin(mt)) &
@@ -157,23 +147,3 @@ def main(adult_data, year):
     cols_to_drop = child_age_cols + ['child_ages_list', 'children_ind']
     adult_data.drop(columns=cols_to_drop, inplace=True)
     return adult_data
-
-
-if __name__ == '__main__':
-
-    # HR 29/01/25 All below for testing
-    year = 2014
-    years = np.arange(2014, year+1)
-    # file_names = [f"data/raw_US/{item}_US_cohort.csv" for item in years]
-    file_names = [os.path.join(DATA_PATH, f"data/raw_US/{item}_US_cohort.csv") for item in years]
-    data = US_utils.load_multiple_data(file_names)
-    input_data = data.loc[data['time'] == year].copy()
-    adult_data = main(input_data, year)
-    #
-    # # HR 31/01/25 Testing correction to nkids_ind (1) using child_ages_ind (2), as should have (1) >= (2) everywhere
-    # y = 2019
-    # pathy = os.path.join(DATA_PATH, f"data/final_US/{y}_US_cohort.csv")
-    # dy = pd.read_csv(pathy)
-    # dy = dy.loc[dy['sex'] == 'Female']
-    # dy['children_ind'] = dy['child_ages_ind'].astype('int64').apply(integer_child_ages_to_nkids)
-    # dy['kids_diff'] = dy['children_ind'] - dy['nkids_ind']

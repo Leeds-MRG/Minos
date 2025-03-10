@@ -52,11 +52,13 @@ class Ageing(Base):
         # do this by getting the oldest ALIVE member of a household and give everyone in the household that age chain.
         population['child_ages'] = population.groupby('hidp')['child_ages'].transform("first")
         # update children age chains.
+        nkids_type = population['nkids'].dtype  # Grab type before modification to avoid Vivarium PopulationError
         population = self.update_binary_child_ages(population)
         population = self.update_binary_child_ages_ind(population)
 
         # update new population.
         logging.info(f"Aged population to year {event.time.year}")
+        population['nkids'] = population['nkids'].astype(nkids_type)  # HR 14/02/25 Grr
         self.population_view.update(population[['age', 'time',
                                                 'nkids', 'nkids_ind',
                                                 'child_ages', 'child_ages_ind']])
@@ -88,7 +90,7 @@ class Ageing(Base):
             List of ages of children in the household in descending order separated by dashes -. e.g. 12-4-3-2.
         """
 
-        if age_chain is None:
+        if age_chain is None or age_chain == 'None':
             age_chain = "childless"
         new_nkids = 0 #  default if no age chain found. assume no children.
 
@@ -129,7 +131,7 @@ class Ageing(Base):
         pop[['child_ages', 'nkids_delta']] = updated_ages.tolist()
         pop['nkids'] -= pop['nkids_delta']
         pop['child_ages'] = pop['child_ages'].astype('int64')
-        pop['nkids'] = pop['nkids'].astype('float64')
+        pop['nkids'] = pop['nkids'].astype('int64')
         return pop
 
     def update_binary_child_ages_ind(self, pop):
@@ -150,7 +152,7 @@ class Ageing(Base):
         pop[['child_ages_ind', 'nkids_ind_delta']] = updated_ages.tolist()
         # pop['nkids_ind'] -= pop['nkids_ind_delta']  # No! nkids_ind is children *ever* had, so must never be decremented
 
-        pop['child_ages_ind'] = pop['child_ages_ind'].astype('float64')
+        pop['child_ages_ind'] = pop['child_ages_ind'].astype('int64')
         # pop['nkids_ind'] = pop['nkids_ind'].astype('float64')
         return pop
 

@@ -211,7 +211,9 @@ class HourlyWage(Base):
         newWaveHourlyWage = r_utils.predict_next_rf(self.rf_transition_model,
                                                     self.rpy2Modules,
                                                     pop,
-                                                    dependent='hourly_wage')
+                                                    dependent='hourly_wage',
+                                                    seed=self.run_seed)
+
         # get new hh income diffs and update them into history_data.
         #self.update_history_dataframe(pop, self.year-1)
         #new_history_data = self.history_data.loc[self.history_data['time']==self.year].index # who in current_year

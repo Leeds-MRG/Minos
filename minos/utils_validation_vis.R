@@ -596,15 +596,15 @@ handover_boxplots <- function(raw, baseline, var) {
 handover_lineplots <- function(raw, base, var) {
   # GENERALISE THIS AND DOCSTRING
   raw.means <- raw %>% 
-    dplyr::select(time, var) %>%
+    dplyr::select(time, var, weight) %>%
     group_by(time) %>%
-    summarise(summary_var = mean(.data[[var]], na.rm = TRUE)) %>%
+    summarise(summary_var = weighted.mean(.data[[var]], w = weight, na.rm = TRUE)) %>%
     mutate(source = 'final_US')
   
   base.means <- base %>%
-    dplyr::select(time, var) %>%
+    dplyr::select(time, var, weight) %>%
     group_by(time) %>%
-    summarise(summary_var = mean(!!sym(var))) %>%
+    summarise(summary_var = weighted.mean(.data[[var]], w = weight, na.rm = TRUE)) %>%
     mutate(source = 'baseline_output')
   
   # merge before plot
