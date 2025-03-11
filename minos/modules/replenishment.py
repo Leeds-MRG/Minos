@@ -668,9 +668,9 @@ def create_replenishing_population(pop_size,
 
     # Get reference values to match
     ref_deets = (PERSISTENT_DIR, PROJECTIONS_DEFAULT)
-    afrac = get_age_fraction_by_year_newethpop(*ref_deets, ages = 16)
-    aeth = get_ethnicity_by_year_newethpop(*ref_deets, ages = 16)
-    asex = get_sex_by_year_newethpop(*ref_deets, ages = 16)
+    afrac = get_age_fraction_by_year_newethpop(*ref_deets, ages=16)
+    aeth = get_ethnicity_by_year_newethpop(*ref_deets, ages=16)
+    asex = get_sex_by_year_newethpop(*ref_deets, ages=16)
 
     # Get sex and ethnicity fractions to be used as targets in simulated annealing algorithm + sample size
     sex_target = asex[repl_age][target_year]

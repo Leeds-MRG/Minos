@@ -70,7 +70,8 @@ def main(input_raw_data, year):
     input_raw_data['is_child'] = False
     input_raw_data['is_adult'] = True
     #collaped_children_US_with_children = collaped_children_US.merge(child_data, 'inner', on='hidp')
-    collapsed_children_US_with_children = pd.concat([input_raw_data, child_data])
+    # collapsed_children_US_with_children = pd.concat([input_raw_data, child_data])
+    collapsed_children_US_with_children = pd.concat([input_raw_data.loc[:, ~input_raw_data.columns.duplicated()], child_data])
 
     # removing orphans.
     # calculating number of adults per hidp.

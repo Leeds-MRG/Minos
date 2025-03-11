@@ -230,7 +230,7 @@ PARITY_GB_MODE=gb_scaled_parity
 baseline_gb_parity: setup_gb_scaled
 	$(PYTHON) scripts/run.py -c $(PARITY_GB_CONFIG) -o $(PARITY_GB_MODE)
 
-fertility_suite: setup_gb_scaled replenishing_data baseline_noparity baseline_parity baseline_gb_noparity baseline_gb_parity fertility_validation
+fertility_suite: baseline_noparity baseline_parity baseline_gb_noparity baseline_gb_parity fertility_validation
 
 ################################################
 
