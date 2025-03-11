@@ -168,9 +168,6 @@ $(GBSCALEDDATA)/2019_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/U
 $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.csv: $(UKSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py -m --region 'uk'
 
-#$(DATADIR)/replenishing/gb_scaled/replenishing_pop_2015-2070.csv: $(GBSCALEDDATA)/2019_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
-#	$(PYTHON) $(DATAGEN)/generate_repl_pop.py -m --region 'gb'
-
 # Synthetic populations consisting of only those in a priority subgroup household
 $(PSUBDATA)/2020_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
 	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -pr -r 'scotland' -p 100
