@@ -6,7 +6,7 @@ lying around to call one line from here.
 library(ggplot2)
 library(here)
 source(here::here("minos", "transitions", "utils.R"))
-real_data <- read.csv(here::here("data", "final_US", "2019_US_cohort.csv"))
+#real_data <- read.csv(here::here("data", "final_US", "2019_US_cohort.csv"))
 
 #source("minos/transitions/utils.R")
 #real_data <- read.csv("data/final_US/2018_US_Cohort.csv")
@@ -50,6 +50,49 @@ discrete_barplot <- function(obs, order){
   obs <- factor(obs, levels = order, ordered = TRUE)
   counts <- table(obs)
   barplot(counts, horiz=F, cex.names=.7, las=2)
+}
+
+
+# Testing Transition Frequency ###########################################################
+
+
+get_transition_rate <- function(var, year_list) {
+  # set up variables to keep (including var)
+  keep.vars <- c('pidp', 'hidp', 'time', 'weight', var)
+  
+  # read all raw files in - have to do this in 3 lists as we have BHPS files in this folder also
+  # Use specific datafile patterns to avoid this and only get files from 2009 onwards (BHPS)
+  files1 <- list.files(here::here('data', 'raw_US'), pattern='2009_US_cohort.csv', full.names = TRUE)
+  files2 <- list.files(here::here('data', 'raw_US'), pattern='201[0-9]{1}_US_cohort.csv', full.names = TRUE)
+  files3 <- list.files(here::here('data', 'raw_US'), pattern='202[0-9]{1}_US_cohort.csv', full.names = TRUE)
+  files <- c(files1, files2, files3)
+  dat <- do.call(rbind, lapply(files, read_csv, col_select = keep.vars, 
+                               show_col_types = FALSE))
+  # cut out the zero weight individuals
+  dat <- dat %>%
+    filter(weight > 0)
+  
+  # cut missing data for key variable
+  dat <- dat %>%
+    filter(!.data[[var]] %in% miss.values)
+  
+  # Assuming df is your dataset with columns: pidp, wave, hheat
+  df_transitions <- dat %>%
+    filter(time %in% year_list) %>%  # Keep only waves with data
+    arrange(pidp, time) %>%  # Ensure sorted by individual and wave
+    group_by(pidp) %>%
+    mutate(var_lag = lag(.data[[var]]),  # Get previous wave's hheat for each individual
+           transition = ifelse(!is.na(var_lag) & .data[[var]] != var_lag, 1, 0)) %>%
+    ungroup()
+  
+  # Summarize transition rates per wave
+  transition_summary <- df_transitions %>%
+    group_by(time) %>%
+    summarise(total_transitions = sum(transition, na.rm = TRUE),
+              total_individuals = n(),
+              transition_rate = (total_transitions / total_individuals) * 100)
+  
+  return(transition_summary)
 }
 
 
@@ -267,7 +310,24 @@ plot_rfo_importance <- function(rfo_model) {
     labs(title = "Variable Importance", x = "Variables", y = "Importance")
 }
 
+cumulative_link_plot <- function(obs, preds) {
+  library(ggplot2)
+  
+  df <- data.frame(
+    True = as.numeric(obs),
+    Predicted = as.numeric(preds)
+  )
+  
+  p1 <- ggplot(df, aes(x = True, y = Predicted)) +
+    geom_jitter(alpha = 0.4) +
+    geom_smooth(method = "lm", se = FALSE, color = "red") +
+    labs(title = "Observed vs. Predicted", x = "True Class", y = "Predicted Class")
+  print(p1)
+}
+
 #TODO utility functions for education and replenishment. 
+
+# TEST #########################################
 
 test_main <-function()
 {

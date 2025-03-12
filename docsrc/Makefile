@@ -11,6 +11,9 @@ BUILDDIR      = docs
 NOTEBOOKDIR = docsrc/documentation/notebooks/
 DOCSRCDIR=docsrc
 NOTEBOOKOUTPUTDIR = docsrc/documentation/modules/
+PATHWAYDIR = $(NOTEBOOKOUTPUTDIR)/pathways/
+DEMOGRAPHICDIR = $(NOTEBOOKOUTPUTDIR)/demographics/
+SUPPLEMENTARYDIR = $(NOTEBOOKOUTPUTDIR)/supplementary/
 DOCUMENTATIONDIR=docsrc/documentation/
 
 # Render all Rmd, md, and rst files into rst files that sphinx can read.
@@ -19,7 +22,7 @@ render_rmd:
 	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/education.md" -o "docsrc/documentation/modules/education.rst"
 	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/replenishment.md" -o "docsrc/documentation/modules/replenishment.rst"
 	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/modules_intro.md" -o "docsrc/documentation/modules/modules_intro.rst"
-	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/nutrition.md" -o "docsrc/documentation/modules/nutrition.rst"
+	#pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/nutrition.md" -o "docsrc/documentation/modules/nutrition.rst"
 	pandoc --citeproc -s "$(DOCSRCDIR)/documentation/notebooks/mortality.md" -o "docsrc/documentation/modules/mortality.rst"
 
 	# Render R notebooks for each MINOS module. Any media outputs are saved to doscrc/figure.
@@ -34,20 +37,44 @@ render_rmd:
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)validation.Rmd" "$(NOTEBOOKOUTPUTDIR)validation.rst" 0
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)outcomes.Rmd" "$(NOTEBOOKOUTPUTDIR)outcomes.rst" 0
 
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)mental_well_being.Rmd" "$(NOTEBOOKOUTPUTDIR)mental_well_being.rst" 1
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)housing.Rmd" "$(NOTEBOOKOUTPUTDIR)housing.rst" 1
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)household_income.Rmd" "$(NOTEBOOKOUTPUTDIR)household_income.rst" 1
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)labour.Rmd" "$(NOTEBOOKOUTPUTDIR)labour.rst" 1
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)loneliness.Rmd" "$(NOTEBOOKOUTPUTDIR)loneliness.rst" 1
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)neighbourhood.Rmd" "$(NOTEBOOKOUTPUTDIR)neighbourhood.rst" 1
-	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)tobacco.Rmd" "$(NOTEBOOKOUTPUTDIR)tobacco.rst" 1
+	### PATHWAY MODULE PAGES
+
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)mental_well_being.Rmd" "$(PATHWAYDIR)mental_well_being.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)housing.Rmd" "$(PATHWAYDIR)housing.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)household_income.Rmd" "$(PATHWAYDIR)household_income.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)labour.Rmd" "$(PATHWAYDIR)labour.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)loneliness.Rmd" "$(PATHWAYDIR)loneliness.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)neighbourhood.Rmd" "$(PATHWAYDIR)neighbourhood.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)tobacco.Rmd" "$(PATHWAYDIR)tobacco.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)nutrition.Rmd" "$(PATHWAYDIR)nutrition.rst" 1
+
+	# Copy figures from top level `figure/` directory into sub-directory
+	rm -rf $(PATHWAYDIR)figure
+	mv -f figure $(PATHWAYDIR)figure
+	rm -rf figure/*
+
+	### DEMOGRAPHIC MODULE PAGES
+
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)ageing.Rmd" "$(DEMOGRAPHICDIR)ageing.rst" 1
+
+	rm -rf $(DEMOGRAPHICDIR)figure
+	mv -f figure $(DEMOGRAPHICDIR)figure
+	rm -rf figure/*
+
+	### SUPPLEMENTARY MODULE PAGES
+
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)heating.Rmd" "$(SUPPLEMENTARYDIR)heating.rst" 1
+
+	rm -rf $(SUPPLEMENTARYDIR)figure
+	mv -f figure $(SUPPLEMENTARYDIR)figure
+	rm -rf figure/*
 
 	# Knitr outputs figures for the documentation in a folder /figure at the top repo level.
 	# I couldn't figure out how change where to output them so manually move them instead..
 	# Check if a figures folder already exists for the Rmd notebooks.
 	# If it does exist remove it and replace it with the new set of figures in the top level folder.
-	rm -rf $(NOTEBOOKOUTPUTDIR)figure
-	mv -f figure $(NOTEBOOKOUTPUTDIR)figure
+#	rm -rf $(NOTEBOOKOUTPUTDIR)figure
+#	mv -f figure $(NOTEBOOKOUTPUTDIR)figure
 	# probably a better way to do this in the compile_rmd_rst.sh replacing with pandoc --extract-media..
 	rm -rf docsrc/modules.rst # I can't figure out why this file keeps being generated. It doesn't do anything and just causes a warning.
 

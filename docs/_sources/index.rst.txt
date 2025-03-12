@@ -8,7 +8,7 @@ Welcome to Minos's documentation!
 =================================
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 6
 
     documentation/summary
     documentation/index

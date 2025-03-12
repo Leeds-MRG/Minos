@@ -546,6 +546,10 @@ class geeYJIncome(Base):
         plt.close()
 
 
+def select_random_income(group):
+    random_income = np.random.choice(group['hh_income'])
+    return group.assign(hh_income=random_income)
+
 
 class lmmYJIncome(Base):
 
@@ -610,6 +614,7 @@ class lmmYJIncome(Base):
                         'job_sec',
                         'SF_12',
                         'pidp',
+                        'hidp',
                         'hh_income',
                         'hh_income_diff',
                         'S7_labour_state'
@@ -680,6 +685,10 @@ class lmmYJIncome(Base):
         newWaveIncome = pd.DataFrame(columns=['hh_income'])
         newWaveIncome['hh_income'] = self.calculate_income(pop)
         newWaveIncome.index = pop.index
+
+        # Ensure whole household has equal hh_income by taking mean after prediction
+        newWaveIncome['hidp'] = pop['hidp']
+        newWaveIncome = newWaveIncome.groupby('hidp').apply(select_random_income).reset_index(drop=True)
 
         # calculate household income mean
         income_mean = np.mean(newWaveIncome["hh_income"])

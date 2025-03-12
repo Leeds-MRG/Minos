@@ -51,17 +51,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../data_generation.html">Data Generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="index.html">Modules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interventions.html">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interventions.html#child-uplift">Child Uplift</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interventions.html#poverty-percentage-targets">Poverty Percentage Targets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interventions.html#living-wage">Living Wage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interventions.html#energy-downlift">Energy Downlift</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interventions.html#epcg">EPCG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="interventions.html#gbis">GBIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interventions.html">Interventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Validation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#internal">Internal</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#external">External</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#handovers">Handovers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cross-validation">Cross-Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="outcomes.html">Outcomes</a></li>
@@ -99,11 +94,115 @@
              
   <section id="validation">
 <h1>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h1>
-<section id="internal">
-<h2>Internal<a class="headerlink" href="#internal" title="Link to this heading"></a></h2>
+<p>For validation MINOS uses 2 methods; ‘handover’ plots and 5-fold
+cross-validation.</p>
+<section id="handovers">
+<h2>Handovers<a class="headerlink" href="#handovers" title="Link to this heading"></a></h2>
+<p>Handovers are not a method of statistical validation, but more of a
+sanity check giving a quick visual indication that the transition models
+are behaving as we would expect. In these plots, we show the ‘handover’
+from the unsimulated survey data to the simulated model output. This
+shows us whether the trends seen in the survey data are carried on into
+the simulation, and therefore whether the simulation continues trends
+from the underlying data.</p>
+<p>As an example, see below the handover plots for household income.</p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="c1">### Read data in for handovers plots</span>
+<span class="c1"># Read raw datafiles in</span>
+<span class="n">raw.files</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">list.files</span><span class="p">(</span><span class="n">here</span><span class="o">::</span><span class="nf">here</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;final_US&#39;</span><span class="p">),</span><span class="w"> </span><span class="n">pattern</span><span class="o">=</span><span class="s">&#39;[0-9]{4}_US_cohort.csv&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">full.names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span>
+<span class="n">raw.dat</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">do.call</span><span class="p">(</span><span class="n">rbind</span><span class="p">,</span><span class="w"> </span><span class="nf">lapply</span><span class="p">(</span><span class="n">raw.files</span><span class="p">,</span><span class="w"> </span><span class="n">read.csv</span><span class="p">))</span>
+<span class="n">raw.dat</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">raw.dat</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">filter</span><span class="p">(</span><span class="n">weight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="m">0</span><span class="p">)</span>
+
+<span class="n">out.path</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">here</span><span class="o">::</span><span class="nf">here</span><span class="p">(</span><span class="s">&#39;output&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;default_config/&#39;</span><span class="p">)</span>
+<span class="n">base.dat</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">read_singular_local_out</span><span class="p">(</span><span class="n">out.path</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;baseline&#39;</span><span class="p">,</span>
+<span class="w">                                    </span><span class="n">drop.dead</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span>
+<span class="w">                                    </span><span class="n">drop.zero.weight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span>
+
+<span class="c1"># cut off any years of raw data AFTER start year of simulation</span>
+<span class="nf">if </span><span class="p">(</span><span class="nf">min</span><span class="p">(</span><span class="n">base.dat</span><span class="o">$</span><span class="n">time</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="n">raw.dat</span><span class="o">$</span><span class="n">time</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">raw.dat</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">raw.dat</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">    </span><span class="nf">filter</span><span class="p">(</span><span class="n">time</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nf">min</span><span class="p">(</span><span class="n">base.dat</span><span class="o">$</span><span class="n">time</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="c1"># cut missing data for key variable</span>
+<span class="n">raw.dat</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">raw.dat</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">filter</span><span class="p">(</span><span class="o">!</span><span class="n">.data</span><span class="p">[[</span><span class="s">&#39;hh_income&#39;</span><span class="p">]]</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">miss.values</span><span class="p">)</span>
+
+<span class="nf">handover_boxplots</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;hh_income&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="plot of chunk hh_income_handovers" src="../../_images/hh_income_handovers-1.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 44 </span><span class="caption-text">plot of chunk hh_income_handovers</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">handover_lineplots</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;hh_income&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id2">
+<img alt="plot of chunk hh_income_handovers" src="../../_images/hh_income_handovers-2.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 45 </span><span class="caption-text">plot of chunk hh_income_handovers</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
-<section id="external">
-<h2>External<a class="headerlink" href="#external" title="Link to this heading"></a></h2>
+<section id="cross-validation">
+<h2>Cross-Validation<a class="headerlink" href="#cross-validation" title="Link to this heading"></a></h2>
+<p>The other form of validation is 5-fold cross-validation (CV), which is a
+valid form of statistical validation. For CV, we split the survey data
+into 5 pieces by splitting the list of personal identifiers into 5 equal
+chunks (this ensures that each chunk of data will have roughly similar
+numbers of individuals covering the full range of the survey).</p>
+<p>With the data split into 5 chunks we can simulate a single each chunk of
+the data independently, fitting transition models to the other 4/5ths of
+data before starting. We run each chunk once, starting in 2015 and
+running to 2021. This allows us to compare our simulated values to the
+true raw data over this time period, and assessing how our model is
+performing when trying to recreate real data.</p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">cv.mean.plots</span><span class="p">(</span><span class="n">cv1</span><span class="p">,</span><span class="w"> </span><span class="n">cv2</span><span class="p">,</span><span class="w"> </span><span class="n">cv3</span><span class="p">,</span><span class="w"> </span><span class="n">cv4</span><span class="p">,</span><span class="w"> </span><span class="n">cv5</span><span class="p">,</span><span class="w"> </span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;SF_12&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><img alt="plot of chunk cv_hh_income_vis" src="../../_images/cv_hh_income_vis-1.png" /><img alt="image1" src="../../_images/cv_hh_income_vis-2.png" /></p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">multi_year_boxplots</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;SF_12&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk cv_hh_income_vis" src="../../_images/cv_hh_income_vis-3.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 46 </span><span class="caption-text">plot of chunk cv_hh_income_vis</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">snapshot_OP_plots</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;SF_12&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">target.years</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">2015</span><span class="p">,</span><span class="w"> </span><span class="m">2017</span><span class="p">,</span><span class="w"> </span><span class="m">2019</span><span class="p">,</span><span class="w"> </span><span class="m">2021</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning: Use of .data in tidyselect expressions was deprecated in tidyselect 1.2.0.</span>
+<span class="c1">## ℹ Please use `all_of(var)` (or `any_of(var)`) instead of `.data[[var]]`</span>
+<span class="c1">## This warning is displayed once every 8 hours.</span>
+<span class="c1">## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Warning in MASS::cov.trob(data[, vars]): Probable convergence failure</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id4">
+<img alt="plot of chunk cv_hh_income_vis" src="../../_images/cv_hh_income_vis-4.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 47 </span><span class="caption-text">plot of chunk cv_hh_income_vis</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">q_q_comparison</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;SF_12&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="plot of chunk cv_hh_income_vis" src="../../_images/cv_hh_income_vis-5.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 48 </span><span class="caption-text">plot of chunk cv_hh_income_vis</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
 </section>
 </section>
 

@@ -220,6 +220,20 @@ var.norm <- merged %>%
 ```
 
 
+## Deaths
+
+```{r}
+base.dead <- read_singular_local_out(out.path,
+                                     scenario = 'baseline',
+                                     drop.dead = FALSE,
+                                     drop.zero.weight = FALSE)
+
+mortality_plots(base.dead)
+
+rm(base.dead)
+```
+
+
 ## Population Counts
 
 ### Total Pop
@@ -605,7 +619,10 @@ base.housing <- base.dat %>%
 
 # merge before plot
 housing <- rbind(raw.housing, base.housing)
-housing$housing_quality <- as.factor(housing$housing_quality)
+housing$housing_quality <- factor(housing$housing_quality,
+                                  levels = c('High',
+                                             'Medium',
+                                             'Low'))
 
 # Now plot
 ggplot(data = housing, mapping = aes(x = time, y = n, group = housing_quality, colour = housing_quality)) +
@@ -1335,81 +1352,7 @@ rm(raw.s, base.s, spag)
 ## Child Ages
 
 ```{r}
-raw.child.ages <- raw.dat %>%
-  dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
-  filter(time > 2013 & child_ages != 'childless') %>%
-  group_by(time, hidp) %>%
-  summarise(child_ages = find_mode(child_ages))
-
-r.s<- strsplit(raw.child.ages$child_ages, "_")
-
-raw.child.ages.expanded <- data.frame(time = rep(raw.child.ages$time, sapply(r.s, length)), expanded_child_ages = unlist(r.s))
-raw.child.ages.expanded <- raw.child.ages.expanded %>%
-  group_by(time, expanded_child_ages) %>%
-  summarise(age_counts = n()) %>%
-  mutate(source = 'final_US') %>%
-  filter(expanded_child_ages <= 16)
-
-base.child.ages <- base.dat %>%
-  dplyr::select(pidp, hidp, time, "child_ages", "nkids") %>%
-  filter(time > 2009) %>%
-  group_by(time, hidp) %>%
-  summarise(child_ages = find_mode(child_ages))
-
-b.s<- strsplit(base.child.ages$child_ages, "_")
-
-base.child.ages.expanded <- data.frame(time = rep(base.child.ages$time, sapply(b.s, length)), expanded_child_ages = unlist(b.s))
-base.child.ages.expanded <- base.child.ages.expanded %>%
-  group_by(time, expanded_child_ages) %>%
-  summarise(age_counts = n()) %>%
-  mutate(source = 'baseline')
-
-combined <- rbind(raw.child.ages.expanded, base.child.ages.expanded)
-
-combined$expanded_child_ages <- factor(combined$expanded_child_ages,
-                                       levels = c('0', '1', '2', '3', '4', '5', 
-                                                  '6', '7', '8', '9', '10', 
-                                                  '11', '12', '13', '14', '15', 
-                                                  '16', 'childless'))
-  
-ggplot(data = combined, mapping = aes(x = time, y = age_counts, group = expanded_child_ages, colour =  factor(as.numeric(expanded_child_ages)))) +
-  geom_line() +
-  geom_vline(xintercept = start.year) +
-  labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
-  scale_colour_viridis_d() +
-  xlab('Year') +
-  ylab('Count')
-
-ggplot(data = combined, mapping = aes(x = expanded_child_ages, y = age_counts, group = factor(time), colour = factor(time))) +
-  geom_line() +
-  geom_vline(xintercept = start.year) +
-  labs(title = "Child Age Counts Over Time", subtitle = 'Counts by Level') +
-  scale_colour_viridis_d() +
-  xlab('Age') +
-  ylab('Count')
-
-base.child.ages.nkids <- base.dat %>%
-  group_by(time, hidp) %>%
-  summarise(nkids_counts = mean(nkids)) %>%
-  group_by(time) %>%
-  summarise(nkids_by_year = sum(nkids_counts)) %>%
-  mutate(source = 'baseline')
-
-raw.child.ages.nkids <- raw.dat %>%
-  group_by(time, hidp) %>%
-  summarise(nkids_counts = mean(nkids)) %>%
-  group_by(time) %>%
-  summarise(nkids_by_year = sum(nkids_counts)) %>%
-  mutate(source = 'final_US')
-
-combined.nkids <- rbind(base.child.ages.nkids, raw.child.ages.nkids)
-
-ggplot(data = combined.nkids, mapping = aes(x = time, y = nkids_by_year, group = source, colour = source)) +
-  geom_line() +
-  labs(title = "nkids Count Over Time", subtitle = 'Counts by Level') +
-  xlab('Year') +
-  ylab('Count')
-
+child_ages_lineplot(raw.dat, base.dat)
 ```
 
 

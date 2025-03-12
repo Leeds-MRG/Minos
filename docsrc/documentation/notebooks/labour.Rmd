@@ -6,20 +6,51 @@ bibliography:
 ---
 
 ```{r load_data, include=FALSE}
+library(dplyr)
 library(here)
+library(nnet)
+
 source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
 model_path <- here::here("data", "transitions", "S7_labour_state", "nnet", "S7_labour_state_2019_2020.rds")
 model <- readRDS(model_path)
 
 data <-  read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
 obs <- data$S7_labour_state
 preds <- stats::predict(model, data, type='class')
+obs <- factor(obs,
+              levels = c("FT Employed", "PT Employed", "FT Education", 
+                         "Family Care", "Job Seeking", "Not Working"))
+preds <- factor(preds,
+                levels = c("FT Employed", "PT Employed", "FT Education", 
+                         "Family Care", "Job Seeking", "Not Working"))
 v <- "S7_labour_state"
+
+### Read data in for handovers plots
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.dat <- raw.dat %>%
+  filter(weight > 0)
+
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
+
+# cut off any years of raw data AFTER start year of simulation
+if (min(base.dat$time) <= max(raw.dat$time)) {
+  raw.dat <- raw.dat %>%
+    filter(time <= min(base.dat$time))
+}
+
+# cut missing data for key variable
+raw.dat <- raw.dat %>%
+  filter(!.data[[v]] %in% miss.values)
 ```
 
 # Labour
-
-## Introduction
 
 Labour state is a measure of what an individual does. There are 8 distinctive categories including employment, unemployment, and retired. 
 The encodings of these states can be found [here]](https://leeds-mrg.github.io/Minos/documentation/data_tables.html).
@@ -29,13 +60,11 @@ discrete_barplot(obs)
 discrete_barplot2(obs, preds, "S7_labour_state")
 ```
 
-## Methods
+## Transition Model
 
-Labour state is a complex categorical data type. Single layer neural network is a simple way to estimate this state. Use multinom function from R's nnet package. Formula for weights included given as.
+Labour state is a complex categorical data type. Single layer neural network is a simple way to estimate this state. Use multinom function from R's [nnet](https://www.rdocumentation.org/packages/nnet/versions/7.3-20) package. Formula for weights included given as.
 
-$$labour\_state\_next = sex + ethnicity + age + education\_state + SF\_12 + housing\_quality + labour\_state + job\_sec + hh\_income + alcohol\_spending$$
-  
-## Data
+$$  labour\_state \sim labour\_state_\_last + age + sex + ethnicity + region + education\_state  $$
   
 Variables used in this model. Encodings for discrete variables found in data tables.
 
@@ -44,11 +73,24 @@ Variables used in this model. Encodings for discrete variables found in data tab
 - age in years. XXXX cite.
 - education. Highest qualification attained. XXXX cite 
 - sf12. Mental well-being score. XXXX cite
-- housing quality. Number of household appliances. Ordinal 1-3. XXXX cite
 - labour_state. Previous labour state. XXXX cite. Probably remove this. dominates prediction..
-- nssec. Socioeconomic code of job. Indicates job quality with 1-9 ordinal variable. XXXX cite
 - household income. Monthly disposable income of individuals household. XXXX cite.
-- alcohol spending. How much is spent on alcohol. XXXX cite. remove.
+
+| Predictor | Description | Literature/Justification |
+|------|-------|-------|
+| Previous Labour State |  |  |
+| Age |  |  |
+| Sex |  |  |
+| Ethnicity |  |  |
+| Region |  |  |
+| Education |  |  |
+
+## Validation
+
+```{r S7_labour_state_validation}
+handover_ordinal(raw.dat, base.dat, v)
+```
+
 
 ## Results
   
@@ -63,5 +105,8 @@ options(width=120)
 nnet_confusion_matrix(obs, preds, mode='multinom', 'S7_labour_state') # Note this is transition out of this state. 
 ```
 
+```{r labour_performance}
+cumulative_link_plot(obs, preds)
+```
 
 ## References

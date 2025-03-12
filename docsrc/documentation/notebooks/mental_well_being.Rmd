@@ -8,19 +8,93 @@ bibliography:
 # Mental Well-Being
 
 ```{r load_data, include=FALSE}
+library(dplyr)
 library(here)
+library(lme4)
 source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
 model_path <- here::here("data", "transitions", "SF_12", "lmm", "SF_12_LMM.rds")
 model <- readRDS(model_path)
 
 obs <- model@frame$SF_12
 preds <- predict(model, type='response')
 v <- "SF_12"
+
+### Read data in for handovers plots
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.dat <- raw.dat %>%
+  filter(weight > 0)
+
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
+
+# cut off any years of raw data AFTER start year of simulation
+if (min(base.dat$time) <= max(raw.dat$time)) {
+  raw.dat <- raw.dat %>%
+    filter(time <= min(base.dat$time))
+}
+
+# cut missing data for key variable
+raw.dat <- raw.dat %>%
+  filter(!.data[[v]] %in% miss.values)
+
+
+
+### Read data in for cross-val plots
+out.path <- here::here('output', 'cv')
+cv1 <- read_singular_local_out(here::here(out.path, 'default1/'), 'baseline', drop.dead = TRUE)
+cv2 <- read_singular_local_out(here::here(out.path, 'default2/'), 'baseline', drop.dead = TRUE)
+cv3 <- read_singular_local_out(here::here(out.path, 'default3/'), 'baseline', drop.dead = TRUE)
+cv4 <- read_singular_local_out(here::here(out.path, 'default4/'), 'baseline', drop.dead = TRUE)
+cv5 <- read_singular_local_out(here::here(out.path, 'default5/'), 'baseline', drop.dead = TRUE)
+
+cvlist <- list(cv1, cv2, cv3, cv4, cv5)
+cv <- do.call(rbind, cvlist)
+
+# cv simulation batches
+cv.simul.files1 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch1'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw1 <- do.call(rbind, lapply(cv.simul.files1, read.csv))
+cv.simul.files2 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch2'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw2 <- do.call(rbind, lapply(cv.simul.files2, read.csv))
+cv.simul.files3 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch3'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw3 <- do.call(rbind, lapply(cv.simul.files3, read.csv))
+cv.simul.files4 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch4'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw4 <- do.call(rbind, lapply(cv.simul.files4, read.csv))
+cv.simul.files5 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch5'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw5 <- do.call(rbind, lapply(cv.simul.files5, read.csv))
+
+rawlist <- list(raw1, raw2, raw3, raw4, raw5)
+raw.dat <- do.call(rbind, rawlist)
+
+# year filter
+cv.years <- cv %>% select(time) %>% unique()
+cv.years <- cv.years[['time']]
+
+#  cv <- cv.dat %>% filter(pidp %in% both.pidps$pidp)
+raw <- raw.dat %>% filter(time %in% cv.years)
+
+rm(cv.years)
 ```
 
 Mental wellbeing is one of the key output of MINOS. 
 
 To measure mental wellbeing, we use the Short-Form 12 Mental Component Score (SF-12 MCS). The Short-Form 12 survey is a survey consisting of 12 questions relating to both physical and mental health. [See here](https://www.england.nhs.uk/wp-content/uploads/2022/12/Short-form-12-health-survey-questionnaire.pdf) for a copy of the survey.
+
 Summary scores for both mental and physical health can be calculated from the responses, leading to the Mental Component Score (MCS). MCS is a measure ranging from 0 (low functioning) to 100 (high functioning). SF-12 MCS is represented by a variable directly from the survey - [`sf12mcs_dv`](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/sf12mcs_dv/). Each of the responses to the 12 questions are also available in the survey.
 
 
@@ -36,8 +110,35 @@ Formula:
 
 $$  SF\_12 \sim SF\_12\_last + age + sex + ethnicity + region + education\_state + hh\_income + \\housing\_quality + neighbourhood\_safety + loneliness + nutrition\_quality + ncigs + \\I(ncigs>0) + (1|pidp)  $$
 
+| Predictor | Description | Literature/Justification |
+|------|-------|-------|
+| Previous Mental Wellbeing |  |  |
+| Sex |  |  |
+| Age |  |  |
+| Ethnicity |  |  |
+| Region | Administrative region of the UK |  |
+| Education | Highest attained qualification |  |
+| Household Income |  |  |
+| Housing Quality |  |  |
+| Neighbourhood Safety |  | [@ruijsbroek2014social] [@putrik2019assessing] |
+| Loneliness |  |  |
+| Nutrition Quality |  |  |
+| Tobacco Use |  |  |
+
 ```{r mwb_model_summary}
 print(summary(model))
+```
+
+## Validation
+
+```{r mwb_handovers}
+handover_boxplots(raw.dat, base.dat, v)
+#handover_lineplots(raw.dat, base.dat, v)
+```
+
+```{r mwb_cv}
+multi_year_boxplots(raw, cv, v)
+q_q_comparison(raw, cv, v)
 ```
 
 ## Results

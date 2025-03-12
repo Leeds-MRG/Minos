@@ -59,9 +59,12 @@ class Heating(Base):
                         "nutrition_quality",
                         "ncigs",
                         'hh_income',
-                        'urban',
-                        'housing_tenure',
-                        'financial_situation'
+                        'SF_12',
+                        #'urban',
+                        #'housing_tenure',
+                        'behind_on_bills',
+                        'financial_situation',
+                        'heating'
                         ]
         self.population_view = builder.population.get_view(columns=view_columns)
 
@@ -116,9 +119,9 @@ class Heating(Base):
         if not self.transition_model or year <= 2020:
             self.transition_model = r_utils.load_transitions(f"heating/logit/heating_{year}_{year+1}",
                                                              self.rpy2Modules, path=self.transition_dir)
-            self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "logit")
+            #self.transition_model = r_utils.randomise_fixed_effects(self.transition_model, self.rpy2Modules, "logit")
 
         # returns probability matrix (3xn) of next ordinal state.
-        prob_df = r_utils.predict_next_timestep_logit(self.transition_model, self.rpy2Modules, pop, 'heating')
+        prob_df = r_utils.predict_next_timestep_logit(self.transition_model, self.rpy2Modules, pop)
         prob_df.columns = [1.]
         return prob_df

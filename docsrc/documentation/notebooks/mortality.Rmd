@@ -1,0 +1,40 @@
+---
+title: "Mortality"
+output: html_notebook
+---
+
+# Mortality
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(here)
+
+source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
+```
+
+
+Mortality in MINOS is managed differently to most other modules. Whilst other modules are entirely based on the input data and the transition model that is fit to that data, mortality data in Understanding Society is not reliable and complete enough for us to base our simulation mortality upon. To ensure that mortality in MINOS is more realistic we have generated a probability distribution for the likelihood of death, disaggregated by sex, age, government office region, and ethnicity. 
+
+*INFO NEEDED HERE ON SOURCE OF THE MORTALITY RATE INPUT DATA*
+
+The mortality rate table is based on 2 data sources; the [ONS population projections](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationprojections) and projections by ethnicity from a project named [NewEthPop](https://reshare.ukdataservice.ac.uk/852508/). The ONS projections were disaggregated by ethnicity using the results from the NewEthPop project.
+
+The resulting data is saved into simulation memory during the Mortality.pre_setup() method. Then during Mortality.setup(), the rate table is built and registered in a format that Vivarium can manage. 
+
+## Results
+
+Here are some plots to show the performance of the Mortality module.
+
+```{r mortality_plots}
+base.dead <- read_singular_local_out(out.path,
+                                     scenario = 'baseline',
+                                     drop.dead = FALSE,
+                                     drop.zero.weight = TRUE)
+
+mortality_plots(base.dead)
+```
+
+
+## References

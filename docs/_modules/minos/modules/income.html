@@ -646,6 +646,10 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
+<span class="k">def</span> <span class="nf">select_random_income</span><span class="p">(</span><span class="n">group</span><span class="p">):</span>
+    <span class="n">random_income</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">group</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">hh_income</span><span class="o">=</span><span class="n">random_income</span><span class="p">)</span>
+
 
 <span class="k">class</span> <span class="nc">lmmYJIncome</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
 
@@ -710,6 +714,7 @@
                         <span class="s1">&#39;job_sec&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;SF_12&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;pidp&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;hidp&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;hh_income&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;hh_income_diff&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;S7_labour_state&#39;</span>
@@ -780,6 +785,10 @@
         <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">])</span>
         <span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hh_income&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_income</span><span class="p">(</span><span class="n">pop</span><span class="p">)</span>
         <span class="n">newWaveIncome</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">index</span>
+
+        <span class="c1"># Ensure whole household has equal hh_income by taking mean after prediction</span>
+        <span class="n">newWaveIncome</span><span class="p">[</span><span class="s1">&#39;hidp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pop</span><span class="p">[</span><span class="s1">&#39;hidp&#39;</span><span class="p">]</span>
+        <span class="n">newWaveIncome</span> <span class="o">=</span> <span class="n">newWaveIncome</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;hidp&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">select_random_income</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># calculate household income mean</span>
         <span class="n">income_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">newWaveIncome</span><span class="p">[</span><span class="s2">&quot;hh_income&quot;</span><span class="p">])</span>

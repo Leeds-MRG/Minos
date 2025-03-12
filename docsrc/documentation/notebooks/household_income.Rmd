@@ -7,13 +7,87 @@ bibliography:
 
 ```{r load_data, include=FALSE}
 library(here)
+library(tidyverse)
+library(lme4)
 source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
 model_path <- here::here("data", "transitions", "hh_income", "glmm", "hh_income_new_GLMM.rds")
 model <- readRDS(model_path)
 
 obs <- model@frame$hh_income
 preds <- predict(model, type='response')
 v <- "hh_income"
+
+
+
+### Read data in for handovers plots
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.dat <- raw.dat %>%
+  filter(weight > 0)
+
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
+
+# cut off any years of raw data AFTER start year of simulation
+if (min(base.dat$time) <= max(raw.dat$time)) {
+  raw.dat <- raw.dat %>%
+    filter(time <= min(base.dat$time))
+}
+
+# cut missing data for key variable
+raw.dat <- raw.dat %>%
+  filter(!.data[[v]] %in% miss.values)
+
+
+### Read data in for cross-val plots
+out.path <- here::here('output', 'cv')
+cv1 <- read_singular_local_out(here::here(out.path, 'default1/'), 'baseline', drop.dead = TRUE)
+cv2 <- read_singular_local_out(here::here(out.path, 'default2/'), 'baseline', drop.dead = TRUE)
+cv3 <- read_singular_local_out(here::here(out.path, 'default3/'), 'baseline', drop.dead = TRUE)
+cv4 <- read_singular_local_out(here::here(out.path, 'default4/'), 'baseline', drop.dead = TRUE)
+cv5 <- read_singular_local_out(here::here(out.path, 'default5/'), 'baseline', drop.dead = TRUE)
+
+cvlist <- list(cv1, cv2, cv3, cv4, cv5)
+cv <- do.call(rbind, cvlist)
+
+# cv simulation batches
+cv.simul.files1 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch1'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw1 <- do.call(rbind, lapply(cv.simul.files1, read.csv))
+cv.simul.files2 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch2'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw2 <- do.call(rbind, lapply(cv.simul.files2, read.csv))
+cv.simul.files3 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch3'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw3 <- do.call(rbind, lapply(cv.simul.files3, read.csv))
+cv.simul.files4 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch4'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw4 <- do.call(rbind, lapply(cv.simul.files4, read.csv))
+cv.simul.files5 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch5'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw5 <- do.call(rbind, lapply(cv.simul.files5, read.csv))
+
+rawlist <- list(raw1, raw2, raw3, raw4, raw5)
+raw.dat <- do.call(rbind, rawlist)
+
+# year filter
+cv.years <- cv %>% select(time) %>% unique()
+cv.years <- cv.years[['time']]
+
+#  cv <- cv.dat %>% filter(pidp %in% both.pidps$pidp)
+raw <- raw.dat %>% filter(time %in% cv.years)
+
+rm(cv.years)
 ```
 
 # Household Disposable Income
@@ -44,19 +118,21 @@ To estimate this variable we use a Generalised Linear Mixed Model (GLMM) using t
   
 Formula:
   
-$$  hh\_income\_next \sim hh\_income\_last + age + age^2 +  age^3 + sex + ethnicity + region + education\_state + job\_sec + SF\_12 + labour\_state + (1\|pidp)$$
+$$  hh\_income \sim hh\_income\_last + age + age^2 +  age^3 + sex + ethnicity + region + \\education\_state + job\_sec + SF\_12 + labour\_state + (1|pidp)$$
 
 Each variable included is defined as follows. Each variable with discrete values is defined in the data tables section of this documentation [here](https://leeds-mrg.github.io/Minos/documentation/data_tables.html).
 
-- sex. Individual's biological sex. [@dilmaghani2018sexual]
-- age. Age at time of interview. 
-- ethnicity. Individual ethnicity. Discrete string values White British, Black African, etc. [@clemens2014method]
-- region. Administrative region of the UK. Discrete strings such as London, North-East. [@brewer2007poverty]
-- household income. Previous household income values are a strong indicator of current value. [@dilmaghani2018sexual]
-- job_sec. NSSEC code for individual's employment. Ordinal values describing job quality. [@clemens2014method]
-- labour state. Is a person employed, unemployed, student etc. Discrete states. [@dilmaghani2018sexual]
-- education state. Highest attained qualification. Ordinal values based on UK government education tiers [@eika2019educational]
-- SF_12. Mental well-being. Continuous score indicating overall mental-wellbeing. [@viswanathan2005nature]
+| Predictor | Description | Literature/Justification |
+|------|-------|-------|
+| Previous Income |  | [@dilmaghani2018sexual] |
+| Sex |  | [@dilmaghani2018sexual] |
+| Age |  |  |
+| Ethnicity |  | [@clemens2014method] |
+| Region | Administrative region of the UK | [@brewer2007poverty] |
+| Education | Highest attained qualification | [@eika2019educational] |
+| Job NSSEC | 8 level socio-economic employment category | [@clemens2014method] |
+| SF-12 MCS | Mental wellbeing | [@viswanathan2005nature] |
+| Labour State | Employment status| [@dilmaghani2018sexual] |
 
 ```{r hh_income_model_summary}
 print(summary(model))
@@ -65,6 +141,18 @@ print(summary(model))
 ### Council Tax
 
 In the UKHLS main release data, [council tax](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/ctband_dv/) information is reported by band. Specific amount deductions are only available in the Special Licence and Secure Access datasets. Instead of reported deductions, we have simulated the amount of council tax each household is paying by taking a random uniform draw for each household within the confines of their band.
+
+## Validation
+
+```{r hh_income_handovers}
+handover_boxplots(raw.dat, base.dat, v)
+handover_lineplots(raw.dat, base.dat, v)
+```
+
+```{r hh_income_cv}
+multi_year_boxplots(raw, cv, 'hh_income')
+q_q_comparison(raw, cv, 'hh_income')
+```
 
 
 ## Results

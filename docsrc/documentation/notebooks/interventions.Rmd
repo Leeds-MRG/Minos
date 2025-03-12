@@ -1,20 +1,22 @@
 ---
 title: "interventions"
 output: html_notebook
+bibliography:
+  - "`r here::here('docsrc', 'refs.bib')`"
 ---
 
-# Introduction
+# Interventions
 
-Section on interventions for minos
+Section on interventions for minos.
 
-# Child Uplift
+## Child Uplift
 
-# Poverty Percentage Targets
+## Poverty Percentage Targets
 
-# Living Wage
+## Living Wage
 
-# Energy Downlift
+## Energy Downlift
 
-# EPCG
+## EPCG
 
-# GBIS
+## GBIS

@@ -123,10 +123,11 @@ class Housing(Base):
         housing_prob_df.index = pop.index
 
         # convert numeric prediction into string factors (low, medium, high)
-        # NOTE: These strings obviously do not match with the numbers, but when switching to the rfo model
-        housing_factor_dict = {1: 'Medium',
-                               2: 'Low',
-                               3: 'High'}
+        # NOTE: These strings obviously do not match with the numbers, but when switching to the rfo model the factor
+        #       levels are being jumbled up for some reason. Don't know why but this fixes it.
+        housing_factor_dict = {1: 'High',
+                               2: 'Medium',
+                               3: 'Low'}
         housing_prob_df.replace({'housing_quality': housing_factor_dict},
                                 inplace=True)
 

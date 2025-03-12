@@ -3,19 +3,25 @@ title: "Housing"
 output: html_document
 bibliography: 
   - "`r here::here('docsrc', 'refs.bib')`"
-
 ---
 
 ```{r setup, include=FALSE}
+library(dplyr)
 library(here)
-library(glmnet)
-library(plyr)
+library(ranger)
+library(caret)
 
 source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
 model_path <- here::here("data", "transitions", "housing_quality", "rfo", "housing_quality_RFO.rds")
 model <- readRDS(model_path)
 
 data <- read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
+data$housing_quality <- factor(data$housing_quality,
+                               levels = c("High",
+                                          "Medium",
+                                          "Low"))
 obs <- data$housing_quality
 data$housing_quality_last <- data$housing_quality
 
@@ -23,8 +29,80 @@ preds <- ranger::predictions(stats::predict(model, data))
 column_names <- colnames(preds)
 preds <-glmnet::rmult(preds)
 preds <- plyr::mapvalues(preds, from=c(1,2,3), to= column_names)
+preds <- factor(preds,
+                levels = c("High", "Medium", "Low"))
 v <- "housing_quality"
 
+
+
+
+### Read data in for handovers plots
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.dat <- raw.dat %>%
+  filter(weight > 0)
+
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
+
+# cut off any years of raw data AFTER start year of simulation
+if (min(base.dat$time) <= max(raw.dat$time)) {
+  raw.dat <- raw.dat %>%
+    filter(time <= min(base.dat$time))
+}
+
+# cut missing data for key variable
+raw.dat <- raw.dat %>%
+  filter(!.data[[v]] %in% miss.values)
+
+
+### Read data in for cross-val plots
+out.path <- here::here('output', 'cv')
+cv1 <- read_singular_local_out(here::here(out.path, 'default1/'), 'baseline', drop.dead = TRUE)
+cv2 <- read_singular_local_out(here::here(out.path, 'default2/'), 'baseline', drop.dead = TRUE)
+cv3 <- read_singular_local_out(here::here(out.path, 'default3/'), 'baseline', drop.dead = TRUE)
+cv4 <- read_singular_local_out(here::here(out.path, 'default4/'), 'baseline', drop.dead = TRUE)
+cv5 <- read_singular_local_out(here::here(out.path, 'default5/'), 'baseline', drop.dead = TRUE)
+
+cvlist <- list(cv1, cv2, cv3, cv4, cv5)
+cv <- do.call(rbind, cvlist)
+
+# cv simulation batches
+cv.simul.files1 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch1'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw1 <- do.call(rbind, lapply(cv.simul.files1, read.csv))
+cv.simul.files2 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch2'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw2 <- do.call(rbind, lapply(cv.simul.files2, read.csv))
+cv.simul.files3 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch3'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw3 <- do.call(rbind, lapply(cv.simul.files3, read.csv))
+cv.simul.files4 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch4'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw4 <- do.call(rbind, lapply(cv.simul.files4, read.csv))
+cv.simul.files5 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch5'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw5 <- do.call(rbind, lapply(cv.simul.files5, read.csv))
+
+rawlist <- list(raw1, raw2, raw3, raw4, raw5)
+raw.dat <- do.call(rbind, rawlist)
+
+# year filter
+cv.years <- cv %>% select(time) %>% unique()
+cv.years <- cv.years[['time']]
+
+#  cv <- cv.dat %>% filter(pidp %in% both.pidps$pidp)
+raw <- raw.dat %>% filter(time %in% cv.years)
+
+rm(cv.years)
 ```
 
 # Housing Quality
@@ -54,6 +132,8 @@ The housing_quality composite is defined as:
 - All core some bonus == 2
 - All core all bonus  == 3
 
+*IMPORTANT NOTE:* Unfortunately, one of the core components of this composite is not present in every wave of the survey - `heating`. This caused us a major problem, as the way the pathways are devised we need at least one wave with all pathway variables present, so we can fit a transition model for SF-12. Because of this, we decided to forward fill the `heating` variable before generating the `housing_quality` composite variable. As `heating` is a fairly static variable (highest transition rate between years is 6%, mean 4.5%) we believe this is a justified decision. Please see the heating module documentation page for more information on this (specifically under the heading "Justification for Forward Fill".
+
   
 ```{r housing_barchart, echo=FALSE}
 order <- c("Low", "Medium", "High")
@@ -66,28 +146,49 @@ We use a Random Forest Ordinal model from the [ranger](https://www.rdocumentatio
 
 Formula:
 
-$$  housing\_quality \sim housing\_quality\_last + age + sex + ethnicity + region + education\_state + neighbourhood\_safety + loneliness + nutrition\_quality + ncigs + hh\_income + housing\_tenure + behind\_on\_bills + financial\_situation  $$
+$$  housing\_quality \sim housing\_quality\_last + age + sex + ethnicity + region + education\_state + \\neighbourhood\_safety + loneliness + nutrition\_quality + ncigs + hh\_income + \\housing\_tenure + behind\_on\_bills + financial\_situation + job\_sec  $$
 
-- age: Age at time of interview. 
-- sex: Individual's biological sex.
-- ethnicity: Discrete string values White British, Black African, etc.
-- region: Administrative region of the UK. Discrete strings such as London, North-East.
-- education_state: Highest attained qualification. Ordinal values based on UK government education tiers
-- neighbourhood_safety: Ordinal values based on frequency of 6 factors related to safety
-- loneliness: Ordinal variable for frequency of feeling lonely. Often/Sometimes/Never
-- nutrition_quality: Household nutrition quality. Continuous variable proxied by frequency of consumption of fruit and vegetables.
-- ncigs: Tobacco consumption. Count of cigarettes smoked per week.
-- hh_income: Household Income. Continuous, equivalised household disposable income.
-- housing_tenure: Housing Tenure. Ordinal variable for tenure type e.g. Owned outright, Local authority rent
-- behind_on_bills: Subjective feeling of struggling to pay bills.
-- financial_situation: Ordinal variable for current subjective financial situation.
-- SF_12:  Mental well-being. Continuous score indicating overall mental-wellbeing.
+
+| Predictor | Description | Literature/Justification |
+|------|-------|-------|
+| Previous Housing Quality |  |  |
+| Age |  | [@whelan2012understanding] |
+| Sex |  | [@whelan2012understanding] |
+| Ethnicity |  |[@whelan2012understanding]  |
+| Region |  |  |
+| Education |  | [@whelan2012understanding] |
+| Neighbourhood Safety |  | [@whelan2012understanding] |
+| Loneliness |  |  |
+| Nutrition Quality |  |  |
+| Tobacco Consumption | Count of cigarettes smoked per week |  |
+| Household Income |  | [@waters2023housing] |
+| Housing Tenure | Ordinal variable for tenure type e.g. Owned outright, Local authority rent | [@whelan2012understanding] [@waters2023housing] |
+| Behind on Bills | Subjective feeling of struggling to pay bills |  |
+| Financial Situation | Ordinal variable for current subjective financial situation |  |
+| SF-12 MCS | Mental wellbeing | [@whelan2012understanding] |
 
 
 ```{r housing_model_summary}
 plot_rfo_importance(model)
 ```
 
+## Validation
+
+```{r housing_validation}
+handover_ordinal(raw.dat, base.dat, v)
+```
+
+```{r housing_cv}
+hous.pivoted <- combine_and_pivot_long(df1 = cv, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw, 
+                                       df2.name = 'raw', 
+                                       var = 'housing_quality')
+
+cv_ordinal_plots(pivoted.df = hous.pivoted, 
+                 var = 'housing_quality',
+                 save = FALSE)
+```
 
 ## Results
   
@@ -97,6 +198,10 @@ Random Forest Ordinal models from the ranger package cannot provide a summary li
 ```{r housing_output, echo=FALSE}
 options(width=120)
 discrete_barplot2(obs, preds, 'housing_quality')
+```
+
+```{r housing_performance}
+cumulative_link_plot(obs, preds)
 ```
 
 

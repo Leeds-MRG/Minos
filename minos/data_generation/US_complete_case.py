@@ -48,8 +48,10 @@ def complete_case_custom_years(data, var, years):
     print("Processing {} for custom years {}".format(var, years))
 
     # Replace all missing values in years (below 0) with NA, and drop the NAs
-    data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
+    # data[var][data['time'].isin(years)] = data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan)
     # data[var][data['time'].isin(years)].replace(US_utils.missing_types, np.nan, inplace=True) # Avoids Pandas SettingWithCopyWarning
+    data.loc[data['time'].isin(years), var] = data.loc[data['time'].isin(years), var].replace(US_utils.missing_types,
+                                                                                              np.nan)
     data = data[~(data['time'].isin(years) & data[var].isna())]
 
     return data
@@ -72,7 +74,7 @@ if __name__ == "__main__":
     data = US_utils.load_multiple_data(file_names)
 
     complete_case_vars = ['marital_status', 'yearly_energy', "job_sec", 'housing_quality',
-                          "education_state", 'region', "age", 'financial_situation', #'SF_12',
+                          "education_state", 'region', "age", 'financial_situation', 'SF_12',
                           "housing_tenure", "nkids_ind", 'S7_labour_state', "behind_on_bills"]
     # REMOVED:  'job_sector', 'labour_state', 'job_hours', 'hourly_wage',
 

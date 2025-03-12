@@ -126,6 +126,35 @@ def predict_next_timestep_ols_diff(model, rpy2_modules, current, dependent, year
     return newPandasPopDF[['new_dependent', 'predicted']]
 
 
+def predict_next_timestep_logit(model, rpy2modules, current):
+    """
+    This function will take the transition model loaded in load_transitions() and use it to predict the next timestep
+    for a module.
+    Parameters
+    ----------
+    model : R rds object
+        Fitted model loaded in from .rds file
+    current : pandas DataFrame
+    Returns:
+    -------
+    A prediction of the information for next timestep
+    """
+    # import R packages
+    base = rpy2modules['base']
+    stats = rpy2modules['stats']
+
+    # Convert from pandas to R using package converter
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        currentRDF = ro.conversion.py2rpy(current)
+
+    # R predict.clm method returns a matrix of probabilities of belonging in each state.
+    prediction = stats.predict(model, currentRDF, type="response")
+
+    # Convert prob matrix back to pandas.
+    #return np.array(prediction)
+    return pd.DataFrame(prediction)
+
+
 def predict_next_timestep_clm(model, rpy2modules, current, dependent):
     """
     This function will take the transition model loaded in load_transitions() and use it to predict the next timestep

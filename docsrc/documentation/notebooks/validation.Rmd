@@ -3,9 +3,112 @@ title: "Validation"
 output: html_notebook
 ---
 
+```{r setup, include=FALSE}
+library(dplyr)
+library(here)
+
+source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
+```
+
+
 # Validation
 
-## Internal
+For validation MINOS uses 2 methods; 'handover' plots and 5-fold cross-validation.
 
-## External
+## Handovers
 
+Handovers are not a method of statistical validation, but more of a sanity check giving a quick visual indication that the transition models are behaving as we would expect. In these plots, we show the 'handover' from the unsimulated survey data to the simulated model output. This shows us whether the trends seen in the survey data are carried on into the simulation, and therefore whether the simulation continues trends from the underlying data.
+
+As an example, see below the handover plots for household income.
+
+```{r hh_income_handovers}
+### Read data in for handovers plots
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.dat <- raw.dat %>%
+  filter(weight > 0)
+
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
+
+# cut off any years of raw data AFTER start year of simulation
+if (min(base.dat$time) <= max(raw.dat$time)) {
+  raw.dat <- raw.dat %>%
+    filter(time <= min(base.dat$time))
+}
+
+# cut missing data for key variable
+raw.dat <- raw.dat %>%
+  filter(!.data[['hh_income']] %in% miss.values)
+
+handover_boxplots(raw.dat, base.dat, 'hh_income')
+handover_lineplots(raw.dat, base.dat, 'hh_income')
+```
+
+
+## Cross-Validation
+
+The other form of validation is 5-fold cross-validation (CV), which is a valid form of statistical validation. For CV, we split the survey data into 5 pieces by splitting the list of personal identifiers into 5 equal chunks (this ensures that each chunk of data will have roughly similar numbers of individuals covering the full range of the survey).
+
+With the data split into 5 chunks we can simulate a single each chunk of the data independently, fitting transition models to the other 4/5ths of data before starting. We run each chunk once, starting in 2015 and running to 2021. This allows us to compare our simulated values to the true raw data over this time period, and assessing how our model is performing when trying to recreate real data. 
+
+```{r cv_hh_income_prep, include=FALSE}
+out.path <- here::here('output', 'cv')
+cv1 <- read_singular_local_out(here::here(out.path, 'default1/'), 'baseline', drop.dead = TRUE)
+cv2 <- read_singular_local_out(here::here(out.path, 'default2/'), 'baseline', drop.dead = TRUE)
+cv3 <- read_singular_local_out(here::here(out.path, 'default3/'), 'baseline', drop.dead = TRUE)
+cv4 <- read_singular_local_out(here::here(out.path, 'default4/'), 'baseline', drop.dead = TRUE)
+cv5 <- read_singular_local_out(here::here(out.path, 'default5/'), 'baseline', drop.dead = TRUE)
+
+cvlist <- list(cv1, cv2, cv3, cv4, cv5)
+cv <- do.call(rbind, cvlist)
+
+# cv simulation batches
+cv.simul.files1 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch1'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw1 <- do.call(rbind, lapply(cv.simul.files1, read.csv))
+cv.simul.files2 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch2'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw2 <- do.call(rbind, lapply(cv.simul.files2, read.csv))
+cv.simul.files3 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch3'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw3 <- do.call(rbind, lapply(cv.simul.files3, read.csv))
+cv.simul.files4 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch4'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw4 <- do.call(rbind, lapply(cv.simul.files4, read.csv))
+cv.simul.files5 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch5'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw5 <- do.call(rbind, lapply(cv.simul.files5, read.csv))
+
+rawlist <- list(raw1, raw2, raw3, raw4, raw5)
+raw.dat <- do.call(rbind, rawlist)
+
+# year filter
+cv.years <- cv %>% select(time) %>% unique()
+cv.years <- cv.years[['time']]
+
+#  cv <- cv.dat %>% filter(pidp %in% both.pidps$pidp)
+raw <- raw.dat %>% filter(time %in% cv.years)
+
+rm(cv.years)
+```
+
+```{r cv_hh_income_vis}
+cv.mean.plots(cv1, cv2, cv3, cv4, cv5, raw, 'SF_12')
+multi_year_boxplots(raw, cv, 'SF_12')
+snapshot_OP_plots(raw, cv, 'SF_12', target.years = c(2015, 2017, 2019, 2021))
+q_q_comparison(raw, cv, 'SF_12')
+```
+
+
+## References
