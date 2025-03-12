@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tobacco &mdash; Minos  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=31edadca" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=8209df7b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/minos_theme.css?v=85179c66" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=3d1d8b85"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=9fa44488"></script>
+        <script src="../../../_static/doctools.js?v=dcc2bf79"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="DEMOGRAPHICS" href="../demographics/index.html" />
+    <link rel="prev" title="Nutrition" href="nutrition.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Minos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../data_generation.html">Data Generation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../modules_intro.html">Introduction</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">PATHWAYS</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="household_income.html">Household Disposable Income</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
+<li class="toctree-l4"><a class="reference internal" href="housing.html">Housing Quality</a></li>
+<li class="toctree-l4"><a class="reference internal" href="loneliness.html">Loneliness</a></li>
+<li class="toctree-l4"><a class="reference internal" href="labour.html">Labour</a></li>
+<li class="toctree-l4"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
+<li class="toctree-l4"><a class="reference internal" href="neighbourhood.html#neighbourhood-1">Neighbourhood</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Tobacco</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../demographics/index.html">DEMOGRAPHICS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../supplementary/index.html">SUPPLEMENTARY</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../interventions.html">Interventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../outcomes.html">Outcomes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">Welcome to Minos’ API documentation!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compile_help.html">Compiling this page using sphinx.</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Minos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Documentation</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Modules</a></li>
+          <li class="breadcrumb-item"><a href="index.html">PATHWAYS</a></li>
+      <li class="breadcrumb-item active">Tobacco</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tobacco">
+<h1>Tobacco<a class="headerlink" href="#tobacco" title="Link to this heading"></a></h1>
+<p>Tobacco consumption is measured in the usual number of cigarettes smoked
+per day, and is taken directly from a US variable
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/ncigs">ncigs</a>).
+Number of cigarettes consumed is an indicator of several mental
+illnesses including anxiety (Lawrence et al. 2010).</p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">continuous_density</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="plot of chunk tobacco_data" src="../../../_images/tobacco_data-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 32 </span><span class="caption-text">plot of chunk tobacco_data</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="n">obs_no_zero</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">obs</span><span class="p">[</span><span class="n">obs</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="m">0</span><span class="p">]</span><span class="w">  </span><span class="c1"># remove zero values to look at counts only for smokers</span>
+<span class="nf">continuous_density</span><span class="p">(</span><span class="n">obs_no_zero</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id2">
+<img alt="plot of chunk tobacco_data" src="../../../_images/tobacco_data-21.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 33 </span><span class="caption-text">plot of chunk tobacco_data</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<section id="transition-model">
+<h2>Transition Model<a class="headerlink" href="#transition-model" title="Link to this heading"></a></h2>
+<p>The number of zero inflated values is higher than expected for a count
+distribution such as a poisson distribution. This inflation occurs
+naturally as a large proportion (over 50%) of the population do not
+smoke. There are two sources of cigarette consumption that can be
+modelled using zero inflated models. In this case a zero-inflated
+poisson (ZIP) is used. Two models are fitted simultaneously. One is a
+logistic regression that estimates whether a person smokes cigarettes or
+not. This provides a simple probability of smoking or not. The second is
+a poisson counts model estimating the number of cigarettes consumed.
+This is modelled using the <code class="docutils literal notranslate"><span class="pre">zeroinfl()</span></code> function from the
+<a class="reference external" href="https://www.rdocumentation.org/packages/pscl/versions/1.5.9">pscl</a>
+package in R.</p>
+<p>Formula:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}ncigs \sim ncigs\_last + age + sex + ethnicity + region + education\_state + housing\_quality + \\neighbourhood\_safety + loneliness + nutrition\_quality + \\hh\_income + SF\_12 + behind\_on\_bills + financial\_situation \\|\\ ncigs\_last + I(ncigs_last&gt;0) + ethnicity + housing\_quality + \\neighbourhood\_safety + loneliness + nutrition\_quality + job\_sec + \\hh\_income + SF\_12 + behind\_on\_bills + financial\_situation\end{split}\]</div>
+<p>NOTE: The syntax seen above <code class="docutils literal notranslate"><span class="pre">I(ncigs&gt;0)</span></code> represents a binary flag for
+whether a person smoked previously (<code class="docutils literal notranslate"><span class="pre">ncigs</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>).</p>
+<p>Two set of variables are needed for the logistic and poisson parts of
+the ZIP model respectively. These two formula are separated by a ‘|’
+symbol. On the right hand side of the ‘|’ is the formula for the
+logistic regression that determines whether an individual is a smoker or
+not. On the left side is the formula for the poisson model to predict
+the counts of cigarettes for smokers.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Predictor</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Lite
+rature/Justification</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Previous Tobacco
+Consumption</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Sex</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Age</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Ethnicity</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Region</p></td>
+<td><p>Administrative
+region of the UK</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Education</p></td>
+<td><p>Highest attained
+qualification</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Household Income</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Behind on Bills</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Financial Situation</p></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">zip_output</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">##</span>
+<span class="c1">## Call:</span>
+<span class="c1">## zeroinfl(formula = formula, data = data, weights = weight, dist = &quot;pois&quot;,</span>
+<span class="c1">##     link = &quot;logit&quot;)</span>
+<span class="c1">##</span>
+<span class="c1">## Pearson residuals:</span>
+<span class="c1">##      Min       1Q   Median       3Q      Max</span>
+<span class="c1">## -1.39165 -0.02575 -0.01822 -0.01256  7.88394</span>
+<span class="c1">##</span>
+<span class="c1">## Count model coefficients (poisson with log link):</span>
+<span class="c1">##                                               Estimate Std. Error z value</span>
+<span class="c1">## (Intercept)                                   1.756078   0.515096   3.409</span>
+<span class="c1">## scale(age)                                    0.088226   0.072250   1.221</span>
+<span class="c1">## factor(sex)Male                               0.132957   0.100926   1.317</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN   -0.458047   0.724719  -0.632</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA   -0.324150   0.524756  -0.618</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC   -0.395408   0.500650  -0.790</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI   -0.202406   1.083906  -0.187</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND   -0.222598   0.469511  -0.474</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX   -0.343940   0.325918  -1.055</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS   -0.604959   1.098497  -0.551</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL   -0.423129   1.781472  -0.238</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH    0.168325   0.534438   0.315</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK   -0.852220   0.645376  -1.321</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO    0.129127   0.178164   0.725</span>
+<span class="c1">## factor(region)East of England                -0.207061   0.220486  -0.939</span>
+<span class="c1">## factor(region)London                         -0.195256   0.224629  -0.869</span>
+<span class="c1">## factor(region)North East                     -0.117416   0.263432  -0.446</span>
+<span class="c1">## factor(region)North West                     -0.043274   0.201905  -0.214</span>
+<span class="c1">## factor(region)Northern Ireland                0.013488   0.398038   0.034</span>
+<span class="c1">## factor(region)Scotland                       -0.179701   0.257042  -0.699</span>
+<span class="c1">## factor(region)South East                     -0.039395   0.207855  -0.190</span>
+<span class="c1">## factor(region)South West                     -0.235811   0.227424  -1.037</span>
+<span class="c1">## factor(region)Wales                          -0.045986   0.260487  -0.177</span>
+<span class="c1">## factor(region)West Midlands                   0.122812   0.198825   0.618</span>
+<span class="c1">## factor(region)Yorkshire and The Humber       -0.004834   0.211307  -0.023</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)0  0.422996   0.443084   0.955</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)2  0.362267   0.443040   0.818</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)3  0.157176   0.459963   0.342</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)5  0.199678   0.467004   0.428</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)6  0.103512   0.466882   0.222</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)7  0.497267   0.464812   1.070</span>
+<span class="c1">## factor(housing_quality)Low                   -0.056672   0.175289  -0.323</span>
+<span class="c1">## factor(housing_quality)Medium                -0.025581   0.117700  -0.217</span>
+<span class="c1">## factor(loneliness)2                           0.164228   0.110798   1.482</span>
+<span class="c1">## factor(loneliness)3                          -0.088262   0.187043  -0.472</span>
+<span class="c1">## scale(nutrition_quality)                     -0.086828   0.057143  -1.519</span>
+<span class="c1">## scale(ncigs)                                  0.060370   0.011383   5.303</span>
+<span class="c1">## scale(hh_income)                             -0.047014   0.072999  -0.644</span>
+<span class="c1">## scale(SF_12)                                 -0.042692   0.052335  -0.816</span>
+<span class="c1">## factor(behind_on_bills)2                      0.032621   0.140519   0.232</span>
+<span class="c1">## factor(behind_on_bills)3                     -0.223792   0.591207  -0.379</span>
+<span class="c1">## factor(financial_situation)2                  0.132737   0.145536   0.912</span>
+<span class="c1">## factor(financial_situation)3                  0.014451   0.167452   0.086</span>
+<span class="c1">## factor(financial_situation)4                  0.047932   0.214865   0.223</span>
+<span class="c1">## factor(financial_situation)5                 -0.059367   0.284620  -0.209</span>
+<span class="c1">## factor(S7_labour_state)PT Employed           -0.012102   0.159718  -0.076</span>
+<span class="c1">## factor(S7_labour_state)Job Seeking            0.137922   0.175851   0.784</span>
+<span class="c1">## factor(S7_labour_state)FT Education          -0.389807   0.402215  -0.969</span>
+<span class="c1">## factor(S7_labour_state)Family Care            0.172396   0.246076   0.701</span>
+<span class="c1">## factor(S7_labour_state)Not Working            0.053776   0.146154   0.368</span>
+<span class="c1">## factor(job_sec)1                              0.148942   0.307434   0.484</span>
+<span class="c1">## factor(job_sec)2                             -0.006665   0.337203  -0.020</span>
+<span class="c1">## factor(job_sec)3                              0.168864   0.214513   0.787</span>
+<span class="c1">## factor(job_sec)4                              0.168856   0.225449   0.749</span>
+<span class="c1">## factor(job_sec)5                              0.123171   0.230018   0.535</span>
+<span class="c1">## factor(job_sec)6                              0.225291   0.225344   1.000</span>
+<span class="c1">## factor(job_sec)7                              0.112134   0.208409   0.538</span>
+<span class="c1">## factor(job_sec)8                              0.244970   0.226591   1.081</span>
+<span class="c1">##                                              Pr(&gt;|z|)</span>
+<span class="c1">## (Intercept)                                  0.000651 ***</span>
+<span class="c1">## scale(age)                                   0.222038</span>
+<span class="c1">## factor(sex)Male                              0.187716</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN   0.527365</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA   0.536762</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC   0.429651</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI   0.851866</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND   0.635425</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX   0.291290</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS   0.581829</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL   0.812256</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH   0.752794</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK   0.186668</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO   0.468595</span>
+<span class="c1">## factor(region)East of England                0.347674</span>
+<span class="c1">## factor(region)London                         0.384715</span>
+<span class="c1">## factor(region)North East                     0.655802</span>
+<span class="c1">## factor(region)North West                     0.830289</span>
+<span class="c1">## factor(region)Northern Ireland               0.972969</span>
+<span class="c1">## factor(region)Scotland                       0.484482</span>
+<span class="c1">## factor(region)South East                     0.849678</span>
+<span class="c1">## factor(region)South West                     0.299792</span>
+<span class="c1">## factor(region)Wales                          0.859872</span>
+<span class="c1">## factor(region)West Midlands                  0.536781</span>
+<span class="c1">## factor(region)Yorkshire and The Humber       0.981749</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)0 0.339748</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)2 0.413537</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)3 0.732565</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)5 0.668962</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)6 0.824541</span>
+<span class="c1">## relevel(factor(education_state), ref = &quot;1&quot;)7 0.284698</span>
+<span class="c1">## factor(housing_quality)Low                   0.746463</span>
+<span class="c1">## factor(housing_quality)Medium                0.827943</span>
+<span class="c1">## factor(loneliness)2                          0.138279</span>
+<span class="c1">## factor(loneliness)3                          0.637011</span>
+<span class="c1">## scale(nutrition_quality)                     0.128639</span>
+<span class="c1">## scale(ncigs)                                 1.14e-07 ***</span>
+<span class="c1">## scale(hh_income)                             0.519552</span>
+<span class="c1">## scale(SF_12)                                 0.414641</span>
+<span class="c1">## factor(behind_on_bills)2                     0.816425</span>
+<span class="c1">## factor(behind_on_bills)3                     0.705034</span>
+<span class="c1">## factor(financial_situation)2                 0.361740</span>
+<span class="c1">## factor(financial_situation)3                 0.931227</span>
+<span class="c1">## factor(financial_situation)4                 0.823472</span>
+<span class="c1">## factor(financial_situation)5                 0.834774</span>
+<span class="c1">## factor(S7_labour_state)PT Employed           0.939602</span>
+<span class="c1">## factor(S7_labour_state)Job Seeking           0.432859</span>
+<span class="c1">## factor(S7_labour_state)FT Education          0.332469</span>
+<span class="c1">## factor(S7_labour_state)Family Care           0.483564</span>
+<span class="c1">## factor(S7_labour_state)Not Working           0.712916</span>
+<span class="c1">## factor(job_sec)1                             0.628053</span>
+<span class="c1">## factor(job_sec)2                             0.984231</span>
+<span class="c1">## factor(job_sec)3                             0.431166</span>
+<span class="c1">## factor(job_sec)4                             0.453871</span>
+<span class="c1">## factor(job_sec)5                             0.592314</span>
+<span class="c1">## factor(job_sec)6                             0.317424</span>
+<span class="c1">## factor(job_sec)7                             0.590546</span>
+<span class="c1">## factor(job_sec)8                             0.279648</span>
+<span class="c1">##</span>
+<span class="c1">## Zero-inflation model coefficients (binomial with logit link):</span>
+<span class="c1">##                                            Estimate Std. Error z value Pr(&gt;|z|)</span>
+<span class="c1">## (Intercept)                                 5.32237    1.07790   4.938 7.90e-07</span>
+<span class="c1">## I(factor(ncigs &gt; 0))TRUE                   -4.69548    0.93360  -5.029 4.92e-07</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN -0.50680    3.28346  -0.154    0.877</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA -0.09712    2.29730  -0.042    0.966</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC -1.14543    2.34089  -0.489    0.625</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI -0.89546    3.71259  -0.241    0.809</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND  0.14328    2.26575   0.063    0.950</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX -0.08254    2.00374  -0.041    0.967</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS  0.39417    3.41132   0.116    0.908</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL -0.43468    8.72959  -0.050    0.960</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH  1.73849    3.39195   0.513    0.608</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK  0.96084    2.13239   0.451    0.652</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO -0.43313    1.21204  -0.357    0.721</span>
+<span class="c1">## factor(housing_quality)Low                 -0.57763    1.15367  -0.501    0.617</span>
+<span class="c1">## factor(housing_quality)Medium              -0.52553    0.70965  -0.741    0.459</span>
+<span class="c1">## factor(loneliness)2                        -0.14139    0.74225  -0.190    0.849</span>
+<span class="c1">## factor(loneliness)3                         0.13103    1.20400   0.109    0.913</span>
+<span class="c1">## scale(nutrition_quality)                    0.05535    0.33362   0.166    0.868</span>
+<span class="c1">## scale(ncigs)                               -0.62567    0.39396  -1.588    0.112</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)0        0.05608    1.33826   0.042    0.967</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1       -0.80761    1.65422  -0.488    0.625</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2        0.02727    1.36350   0.020    0.984</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4       -0.33529    1.02164  -0.328    0.743</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)5       -0.35811    1.21971  -0.294    0.769</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)6       -0.49222    1.38210  -0.356    0.722</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7       -0.61393    0.94742  -0.648    0.517</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8       -0.68657    1.19747  -0.573    0.566</span>
+<span class="c1">## scale(hh_income)                            0.05335    0.40103   0.133    0.894</span>
+<span class="c1">## scale(SF_12)                                0.07009    0.34707   0.202    0.840</span>
+<span class="c1">## factor(behind_on_bills)2                   -1.16405    1.15193  -1.011    0.312</span>
+<span class="c1">## factor(behind_on_bills)3                    0.40170    5.17767   0.078    0.938</span>
+<span class="c1">## factor(financial_situation)2               -0.12475    0.82111  -0.152    0.879</span>
+<span class="c1">## factor(financial_situation)3               -0.52030    0.97033  -0.536    0.592</span>
+<span class="c1">## factor(financial_situation)4               -0.17864    1.40060  -0.128    0.899</span>
+<span class="c1">## factor(financial_situation)5               -1.09378    2.30711  -0.474    0.635</span>
+<span class="c1">##</span>
+<span class="c1">## (Intercept)                                ***</span>
+<span class="c1">## I(factor(ncigs &gt; 0))TRUE                   ***</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BAN</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLA</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)BLC</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)CHI</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)IND</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)MIX</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OAS</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OBL</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)OTH</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)PAK</span>
+<span class="c1">## relevel(factor(ethnicity), ref = &quot;WBI&quot;)WHO</span>
+<span class="c1">## factor(housing_quality)Low</span>
+<span class="c1">## factor(housing_quality)Medium</span>
+<span class="c1">## factor(loneliness)2</span>
+<span class="c1">## factor(loneliness)3</span>
+<span class="c1">## scale(nutrition_quality)</span>
+<span class="c1">## scale(ncigs)</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)0</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)1</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)2</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)4</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)5</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)6</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)7</span>
+<span class="c1">## relevel(factor(job_sec), ref = &quot;3&quot;)8</span>
+<span class="c1">## scale(hh_income)</span>
+<span class="c1">## scale(SF_12)</span>
+<span class="c1">## factor(behind_on_bills)2</span>
+<span class="c1">## factor(behind_on_bills)3</span>
+<span class="c1">## factor(financial_situation)2</span>
+<span class="c1">## factor(financial_situation)3</span>
+<span class="c1">## factor(financial_situation)4</span>
+<span class="c1">## factor(financial_situation)5</span>
+<span class="c1">## ---</span>
+<span class="c1">## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span>
+<span class="c1">##</span>
+<span class="c1">## Number of iterations in BFGS optimization: 62</span>
+<span class="c1">## Log-likelihood: -225.5 on 93 Df</span>
+</pre></div>
+</div>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h2>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">handover_boxplots</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk ncigs_validation" src="../../../_images/ncigs_validation-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 34 </span><span class="caption-text">plot of chunk ncigs_validation</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">handover_lineplots</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id4">
+<img alt="plot of chunk ncigs_validation" src="../../../_images/ncigs_validation-21.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 35 </span><span class="caption-text">plot of chunk ncigs_validation</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="results">
+<h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
+<p>Almost all coefficients significant. Particularly previous consumption
+of cigarettes. Good estimation of the number of non-smokers in the
+population at around 55%. Counts of smoking are underdispersed and fail
+to estimate consumption over 20 cigarettes.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## Error in density.default(obs, from = 0): argument &#39;x&#39; must be numeric</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="plot of chunk tobacco_output" src="../../../_images/tobacco_output-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 36 </span><span class="caption-text">plot of chunk tobacco_output</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<div class="references csl-bib-body hanging-indent docutils container" id="refs">
+<div class="csl-entry docutils container" id="ref-lawrence2010anxiety">
+<p>Lawrence, David, Julie Considine, Francis Mitrou, and Stephen R
+Zubrick. 2010. “Anxiety Disorders and Cigarette Smoking: Results
+from the Australian Survey of Mental Health and Wellbeing.”
+<em>Australian &amp; New Zealand Journal of Psychiatry</em> 44 (6): 520–27.</p>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="nutrition.html" class="btn btn-neutral float-left" title="Nutrition" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../demographics/index.html" class="btn btn-neutral float-right" title="DEMOGRAPHICS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Open MIT License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

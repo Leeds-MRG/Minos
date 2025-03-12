@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loneliness &mdash; Minos  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=31edadca" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=8209df7b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/minos_theme.css?v=85179c66" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=3d1d8b85"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=9fa44488"></script>
+        <script src="../../../_static/doctools.js?v=dcc2bf79"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Labour" href="labour.html" />
+    <link rel="prev" title="Housing Quality" href="housing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Minos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../data_generation.html">Data Generation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../modules_intro.html">Introduction</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">PATHWAYS</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="household_income.html">Household Disposable Income</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
+<li class="toctree-l4"><a class="reference internal" href="housing.html">Housing Quality</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Loneliness</a></li>
+<li class="toctree-l4"><a class="reference internal" href="labour.html">Labour</a></li>
+<li class="toctree-l4"><a class="reference internal" href="neighbourhood.html">Neighbourhood</a></li>
+<li class="toctree-l4"><a class="reference internal" href="neighbourhood.html#neighbourhood-1">Neighbourhood</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tobacco.html">Tobacco</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../demographics/index.html">DEMOGRAPHICS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../supplementary/index.html">SUPPLEMENTARY</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../interventions.html">Interventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../outcomes.html">Outcomes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">Welcome to Minos’ API documentation!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compile_help.html">Compiling this page using sphinx.</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Minos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Documentation</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Modules</a></li>
+          <li class="breadcrumb-item"><a href="index.html">PATHWAYS</a></li>
+      <li class="breadcrumb-item active">Loneliness</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="loneliness">
+<h1>Loneliness<a class="headerlink" href="#loneliness" title="Link to this heading"></a></h1>
+<p>A score for loneliness is taken directly from a US variable -
+<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/dataset-documentation/variable/sclonely">sclonely</a>.
+The questions used to output levels of loneliness in Understanding
+Society come from the Government Statistical Service (GSS) harmonised
+principle of loneliness. This means the outputs are comparable with
+other surveys that use this principle. The GSS has a <a class="reference external" href="https://analysisfunction.civilservice.gov.uk/policy-store/loneliness-indicators/">guidance
+page</a>
+which may be useful to understand what other data can and cannot be
+compared with this output.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">sclonely</span></code> variable is only available from wave 9 onwards, and is
+an ordinal variable with 3 levels:</p>
+<p>1 - Hardly ever or never 2 - Some of the time 3 - Often</p>
+<p>This means that lower scores mean “better” subjective scores of
+loneliness.</p>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="c1">#discrete_barplot(obs, &#39;loneliness&#39;)</span>
+<span class="n">order</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">)</span>
+<span class="nf">discrete_barplot</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="w"> </span><span class="n">order</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="plot of chunk loneliness_data" src="../../../_images/loneliness_data-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 16 </span><span class="caption-text">plot of chunk loneliness_data</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<section id="transition-model">
+<h2>Transition Model<a class="headerlink" href="#transition-model" title="Link to this heading"></a></h2>
+<p>To predict the next state of loneliness we use a Random Forest Ordinal
+model from the
+<a class="reference external" href="https://www.rdocumentation.org/packages/ranger/versions/0.16.0">ranger</a>
+package in R.</p>
+<p>Formula:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}loneliness \sim loneliness\_last + age + sex + ethnicity + region + education\_state + housing\_quality + \\neighbourhood\_safety + nutrition\_quality + ncigs + labour\_state + job\_sec + hh\_income + \\marital\_status + behind\_on\_bills + financial\_situation + SF\_12\end{split}\]</div>
+<p>Loneliness has been <a class="reference external" href="https://www.tandfonline.com/doi/full/10.1080/03601270701569275?casa_token=3vV_r99mb0QAAAAA%3ACK8Wogj5cs5CQm8gZfLKuHJtctkCyGX_i2y4CLyDgAhsReGB1s7QrV1I0qul-6Gw75QBcY93WoWuWA">linked with educational
+attainment</a>.
+Higher educational attainment has been linked with lower levels of
+stress and neuroticism, of which both have been linked with loneliness
+(more neuroticism/stress linked to more loneliness).</p>
+<p>Loneliness has been <a class="reference external" href="https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-020-09208-0">linked with
+ethnicity</a>.
+&gt; The association between ethnicity and loneliness was stronger among
+young and early middle-aged adults, compared to late middle-aged adults.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Predictor</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Li
+terature/Justification</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Previous
+Loneliness</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Age</p></td>
+<td></td>
+<td><p>(Franssen et al. 2020)
+(Beutel et al. 2017)</p></td>
+</tr>
+<tr class="row-even"><td><p>Sex</p></td>
+<td></td>
+<td><p>(Franssen et al. 2020)
+(Beutel et al. 2017)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Ethnicity</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Region</p></td>
+<td><p>Administrative region
+of the UK</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Education</p></td>
+<td><p>Highest attained
+qualification</p></td>
+<td><p>(Bishop and Martin
+2007) (Franssen et al.
+2020)</p></td>
+</tr>
+<tr class="row-even"><td><p>Housing Quality</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Neighbourhood
+Safety</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Nutrition Quality</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Tobacco
+Consumption</p></td>
+<td></td>
+<td><p>(Beutel et al. 2017)</p></td>
+</tr>
+<tr class="row-even"><td><p>Labour State</p></td>
+<td></td>
+<td><p>(Morrish and
+Medina-Lara 2021)
+(Moens et al. 2021)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Job NSSEC</p></td>
+<td><p>8 level socio-economic
+employment category</p></td>
+<td><p>(Morrish and
+Medina-Lara 2021)
+(Moens et al. 2021)</p></td>
+</tr>
+<tr class="row-even"><td><p>Household Income</p></td>
+<td></td>
+<td><p>(Franssen et al. 2020)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Marital Status</p></td>
+<td></td>
+<td><p>(Franssen et al. 2020)
+(Beutel et al. 2017)</p></td>
+</tr>
+<tr class="row-even"><td><p>Behind on Bills</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Financial
+Situation</p></td>
+<td></td>
+<td><p>(Franssen et al. 2020)</p></td>
+</tr>
+<tr class="row-even"><td><p>SF-12 MCS</p></td>
+<td></td>
+<td><p>(Franssen et al. 2020)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">plot_rfo_importance</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id2">
+<img alt="plot of chunk loneliness_model_summary" src="../../../_images/loneliness_model_summary-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 17 </span><span class="caption-text">plot of chunk loneliness_model_summary</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h2>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">handover_ordinal</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk loneliness_validation" src="../../../_images/loneliness_validation-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 18 </span><span class="caption-text">plot of chunk loneliness_validation</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="results">
+<h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
+<p>Random Forest Ordinal models from the ranger package cannot provide a
+summary like some other models can, so instead we will look at plots of
+observed vs predicted values as well as the importance of each variable
+in the resulting model.</p>
+<figure class="align-default" id="id4">
+<img alt="plot of chunk loneliness_output" src="../../../_images/loneliness_output-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 19 </span><span class="caption-text">plot of chunk loneliness_output</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">cumulative_link_plot</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="w"> </span><span class="n">preds</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## `geom_smooth()` using formula = &#39;y ~ x&#39;</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id5">
+<img alt="plot of chunk loneliness_performance" src="../../../_images/loneliness_performance-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 20 </span><span class="caption-text">plot of chunk loneliness_performance</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<div class="references csl-bib-body hanging-indent docutils container" id="refs">
+<div class="csl-entry docutils container" id="ref-beutel2017loneliness">
+<p>Beutel, Manfred E, Eva M Klein, Elmar Brähler, Iris Reiner, Claus
+Jünger, Matthias Michal, Jörg Wiltink, et al. 2017. “Loneliness in
+the General Population: Prevalence, Determinants and Relations to
+Mental Health.” <em>BMC Psychiatry</em> 17: 1–7.</p>
+</div>
+<div class="csl-entry docutils container" id="ref-bishop2007indirect">
+<p>Bishop, Alex J, and Peter Martin. 2007. “The Indirect Influence of
+Educational Attainment on Loneliness Among Unmarried Older
+Adults.” <em>Educational Gerontology</em> 33 (10): 897–917.</p>
+</div>
+<div class="csl-entry docutils container" id="ref-franssen2020age">
+<p>Franssen, Thanée, Mandy Stijnen, Femke Hamers, and Francine
+Schneider. 2020. “Age Differences in Demographic, Social and
+Health-Related Factors Associated with Loneliness Across the Adult
+Life Span (19–65 Years): A Cross-Sectional Study in the
+Netherlands.” <em>BMC Public Health</em> 20: 1–12.</p>
+</div>
+<div class="csl-entry docutils container" id="ref-moens2021does">
+<p>Moens, Eline, Stijn Baert, Elsy Verhofstadt, and Luc Van Ootegem.
+2021. “Does Loneliness Lurk in Temp Work? Exploring the
+Associations Between Temporary Employment, Loneliness at Work and
+Job Satisfaction.” <em>PLoS One</em> 16 (5): e0250664.</p>
+</div>
+<div class="csl-entry docutils container" id="ref-morrish2021does">
+<p>Morrish, N, and A Medina-Lara. 2021. “Does Unemployment Lead to
+Greater Levels of Loneliness? A Systematic Review.” <em>Social
+Science &amp; Medicine</em> 287: 114339.</p>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="housing.html" class="btn btn-neutral float-left" title="Housing Quality" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="labour.html" class="btn btn-neutral float-right" title="Labour" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Open MIT License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neighbourhood &mdash; Minos  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=31edadca" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=8209df7b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/minos_theme.css?v=85179c66" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=3d1d8b85"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=9fa44488"></script>
+        <script src="../../../_static/doctools.js?v=dcc2bf79"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Nutrition" href="nutrition.html" />
+    <link rel="prev" title="Labour" href="labour.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Minos
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../summary.html">SIPHER - Minos Model</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../data_generation.html">Data Generation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../modules_intro.html">Introduction</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">PATHWAYS</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="household_income.html">Household Disposable Income</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mental_well_being.html">Mental Well-Being</a></li>
+<li class="toctree-l4"><a class="reference internal" href="housing.html">Housing Quality</a></li>
+<li class="toctree-l4"><a class="reference internal" href="loneliness.html">Loneliness</a></li>
+<li class="toctree-l4"><a class="reference internal" href="labour.html">Labour</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Neighbourhood</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#neighbourhood-1">Neighbourhood</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nutrition.html">Nutrition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tobacco.html">Tobacco</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../demographics/index.html">DEMOGRAPHICS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../supplementary/index.html">SUPPLEMENTARY</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../interventions.html">Interventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../HPC.html">Running MINOS on Slurm/ARC4.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../validation.html">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../outcomes.html">Outcomes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_discovery.html">Data Discovery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_tables.html">Data Tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../API/index.html">Welcome to Minos’ API documentation!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compile_help.html">Compiling this page using sphinx.</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Minos</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Documentation</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Modules</a></li>
+          <li class="breadcrumb-item"><a href="index.html">PATHWAYS</a></li>
+      <li class="breadcrumb-item active">Neighbourhood</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="neighbourhood">
+<h1>Neighbourhood<a class="headerlink" href="#neighbourhood" title="Link to this heading"></a></h1>
+</section>
+<section id="neighbourhood-1">
+<span id="id1"></span><h1>Neighbourhood<a class="headerlink" href="#neighbourhood-1" title="Link to this heading"></a></h1>
+<p>Neighbourhood Safety is a composite derived from 7 questions related to
+different facets of safety in the neighbourhood.</p>
+<p>They are:</p>
+<ul class="simple">
+<li><p>burglaries
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/crburg/">crburg</a>)</p></li>
+<li><p>car crime
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/crcar/">crcar</a>)</p></li>
+<li><p>drunks
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/crdrnk/">crdrnk</a>)</p></li>
+<li><p>muggings
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/crmugg/">crmugg</a>)</p></li>
+<li><p>racial abuse
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/crrace/">crrace</a>)</p></li>
+<li><p>teenager issues
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/crteen/">crteen</a>)</p></li>
+<li><p>vandalism issues
+(<a class="reference external" href="https://www.understandingsociety.ac.uk/documentation/mainstage/variables/crvand/">crvand</a>)</p></li>
+</ul>
+<p>Each respondent is asked if they are concerned with these issues in
+their neighbourhood, and response with 1 of:</p>
+<ol class="arabic simple">
+<li><p>Hardly ever</p></li>
+<li><p>Some of the time</p></li>
+<li><p>Often</p></li>
+</ol>
+<p>We then assign people into three categories:</p>
+<ol class="arabic simple">
+<li><p>Very Safe Neighbourhood: Response to all crime questions is “not at
+all common”. Justification is that if you perceive no threat at all
+this is the best possible state.</p></li>
+<li><p>Safe Neighbourhood: Responds to 1+ question as “not very common” but
+no responses to ‘fairly or very common’. Justification is that on the
+whole these people probably feel safe but not all is perfect, so
+probably not quite as desirable as group 1.</p></li>
+<li><p>Unsafe Neighbourhood: Responds to 1+ question as fairly or very
+common’. Justification is that if perception of crime is very or
+fairly common, no matter what category, you are likely to feel that
+your neighbourhood safety is compromised.</p></li>
+</ol>
+<p><em>IMPORTANT NOTE:</em> The variables listed above that make up
+neighbourhood_safety are only asked in the survey every 3rd wave,
+starting in wave 3 (6, 9, 12). This causes a lot of problems and was the
+most challenging variable to include in the model. First, trying to fit
+a</p>
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h2>
+<figure class="align-default" id="id2">
+<img alt="plot of chunk neighbourhood_barchart" src="../../../_images/neighbourhood_barchart-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 24 </span><span class="caption-text">plot of chunk neighbourhood_barchart</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="transition-model">
+<h2>Transition Model<a class="headerlink" href="#transition-model" title="Link to this heading"></a></h2>
+<p>We fit a Random Forest Ordinal model from the
+<a class="reference external" href="https://www.rdocumentation.org/packages/ranger/versions/0.16.0">ranger</a>
+package in R to estimate transitions for this variable.</p>
+<p>Formula:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}neighbourhood\_safety \sim age + sex + ethnicity + region + education\_state + hh\_income + \\behind\_on\_bills + financial\_situation\end{split}\]</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Predictor</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Lite
+rature/Justification</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Sex</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Age</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Ethnicity</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Region</p></td>
+<td><p>Administrative
+region of the UK</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Education</p></td>
+<td><p>Highest attained
+qualification</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Household Income</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>Behind on Bills</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Financial Situation</p></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">plot_rfo_importance</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id3">
+<img alt="plot of chunk nh_safety_model_summary" src="../../../_images/nh_safety_model_summary-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 25 </span><span class="caption-text">plot of chunk nh_safety_model_summary</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h2>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">handover_ordinal</span><span class="p">(</span><span class="n">raw.dat</span><span class="p">,</span><span class="w"> </span><span class="n">base.dat</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id4">
+<img alt="plot of chunk nh_safety_validation" src="../../../_images/nh_safety_validation-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 26 </span><span class="caption-text">plot of chunk nh_safety_validation</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="results">
+<h2>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h2>
+<figure class="align-default" id="id5">
+<img alt="plot of chunk neighbourhood_output" src="../../../_images/neighbourhood_output-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 27 </span><span class="caption-text">plot of chunk neighbourhood_output</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="highlight-r notranslate"><div class="highlight"><pre><span></span><span class="nf">cumulative_link_plot</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span><span class="w"> </span><span class="n">preds</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">## `geom_smooth()` using formula = &#39;y ~ x&#39;</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id6">
+<img alt="plot of chunk neighbourhood_performance" src="../../../_images/neighbourhood_performance-11.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 28 </span><span class="caption-text">plot of chunk neighbourhood_performance</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="labour.html" class="btn btn-neutral float-left" title="Labour" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="nutrition.html" class="btn btn-neutral float-right" title="Nutrition" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Open MIT License.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
