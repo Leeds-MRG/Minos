@@ -9,7 +9,7 @@ The encodings of these states can be found
 |plot of chunk labour_barchart|\ |image1|
 
 Transition Model
-----------------
+~~~~~~~~~~~~~~~~
 
 Labour state is a complex categorical data type. Single layer neural
 network is a simple way to estimate this state. Use multinom function

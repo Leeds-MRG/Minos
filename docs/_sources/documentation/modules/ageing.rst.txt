@@ -40,4 +40,4 @@ each time step.
    ## ! could not find function "find_mode"
 
 References
-----------
+~~~~~~~~~~

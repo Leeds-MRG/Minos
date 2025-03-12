@@ -1,0 +1,6 @@
+SUPPLEMENTARY
+==============
+
+.. toctree::
+
+    heating
