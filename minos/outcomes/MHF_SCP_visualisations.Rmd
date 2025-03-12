@@ -1098,38 +1098,38 @@ mental_illness_risk_plots_subpop <- function(summary_group, comparison_scen) {
 # Sample Size Calculations
 
 ```{r}
-# # E&W adults: 48,566,000
-# # N: 160,908; 211,034
-# # N total: 371,942
-# 
-# # so we have
-# scaling_factor <- (371942 / 48566000) * 100
-# scaling_factor
-# 
-# 
-# 
-# # Q1: What is the total eligible sample in E&W?
-# #   : UC_families_count * 100/scaling_factor
-# 
-# UC_families <- generate_df_list('UC_kids', 'baseline')
-# UC_families <- do.call(rbind, UC_families)
-# 
-# UC_fam <- UC_families %>%
-#   filter(universal_credit == 1,
-#          children == TRUE,
-#          year == 2024) %>%
-#   group_by(run_id) %>%
-#   summarise(total_count = sum(count)) %>%
-#   ungroup() %>%
-#   summarise(mean_count = mean(total_count))
-# 
-# mean_count <- UC_fam[[1]]
-# mean_count
-# 
-# 
-# # eligible sample
-# eligible_sample_count <- mean_count * (100 / scaling_factor)
-# eligible_sample_count
+# E&W adults: 48,566,000
+# N: 160,908; 211,034
+# N total: 371,942
+
+# so we have
+scaling_factor <- (371942 / 48566000) * 100
+scaling_factor
+
+
+
+# Q1: What is the total eligible sample in E&W?
+#   : UC_families_count * 100/scaling_factor
+
+UC_families <- generate_df_list('UC_kids', 'baseline')
+UC_families <- do.call(rbind, UC_families)
+
+UC_fam <- UC_families %>%
+  filter(universal_credit == 1,
+         children == TRUE,
+         year == 2024) %>%
+  group_by(run_id) %>%
+  summarise(total_count = sum(count)) %>%
+  ungroup() %>%
+  summarise(mean_count = mean(total_count))
+
+mean_count <- UC_fam[[1]]
+mean_count
+
+
+# eligible sample
+eligible_sample_count <- mean_count * (100 / scaling_factor)
+eligible_sample_count
 ```
 
 
