@@ -122,7 +122,7 @@ class Replenishment(Base):
 
         # HR 24/09/24 Workaround for all cases (US and synthpop): get columns from input data
         column_source = self.config.base_input_data_dir
-        latest_file = os.listdir(column_source)[0]
+        latest_file = [f for f in os.listdir(column_source) if os.path.isfile(os.path.join(column_source, f))][0]
         view_columns = list(pd.read_csv(os.path.join(column_source, latest_file)).columns)
 
         if self.config.synthetic:  # only have spatial column and new pidp for synthpop.
@@ -658,7 +658,7 @@ def create_replenishing_population(pop_size,
                                    source_pop=None,
                                    sample_ages=SAMPLE_AGES_DEFAULT,
                                    repl_age=REPL_AGE_DEFAULT,
-                                   delta_threshold=0.02,
+                                   delta_threshold=0.05,
                                    ):
 
     if source_pop is None:

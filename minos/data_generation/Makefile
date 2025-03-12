@@ -76,7 +76,7 @@ synthetic_scotland_repl: $(DATADIR)/replenishing/scotland_scaled/replenishing_po
 
 uk_scaled_data: $(UKSCALEDDATA)/2020_US_cohort.csv
 
-gb_scaled_data: $(GBSCALEDDATA)/2019_US_cohort.csv
+gb_scaled_data: $(GBSCALEDDATA)/10pc/2019_US_cohort.csv
 
 synthetic_uk_repl: $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.csv
 
@@ -162,8 +162,8 @@ $(UKSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/U
 	$(PYTHON) $(DATAGEN)/US_household_upscaling.py -m -r 'uk' -p 1
 
 # Synthetic population input for GB
-$(GBSCALEDDATA)/2019_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_individual_upscaling.py
-	$(PYTHON) $(DATAGEN)/US_individual_upscaling.py -m -r 'gb' -p 1
+$(GBSCALEDDATA)/10pc/2019_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_individual_upscaling.py
+	$(PYTHON) $(DATAGEN)/US_individual_upscaling.py -m -r 'gb'
 
 $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.csv: $(UKSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py -m --region 'uk'

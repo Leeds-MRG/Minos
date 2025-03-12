@@ -26,7 +26,7 @@ SP_FILES = {2019: 'sp_ind_wavek_census2011_est2020_8cons.csv',  # UKDS version f
             }
 
 REGION_DEFAULT = 'gb'
-PERCENT_DEFAULT = 0.1
+PERCENT_DEFAULT = [1, 3, 5, 7, 10]
 YEARS_DEFAULT = (2019,)
 VAR_LIST_DEFAULT_FERTILITY = ('pidp',
                               'hidp',
@@ -76,7 +76,7 @@ def merge_with_synthpop(synthpop,
 
 
 def take_sample(data,
-                percent=PERCENT_DEFAULT,
+                percent=PERCENT_DEFAULT[0],
                 ):
     """
 
@@ -147,85 +147,98 @@ def main(region=REGION_DEFAULT,
         Years for which synthetic population will be calculated
     var_list : tuple
         Understanding Society variables to be used to populate synthetic population; restrict to reduce memory
-    percentage : float
+    percentage : float, int, list or tuple
         Percentage of population to be sampled
     n : int
         Number of bootstrapping samples to take.
     """
+    # Make percentage into list if only one value given
+    if isinstance(percentage, (float, int, np.float64, np.int64)):
+        percentage = [percentage]
+
     var_list = list(var_list)
-    for year in years:
 
-        # Get raw (i.e. unpopulated) synthetic population
-        synthpop_file_path = os.path.join(SPATIAL_DIR, SP_FILES[year])
-        try:
-            sp = pd.read_csv(synthpop_file_path)
-        except FileNotFoundError as e:
-            print(e)
-            print("Synthetic population file not found at {} for {}. Please ask MINOS maintainers for access".format(synthpop_file_path, year))
-            raise
+    # Generate range of percentages
+    for pc in percentage:
 
-        # Get LSOAs in region to be subsetted, then filter
-        lsoa_col = "LSOA" + str(LSOA_YEAR_DEFAULT)[-2:] + "CD"
-        sp.rename(columns={'synthetic_zone': lsoa_col}, inplace=True)  # Rename column that is present in some version of synthpop
+        for year in years:
 
-        ''' HR 11/09/24 Bootstrapping not tested '''
-        # # If bootstrapping sample from subsetted synthetic data with replacement (i.e. allow multiple instances)
-        # if bootstrapping:
-        #     sp = sp.sample(frac=1)  # Shuffle to randomise
-        #     sp = sp.sample(n, replace=True)
+            # Get raw (i.e. unpopulated) synthetic population
+            synthpop_file_path = os.path.join(SPATIAL_DIR, SP_FILES[year])
+            try:
+                sp = pd.read_csv(synthpop_file_path)
+            except FileNotFoundError as e:
+                print(e)
+                print("Synthetic population file not found at {} for {}. Please ask MINOS maintainers for access".format(synthpop_file_path, year))
+                raise
 
-        ''' HR 11/09/24 Priority group subsetting not tested '''
-        # # Generate a dataset of individuals in priority subgroups
-        # # 1. NEED TO MERGE ON PRIORITY COLUMNS HERE FIRST...
-        # if priority_sub:
-        #     priority_columns = [col for col in sp.columns if col.startswith('priority_')]
-        #     mask = sp[priority_columns].any(axis=1)
-        #     sp = sp[mask]
-        # # 2. ...THEN DROP EXTRANEOUS COLUMNS HERE AS NECESSARY
+            # Get LSOAs in region to be subsetted, then filter
+            lsoa_col = "LSOA" + str(LSOA_YEAR_DEFAULT)[-2:] + "CD"
+            sp.rename(columns={'synthetic_zone': lsoa_col}, inplace=True)  # Rename column that is present in some version of synthpop
 
-        # Get US data, filtering for required variables only
-        us_fullpath = os.path.join(DATA_DIR, 'imputed_final_US', str(year) + '_US_cohort.csv')
-        us_data = pd.read_csv(us_fullpath)[var_list]
+            ''' HR 11/09/24 Bootstrapping not tested '''
+            # # If bootstrapping sample from subsetted synthetic data with replacement (i.e. allow multiple instances)
+            # if bootstrapping:
+            #     sp = sp.sample(frac=1)  # Shuffle to randomise
+            #     sp = sp.sample(n, replace=True)
 
-        # Multisampling: generate n sample populations
-        if multisamp:
-            n_samples = 10
-            for i in range(n_samples):
-                # Get sample of synthpop and merge with US data
-                multi = take_sample(sp, percentage)
-                merged_multi = merge_with_synthpop(multi, us_data)
+            ''' HR 11/09/24 Priority group subsetting not tested '''
+            # # Generate a dataset of individuals in priority subgroups
+            # # 1. NEED TO MERGE ON PRIORITY COLUMNS HERE FIRST...
+            # if priority_sub:
+            #     priority_columns = [col for col in sp.columns if col.startswith('priority_')]
+            #     mask = sp[priority_columns].any(axis=1)
+            #     sp = sp[mask]
+            # # 2. ...THEN DROP EXTRANEOUS COLUMNS HERE AS NECESSARY
 
-                # Scramble pidp and correct region
-                merged_multi['pidp'] = merged_multi.reset_index().index
-                merged_multi = correct_region(merged_multi)
+            # Get US data, filtering for required variables only
+            us_fullpath = os.path.join(DATA_DIR, 'imputed_final_US', str(year) + '_US_cohort.csv')
+            us_data = pd.read_csv(us_fullpath)[var_list]
 
-                file_multi = os.path.join(DATA_DIR, f'scaled_{region}_US_{i+1}/')
-                US_utils.save_file(merged_multi, file_multi, '', year)
+            # Multisampling: generate n sample populations
+            if multisamp:
+                n_samples = 10
+                for i in range(n_samples):
+                    # Get sample of synthpop and merge with US data
+                    multi = take_sample(sp, pc)
+                    merged_multi = merge_with_synthpop(multi, us_data)
 
-        # Get sample of synthpop and merge with US data
-        samp = take_sample(sp, percentage)
-        merged = merge_with_synthpop(samp, us_data)
+                    # Scramble pidp and correct region
+                    merged_multi['pidp'] = merged_multi.reset_index().index
+                    merged_multi = correct_region(merged_multi)
 
-        # Compute proportion of synthpop individuals present in US data, i.e. degree of overlap - should be 100%!
-        ids_sp = set(sp['pidp'].unique())
-        ids_us = set(us_data['pidp'].unique())
-        n_overlap = len(ids_sp & ids_us)  # Get set intersection of pidps
-        n_total = len(ids_sp)
-        prop = 100*n_overlap/n_total
-        print('Degree of overlap b/t synthpop and US data: {}/{} ({}%)'.format(n_overlap, n_total, prop))
+                    file_multi = os.path.join(DATA_DIR, f'scaled_{region}_US_{i+1}/')
+                    US_utils.save_file(merged_multi, file_multi, '', year)
 
-        # Scramble pidp and correct region
-        merged['pidp'] = merged.reset_index().index
-        merged = correct_region(merged)
+            # Get sample of synthpop and merge with US data
+            samp = take_sample(sp, pc)
+            merged = merge_with_synthpop(samp, us_data)
 
-        if priority_sub:
-            # file_dest = os.path.join(DATA_DIR, f'{region}_priority_sub/')
-            print('Priority sub true')
-            pass  # HR 11/09/24 Bypassing priority group functionality as not tested
-        else:
-            print('Priority sub false')
-            file_dest = os.path.join(DATA_DIR, f'scaled_{region}_US/')
-        US_utils.save_file(merged, file_dest, '', year)
+            # Compute proportion of synthpop individuals present in US data, i.e. degree of overlap - should be 100%!
+            ids_sp = set(sp['pidp'].unique())
+            ids_us = set(us_data['pidp'].unique())
+            n_overlap = len(ids_sp & ids_us)  # Get set intersection of pidps
+            n_total = len(ids_sp)
+            prop = 100*n_overlap/n_total
+            print('Degree of overlap b/t synthpop and US data: {}/{} ({}%)'.format(n_overlap, n_total, prop))
+
+            # Scramble pidp and correct region
+            merged['pidp'] = merged.reset_index().index
+            merged = correct_region(merged)
+
+            if priority_sub:
+                # file_dest = os.path.join(DATA_DIR, f'{region}_priority_sub/')
+                print('Priority sub true')
+                pass  # HR 11/09/24 Bypassing priority group functionality as not tested
+            else:
+                print('Priority sub false')
+                file_dest = os.path.join(DATA_DIR, f'scaled_{region}_US', str(pc) + 'pc')
+
+            US_utils.check_output_dir(file_dest)
+            file_name = f"{year}_US_cohort.csv"
+            output_fullpath = os.path.join(file_dest, file_name)
+            merged.to_csv(output_fullpath, index=False)
+            print(f"Synthetic input population for {year}, {pc}% sample, saved to {output_fullpath}")
 
 
 if __name__ == '__main__':

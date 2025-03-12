@@ -56,7 +56,13 @@ def run(args):
                 "_" + str(((args.runID - 1) // 10) + 1))  # every 10 runs uses same pop.
         config.update({'input_data_dir': new_input_dir})
     else:
-        config.update({'input_data_dir': config['base_input_data_dir']})
+        input_dir = config['base_input_data_dir']
+
+        # HR 11/03/25 Workaround for variable synthetic population size (system determines maximum sample that can be used)
+        if config['synthetic'] and 'percentage' in config:
+            input_dir = os.path.join(input_dir, str(config['percentage']) + 'pc')
+
+        config.update({'input_data_dir': input_dir})
 
     # start_population_size (use size of prepared input population in start year)
     start_population_size = pd.read_csv(f"{config['input_data_dir']}/{year_start}_US_cohort.csv").shape[0]
