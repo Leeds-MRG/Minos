@@ -5,10 +5,11 @@ bibliography:
   - "`r here::here('docsrc', 'refs.bib')`" # finally figure out how to combine these for debugging and actual 
 ---
 
-```{r load_data, include=FALSE}
+```{r setup, include=FALSE}
 library(dplyr)
 library(here)
-library(nnet)
+library(ranger)
+library(caret)
 
 source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
 source(here::here('minos', 'utils_datain.R'))
@@ -16,7 +17,10 @@ source(here::here('minos', 'utils_validation_vis.R'))
 model_path <- here::here("data", "transitions", "S7_labour_state", "nnet", "S7_labour_state_2019_2020.rds")
 model <- readRDS(model_path)
 
-data <-  read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
+data <- read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
+
+#data$S7_labour_state_last <- data$S7_labour_state
+
 obs <- data$S7_labour_state
 preds <- stats::predict(model, data, type='class')
 obs <- factor(obs,
@@ -26,6 +30,9 @@ preds <- factor(preds,
                 levels = c("FT Employed", "PT Employed", "FT Education", 
                          "Family Care", "Job Seeking", "Not Working"))
 v <- "S7_labour_state"
+
+
+
 
 ### Read data in for handovers plots
 # Read raw datafiles in
@@ -48,42 +55,76 @@ if (min(base.dat$time) <= max(raw.dat$time)) {
 # cut missing data for key variable
 raw.dat <- raw.dat %>%
   filter(!.data[[v]] %in% miss.values)
+
+
+### Read data in for cross-val plots
+out.path <- here::here('output', 'cv')
+cv1 <- read_singular_local_out(here::here(out.path, 'default1/'), 'baseline', drop.dead = TRUE)
+cv2 <- read_singular_local_out(here::here(out.path, 'default2/'), 'baseline', drop.dead = TRUE)
+cv3 <- read_singular_local_out(here::here(out.path, 'default3/'), 'baseline', drop.dead = TRUE)
+cv4 <- read_singular_local_out(here::here(out.path, 'default4/'), 'baseline', drop.dead = TRUE)
+cv5 <- read_singular_local_out(here::here(out.path, 'default5/'), 'baseline', drop.dead = TRUE)
+
+cvlist <- list(cv1, cv2, cv3, cv4, cv5)
+cv <- do.call(rbind, cvlist)
+
+# cv simulation batches
+cv.simul.files1 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch1'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw1 <- do.call(rbind, lapply(cv.simul.files1, read.csv))
+cv.simul.files2 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch2'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw2 <- do.call(rbind, lapply(cv.simul.files2, read.csv))
+cv.simul.files3 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch3'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw3 <- do.call(rbind, lapply(cv.simul.files3, read.csv))
+cv.simul.files4 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch4'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw4 <- do.call(rbind, lapply(cv.simul.files4, read.csv))
+cv.simul.files5 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch5'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw5 <- do.call(rbind, lapply(cv.simul.files5, read.csv))
+
+rawlist <- list(raw1, raw2, raw3, raw4, raw5)
+raw.dat <- do.call(rbind, rawlist)
+
+# year filter
+cv.years <- cv %>% select(time) %>% unique()
+cv.years <- cv.years[['time']]
+
+#  cv <- cv.dat %>% filter(pidp %in% both.pidps$pidp)
+raw <- raw.dat %>% filter(time %in% cv.years)
+
+rm(cv.years)
 ```
 
 # Labour
 
-Labour state is a measure of what an individual does. There are 8 distinctive categories including employment, unemployment, and retired. 
-The encodings of these states can be found [here]](https://leeds-mrg.github.io/Minos/documentation/data_tables.html).
+Labour state relates to the employment status of an individual, which is derived from the [jbstat](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/jbstat/) and [jbft_dv](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/jbft_dv/) variables from Understanding Society. The jbstat variable from US has 16 categories, which we have recoded into a variable with 6 categories based on the SIPHER 7 definition of labour state. jbft_dv indicates whether the individual worked full or part time (greater than 30 hours per week for full time). The table below shows which categories have been combined into the new reduced categories:
+
+| New Category | Old Categories |
+| ------------ | -------------- |
+| FT Employed  | Paid employment (AND jbft_dv == 1); Self-employed; Unpaid, family business; Apprenticeship; Furlough |
+| PT Employed  | Paid employment (AND jbft_dv == 2) |
+| Job Seeking  | Unemployed; Temporarily laid off/Short-term Working |
+| FT Education | Full-time Student; Government Training |
+| Family Care  | Family Care |
+| Not Working  | Retired; Maternity Leave; LT Sick or Disabled |
 
 ```{r labour_barchart, echo=FALSE}
 discrete_barplot(obs)
-discrete_barplot2(obs, preds, "S7_labour_state")
 ```
 
 ## Transition Model
 
 Labour state is a complex categorical data type. Single layer neural network is a simple way to estimate this state. Use multinom function from R's [nnet](https://www.rdocumentation.org/packages/nnet/versions/7.3-20) package. Formula for weights included given as.
 
-$$  labour\_state \sim labour\_state_\_last + age + sex + ethnicity + region + education\_state  $$
-  
-Variables used in this model. Encodings for discrete variables found in data tables.
-
-- sex. Biological sex male/female.
-- ethnicity. Ethnicity e.g. white british. XXXX cite.
-- age in years. XXXX cite.
-- education. Highest qualification attained. XXXX cite 
-- sf12. Mental well-being score. XXXX cite
-- labour_state. Previous labour state. XXXX cite. Probably remove this. dominates prediction..
-- household income. Monthly disposable income of individuals household. XXXX cite.
-
-| Predictor | Description | Literature/Justification |
-|------|-------|-------|
-| Previous Labour State |  |  |
-| Age |  |  |
-| Sex |  |  |
-| Ethnicity |  |  |
-| Region |  |  |
-| Education |  |  |
+$$  labour\_state \sim labour\_state_\_last + age + sex + ethnicity + region + education\_state + SF\_12 + hh\_income  $$
 
 ## Validation
 
@@ -101,6 +142,7 @@ handover_ordinal(raw.dat, base.dat, v)
 
 ```{r labour_output, echo=FALSE}
 options(width=120)
+discrete_barplot2(obs, preds, v)
 #nnet_output("data/transitions/labour/nnet/labour_nnet_2018_2019.rds")
 nnet_confusion_matrix(obs, preds, mode='multinom', 'S7_labour_state') # Note this is transition out of this state. 
 ```

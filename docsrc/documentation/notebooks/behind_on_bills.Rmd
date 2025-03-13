@@ -1,0 +1,161 @@
+---
+title: "Behind on Bills"
+output: html_document
+bibliography: 
+  - "`r here::here('docsrc', 'refs.bib')`"
+---
+
+
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(here)
+library(ranger)
+library(caret)
+
+source(here::here("docsrc", "documentation", "notebooks", "sphinx_notebook_utils.R"))
+source(here::here('minos', 'utils_datain.R'))
+source(here::here('minos', 'utils_validation_vis.R'))
+model_path <- here::here("data", "transitions", "behind_on_bills", "rfo", "behind_on_bills_RFO.rds")
+model <- readRDS(model_path)
+
+data <- read.csv(here::here("data", "final_US", "2020_US_cohort.csv"))
+
+obs <- data$behind_on_bills
+data$behind_on_bills_last <- data$behind_on_bills
+
+preds <- ranger::predictions(stats::predict(model, data))
+column_names <- colnames(preds)
+preds <-glmnet::rmult(preds)
+#preds <- plyr::mapvalues(preds, from=c(1,2,3), to= column_names)
+#preds <- factor(preds,
+#                levels = c("High", "Medium", "Low"))
+v <- "behind_on_bills"
+
+
+
+
+### Read data in for handovers plots
+# Read raw datafiles in
+raw.files <- list.files(here::here('data', 'final_US'), pattern='[0-9]{4}_US_cohort.csv', full.names = TRUE)
+raw.dat <- do.call(rbind, lapply(raw.files, read.csv))
+raw.dat <- raw.dat %>%
+  filter(weight > 0)
+
+out.path <- here::here('output', 'default_config/')
+base.dat <- read_singular_local_out(out.path, 'baseline', 
+                                    drop.dead = TRUE, 
+                                    drop.zero.weight = TRUE)
+
+# cut off any years of raw data AFTER start year of simulation
+if (min(base.dat$time) <= max(raw.dat$time)) {
+  raw.dat <- raw.dat %>%
+    filter(time <= min(base.dat$time))
+}
+
+# cut missing data for key variable
+raw.dat <- raw.dat %>%
+  filter(!.data[[v]] %in% miss.values)
+
+
+### Read data in for cross-val plots
+out.path <- here::here('output', 'cv')
+cv1 <- read_singular_local_out(here::here(out.path, 'default1/'), 'baseline', drop.dead = TRUE)
+cv2 <- read_singular_local_out(here::here(out.path, 'default2/'), 'baseline', drop.dead = TRUE)
+cv3 <- read_singular_local_out(here::here(out.path, 'default3/'), 'baseline', drop.dead = TRUE)
+cv4 <- read_singular_local_out(here::here(out.path, 'default4/'), 'baseline', drop.dead = TRUE)
+cv5 <- read_singular_local_out(here::here(out.path, 'default5/'), 'baseline', drop.dead = TRUE)
+
+cvlist <- list(cv1, cv2, cv3, cv4, cv5)
+cv <- do.call(rbind, cvlist)
+
+# cv simulation batches
+cv.simul.files1 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch1'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw1 <- do.call(rbind, lapply(cv.simul.files1, read.csv))
+cv.simul.files2 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch2'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw2 <- do.call(rbind, lapply(cv.simul.files2, read.csv))
+cv.simul.files3 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch3'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw3 <- do.call(rbind, lapply(cv.simul.files3, read.csv))
+cv.simul.files4 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch4'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw4 <- do.call(rbind, lapply(cv.simul.files4, read.csv))
+cv.simul.files5 <- list.files(here::here('data', 'final_US', 'cross_validation', 'batch5'),
+                             pattern = '[0-9]{4}_US_cohort.csv',
+                             full.names = TRUE)
+raw5 <- do.call(rbind, lapply(cv.simul.files5, read.csv))
+
+rawlist <- list(raw1, raw2, raw3, raw4, raw5)
+raw.dat <- do.call(rbind, rawlist)
+
+# year filter
+cv.years <- cv %>% select(time) %>% unique()
+cv.years <- cv.years[['time']]
+
+#  cv <- cv.dat %>% filter(pidp %in% both.pidps$pidp)
+raw <- raw.dat %>% filter(time %in% cv.years)
+
+rm(cv.years)
+```
+
+# Behind on Bills
+
+Behind on bills is a supplementary module in Minos. It is based on the [xphsdba](https://www.understandingsociety.ac.uk/documentation/mainstage/variables/xphsdba/) variable from Understanding Society, which represents an individuals ability to pay their bills on time. The individual can then respond to say that they are up to date with all bills (1), behind with some bills (2), or behind with all bills (3).
+
+```{r bob_data}
+#discrete_barplot(obs, 'loneliness')
+order <- c(1, 2, 3)
+discrete_barplot(obs, order)
+```
+
+
+## Transition Model
+  
+To predict the next state of behind_on_bills we use a Random Forest Ordinal model from the [ranger](https://www.rdocumentation.org/packages/ranger/versions/0.16.0) package in R.
+
+Formula:
+
+$$  behind\_on\_bills \sim behind\_on\_bills\_last + age + sex + ethnicity + region + education\_state\\ + hh\_income + job\_sec  $$
+
+
+```{r bob_model_summary}
+plot_rfo_importance(model)
+```
+
+
+## Validation
+
+```{r bob_validation}
+handover_ordinal(raw.dat, base.dat, v)
+```
+
+```{r bob_cv}
+pivoted <- combine_and_pivot_long(df1 = cv, 
+                                       df1.name = 'simulated', 
+                                       df2 = raw, 
+                                       df2.name = 'raw', 
+                                       var = v)
+
+cv_ordinal_plots(pivoted.df = pivoted, 
+                 var = v,
+                 save = FALSE)
+```
+
+## Results
+
+Random Forest Ordinal models from the ranger package cannot provide a summary like some other models can, so instead we will look at plots of observed vs predicted values as well as the importance of each variable in the resulting model.
+
+```{r bob_output, echo=FALSE}
+options(width=120)
+discrete_barplot2(obs, preds, v)
+```
+
+```{r bob_performance}
+cumulative_link_plot(obs, preds)
+```

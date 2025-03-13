@@ -1,12 +1,43 @@
 Labour
 ------
 
-Labour state is a measure of what an individual does. There are 8
-distinctive categories including employment, unemployment, and retired.
-The encodings of these states can be found
-[here]](https://leeds-mrg.github.io/Minos/documentation/data_tables.html).
+Labour state relates to the employment status of an individual, which is
+derived from the
+`jbstat <https://www.understandingsociety.ac.uk/documentation/mainstage/variables/jbstat/>`__
+and
+`jbft_dv <https://www.understandingsociety.ac.uk/documentation/mainstage/variables/jbft_dv/>`__
+variables from Understanding Society. The jbstat variable from US has 16
+categories, which we have recoded into a variable with 6 categories
+based on the SIPHER 7 definition of labour state. jbft_dv indicates
+whether the individual worked full or part time (greater than 30 hours
+per week for full time). The table below shows which categories have
+been combined into the new reduced categories:
 
-|plot of chunk labour_barchart|\ |image1|
++--------------------------------+-------------------------------------+
+| New Category                   | Old Categories                      |
++================================+=====================================+
+| FT Employed                    | Paid employment (AND jbft_dv == 1); |
+|                                | Self-employed; Unpaid, family       |
+|                                | business; Apprenticeship; Furlough  |
++--------------------------------+-------------------------------------+
+| PT Employed                    | Paid employment (AND jbft_dv == 2)  |
++--------------------------------+-------------------------------------+
+| Job Seeking                    | Unemployed; Temporarily laid        |
+|                                | off/Short-term Working              |
++--------------------------------+-------------------------------------+
+| FT Education                   | Full-time Student; Government       |
+|                                | Training                            |
++--------------------------------+-------------------------------------+
+| Family Care                    | Family Care                         |
++--------------------------------+-------------------------------------+
+| Not Working                    | Retired; Maternity Leave; LT Sick   |
+|                                | or Disabled                         |
++--------------------------------+-------------------------------------+
+
+.. figure:: ./figure/labour_barchart-1.png
+   :alt: plot of chunk labour_barchart
+
+   plot of chunk labour_barchart
 
 Transition Model
 ~~~~~~~~~~~~~~~~
@@ -17,31 +48,7 @@ from R’s
 `nnet <https://www.rdocumentation.org/packages/nnet/versions/7.3-20>`__
 package. Formula for weights included given as.
 
-.. math::   labour\_state \sim labour\_state_\_last + age + sex + ethnicity + region + education\_state  
-
-Variables used in this model. Encodings for discrete variables found in
-data tables.
-
--  sex. Biological sex male/female.
--  ethnicity. Ethnicity e.g. white british. XXXX cite.
--  age in years. XXXX cite.
--  education. Highest qualification attained. XXXX cite
--  sf12. Mental well-being score. XXXX cite
--  labour_state. Previous labour state. XXXX cite. Probably remove this.
-   dominates prediction..
--  household income. Monthly disposable income of individuals household.
-   XXXX cite.
-
-===================== =========== ========================
-Predictor             Description Literature/Justification
-===================== =========== ========================
-Previous Labour State             
-Age                               
-Sex                               
-Ethnicity                         
-Region                            
-Education                         
-===================== =========== ========================
+.. math::   labour\_state \sim labour\_state_\_last + age + sex + ethnicity + region + education\_state + SF\_12 + hh\_income  
 
 Validation
 ~~~~~~~~~~
@@ -65,10 +72,7 @@ Results
 -  some deterministic replacement needed for categories like student
    that have specific time frames. e.g. three years for a degree.
 
-.. figure:: ./figure/labour_output-1.png
-   :alt: plot of chunk labour_output
-
-   plot of chunk labour_output
+|plot of chunk labour_output|\ |image1|
 
 .. code:: r
 
@@ -86,5 +90,5 @@ Results
 References
 ~~~~~~~~~~
 
-.. |plot of chunk labour_barchart| image:: ./figure/labour_barchart-1.png
-.. |image1| image:: ./figure/labour_barchart-2.png
+.. |plot of chunk labour_output| image:: ./figure/labour_output-1.png
+.. |image1| image:: ./figure/labour_output-2.png

@@ -64,6 +64,9 @@ render_rmd:
 	### SUPPLEMENTARY MODULE PAGES
 
 	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)heating.Rmd" "$(SUPPLEMENTARYDIR)heating.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)behind_on_bills.Rmd" "$(SUPPLEMENTARYDIR)behind_on_bills.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)financial_situation.Rmd" "$(SUPPLEMENTARYDIR)financial_situation.rst" 1
+	bash docsrc/compile_rmd_rst.sh "$(NOTEBOOKDIR)job_sec.Rmd" "$(SUPPLEMENTARYDIR)job_sec.rst" 1
 
 	rm -rf $(SUPPLEMENTARYDIR)figure
 	mv -f figure $(SUPPLEMENTARYDIR)figure
