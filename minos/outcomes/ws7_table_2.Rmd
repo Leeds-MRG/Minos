@@ -1,0 +1,438 @@
+---
+title: "WS7 Table 1"
+output: html_notebook
+---
+
+Creating requested table 1 for "flagship" paper.
+
+
+```{r}
+library(dplyr)
+library(here)
+library(tibble)
+library(xtable)
+
+
+library("data.table")    
+  
+
+```
+
+
+#Schema
+
+Tenure type
+
+All?
+owner outright
+mortgage
+private rental
+housing association
+social housing
+
+Household type
+All
+with children
+without children?
+with pensioners
+
+In poverty
+All
+with children
+without children
+with pensioners
+
+
+```{r}
+
+# load in data
+# either composite or synthpop data
+data <- read.csv(here::here("data", "composite_US", "2020_US_cohort.csv"))
+#data <- read.csv(here::here("data", "scaled_manchester_US", "2020_US_cohort.csv"))
+data <- data %>% filter(housing_tenure > 0)
+
+#recast housing tenure for a tidy table. neat strings rather than int codes. also binning some things per ws7 definition.
+data$housing_tenure_simple <- data$housing_tenure
+# https://www.understandingsociety.ac.uk/documentation/mainstage/variables/tenure_dv/
+data[which(data$housing_tenure_simple == 1), "housing_tenure_simple"] <- "1 - Owned Outright"
+data[which(data$housing_tenure_simple == 2), "housing_tenure_simple"] <- "2 - Mortgaged"
+data[which(data$housing_tenure_simple == 3), "housing_tenure_simple"] <- "5 - Social housing"
+data[which(data$housing_tenure_simple == 4), "housing_tenure_simple"] <- "4 - Housing association"
+data[which(data$housing_tenure_simple == 5), "housing_tenure_simple"] <- "3 - Private Rental"
+data[which(data$housing_tenure_simple == 6), "housing_tenure_simple"] <- "3 - Private Rental"
+data[which(data$housing_tenure_simple == 7), "housing_tenure_simple"] <- "3 - Private Rental" # binning other into private rental for now. 
+data[which(data$housing_tenure_simple == 8), "housing_tenure_simple"] <- "3 - Private Rental" # binning other into private rental for now. 
+
+# Do same for heating as well.
+data[which(data$heating == 0), "heating"] <- "0 - Not Comfortable"
+data[which(data$heating == 1), "heating"] <- "1 - Comfortable"
+
+data <- data[which(data$weight>0), ]
+data$inverse_weights <- 1/data$weight
+```
+
+```{r}
+# function to process data into rows of final data frame
+tenure_data_table_weighted_subgroup <- function(df, population_scaling, dont_keep_headers){
+  "
+  df - data frame
+  pop_size - population size. used to calculate percentages. need to be specific about which population you want here. 
+    typically either the total population or the population in relative poverty.
+  include_tenure_column - 
+  count_type - 
+  group_name - 
+  "
+  
+
+# calculate first set of four rows. percentages of the entire population in
+# all
+# with children
+# without children
+# pensioners
+  
+row_table1 <- df %>%
+                group_by(housing_tenure_simple) %>%
+                  summarise(weighted_sums = as.integer(sum(inverse_weights) * population_scaling)) #, weighted_prct = sum(inverse_weights)/pop_total_weight) #%>%
+          #mutate("n_total" = paste0(as.character(n), " " , "(", as.character(round(100*sum(inverse_weights)/pop_total_weight, 2)), ")")) %>%
+          #mutate("Group"= group_name) %>%
+          #select("housing_tenure_simple","Group", "n", "n_total")
+          #rbind(c("Total", nrow(data), 100)) %>%
+
+colnames(row_table1) <- c("Housing Tenure", "Weighted Population Sums")
+
+#   
+# row_table1 <- df %>%
+#           count(housing_tenure_simple) %>%
+#           mutate(weighted_prct = sum(inverse_weights)/pop_total_weight) %>%
+#           mutate("n_total" = paste0(as.character(n), " " , "(", as.character(round(100*sum(inverse_weights)/pop_total_weight, 2)), ")")) %>%
+#           mutate("Group"= group_name) %>%
+#           select("housing_tenure_simple","Group", "n", "n_total")
+#           #rbind(c("Total", nrow(data), 100)) %>%
+#
+# colnames(row_table1) <- c("Housing Tenure", "Group", "n", count_type)
+
+#print(tenure_table1)
+
+
+# getting the required second column for each housing tenure type. 
+row_table2 <- df %>%
+                filter(heating == "0 - Not Comfortable") %>%
+                  group_by(housing_tenure_simple) %>%
+                    summarise(weighted_sums = as.integer(sum(inverse_weights) * population_scaling))#, weighted_prct = sum(inverse_weights)/pop_total_weight) #%>%
+
+colnames(row_table2) <- c("Housing Tenure", "Weighted Population Sums")
+
+
+# row_table2 <- df %>%
+#                   group_by(housing_tenure_simple) %>%
+#                       count(heating) %>%
+#                         filter(heating == "0 - Not Comfortable") %>%
+#   # ungrouping here to give percentage of the entire population rather than percentage of each housing tenure. can use either by hashing this column.
+#                     ungroup() %>% 
+#                       #mutate("n_total" = paste0(as.character(n), " " , "(", as.character(round(100*n/sum(n), 2)), ")")) %>%
+#                       mutate("n_total" = paste0(as.character(n), " " , "(", as.character(round(100*n/row_table1$n, 2)), ")")) %>%
+#           mutate("Group"= "n (% PTC)") %>% #"Number of Poor Thermal Comfort Adults in Subpopulation (% of Subpopulation)"
+#           select("housing_tenure_simple","Group", "n", "n_total")
+# colnames(row_table2) <- c("Housing Tenure", "Group", "n", count_type)
+
+#print(tenure_table2)
+
+row_table <- rbind(row_table1, row_table2)
+row_table <- row_table %>% arrange(`Housing Tenure`)
+
+if (dont_keep_headers) {
+  row_table$'Housing Tenure' <- NULL
+}
+return(row_table)
+}
+```
+
+```{r}
+
+population_scale_factor <- 67 * (10**6) / sum(data$inverse_weights)
+  
+# "Number of Adults (% of Entire Adult Population)"
+tenure_table1 <- tenure_data_table_weighted_subgroup(data, population_scale_factor, F)
+# children.
+tenure_table2 <- tenure_data_table_weighted_subgroup(data %>% filter(nkids>0), population_scale_factor, T) 
+# no children
+tenure_table3 <- tenure_data_table_weighted_subgroup(data %>% filter(nkids<=0), population_scale_factor, T) 
+ # pensioners. need a better measures of a 'pensioner'. see npensioners_dv variable.
+tenure_table4 <- tenure_data_table_weighted_subgroup(data%>% filter(age>65), population_scale_factor, T) 
+
+
+
+# NOTE THE TOTAL POPULATION CHANGES HERE. LOOKING AT SMALLER POPULATION nrow(poverty_data) RATHER THAN FULL POPULATION nrow(data)
+#"Number of Adults (% of Entire Adult Population in Relative Poverty)" 
+
+poverty_data<- data %>% filter(hh_income < 0.6*median(hh_income)) # standard relative poverty definition.
+poverty_population_scale_factor <- 67 * (10**6) / sum(poverty_data$inverse_weights)
+
+# all poverty.
+tenure_table5 <- tenure_data_table_weighted_subgroup(poverty_data, poverty_population_scale_factor, T) 
+# poverty and children.
+tenure_table6 <- tenure_data_table_weighted_subgroup((poverty_data %>% filter(nkids>0)), poverty_population_scale_factor, T) 
+# poverty and no children
+tenure_table7 <- tenure_data_table_weighted_subgroup(poverty_data %>% filter(nkids<=0), poverty_population_scale_factor, T) 
+# poverty and pensioners. need a better measures of a 'pensioner'. see npensioners_dv variable.
+tenure_table8 <- tenure_data_table_weighted_subgroup(poverty_data%>% filter(age>65), poverty_population_scale_factor, T) 
+
+
+final_tenure_table <- cbind(tenure_table1,tenure_table2,tenure_table3,tenure_table4,tenure_table5,tenure_table6,tenure_table7,tenure_table8)
+final_tenure_table <- t(final_tenure_table)
+rownames(final_tenure_table) <- c("Housing Tenure", "All", "With Children", "Without Children", "Pensioners", "Poverty All", "Poverty Children", "Poverty No Children", "Poverty Pensioners")
+
+#colnames(final_tenure_table)[1] <- "Housing Tenure"
+
+output_table <- xtable(final_tenure_table, caption="Testing table 1 for SIPHER flagship paper.", align = "|l|l|l|l|l|l|l|l|l|l|l|")
+
+
+addtorow <- list()
+addtorow$pos <- list(0)
+addtorow$command <- paste0('\\textbackslash Housing Tenure ', paste0(' & \\multicolumn{2}{|l}{', sort(unique(data$housing_tenure_simple)), '}', collapse=''), '\\\\')
+
+
+#print(output_table, file='test.tex', include.colnames=F)
+print(output_table, add.to.row=addtorow, file='test.tex', include.colnames=F)#, hline.after=c(-1,0,1,5,6,10))
+
+
+#final_tenure_table$housing_tenure <- housing_tenure_list
+colnames(final_tenure_table) <- c("All", "PTC Only", "All", "PTC Only", "All", "PTC Only", "All", "PTC Only", "All", "PTC Only")
+write.csv(final_tenure_table, file="test.csv") # names arg drops column names
+
+
+```
+
+```{r}
+
+
+#Household type
+#All
+#with children
+#without children?
+#with pensioners
+
+#print("Total Households: ")
+#print(length(unique(data$hidp)))
+
+n_total_households <- length(unique(data$hidp))
+
+children_data <- data %>% 
+                  filter(nkids>0)
+n_children_households <-length(unique(children_data$hidp))
+
+#print("Total Households with Children 16yo and Under: ")
+#print(length(unique(children_data$hidp)))
+
+childless_data <- data %>% 
+                  filter(nkids<=0)
+n_childless_households <-  length(unique(childless_data$hidp))
+
+#print("Total Households without Children 16yo and Under: ")
+#print(length(unique(children_data$hidp)))
+
+pensioner_data <- data %>%  # need a better condition that this.. see npensioner_dv variable
+                  filter(age>65)
+n_pensioner_households <- length(unique(pensioner_data$hidp))
+
+#print("Total Households With Any Adults Over 65yo (Loose definition of pensioner): ")
+#print(length(unique(pensioner_data$hidp)))
+
+household_type_table <- rbind(c("Total Households", n_total_households, 100), 
+      c("Total Households with Children 16yo and Under: ", n_children_households, n_children_households * 100 /n_total_households), 
+      c("Total Households without Children 16yo and Under: ", n_childless_households, n_childless_households* 100 /n_total_households),
+      c("Total Households With Any Adults Over 65yo (Loose definition of pensioner): ", n_pensioner_households,  n_pensioner_households * 100 /n_total_households))
+colnames(household_type_table) <- c("Category", "Number of Unique Households (hidps)", "Percentage of Total Households")
+print(as.tibble(household_type_table))
+```
+
+```{r}
+
+#In poverty
+#All
+#with children
+#without children
+#with pensioners
+
+
+#using simple relative poverty definition for now. 
+poverty_data <- data %>% filter(hh_income < 0.6*median(hh_income))
+n_total_poverty_households <- length(unique(data$hidp))
+
+#print("Total Relative Poverty Households: ")
+#print(length(unique(data$hidp)))
+
+poverty_children_data <- poverty_data %>% 
+                  filter(nkids>0)
+n_children_poverty_households <-length(unique(poverty_children_data$hidp))
+
+#print("Total Relative Poverty Households with Children 16yo and Under: ")
+#print(length(unique(children_data$hidp)))
+
+poverty_childless_data <- poverty_data %>% 
+                  filter(nkids<=0)
+n_childless_poverty_households <-  length(unique(poverty_childless_data$hidp))
+
+#print("Total Relative Poverty Households without Children 16yo and Under: ")
+#print(length(unique(childless_data$hidp)))
+
+poverty_pensioner_data <- poverty_data %>%  # need a better condition that this.. see npensioner_dv variable
+                  filter(age>65)
+n_pensioner_poverty_households <- length(unique(poverty_pensioner_data$hidp))
+
+#print("Total  Relative Poverty Households With Any Adults Over 65yo (Loose definition of pensioner): ")
+#print(length(unique(pensioner_data$hidp)))
+
+
+poverty_household_type_table <- rbind(c("Total Households", n_total_poverty_households, 20, 100, 20), 
+      c("Total Households with Children 16yo and Under: ", n_children_poverty_households, 20, n_children_poverty_households * 100 /n_total_poverty_households, 20), 
+      c("Total Households without Children 16yo and Under: ", n_childless_poverty_households, 20, n_childless_poverty_households* 100 /n_total_poverty_households, 20),
+      c("Total Households With Any Adults Over 65yo (Loose definition of pensioner): ", n_pensioner_poverty_households,  20, n_pensioner_poverty_households * 100 /n_total_poverty_households, 20))
+colnames(poverty_household_type_table) <- c("Category", "Number of Unique Households (hidps)", "Number of households in Poor Thermal Comfort", "Percentage of Total Households")
+print(as.tibble(poverty_household_type_table))
+```
+
+
+
+# Unit house retrofit costs. 
+# find paper talking about range of energy savings for different data using NEED datasets. bridgen/hodgkin? pretty sure its in the latter at least. see other nature refs for any details.
+
+https://www.instituteforgovernment.org.uk/sites/default/files/publications/tackling-energy-efficiency-problem.pdf
+References NEED data.
+
+https://assets.publishing.service.gov.uk/media/5a82338f40f0b62305b93052/BEIS_Update_of_Domestic_Cost_Assumptions_031017.pdf
+2017 BEIS retrofit costing. 
+
+
+
+
+ ns are right. subgrouping by column or row?  100% population for everyone in all column rather than % of the entire population. e.g. 5613/11322 approx 50%
+ 
+1472 households want this to be the total percentage of total All housholds above. 1472/11322
+
+same for children. want percentage of all households in above column 191/1054.
+
+doing percentages from bottom half of top  half.
+
+for second column want percentage of all households with poor thermal comfort 284/11322.
+
+same through for each row. for pensioners want 112/5613.
+
+same for second set of columns. would then compare these percentages for each row in both cases. e.g. expect higher percentage of pensioner households in fuel poverty than in general population.
+
+
+
+1472 households want this to be the total percentage of total All housholds above. 1472/11322
+same for children. want percentage of all households in above column 191/1054.
+second column first four rows looks right.
+second column bottom four rows looks right.
+
+
+```{r}
+# either composite or synthpop data
+data <- fread(here::here("data", "scaled_uk_US", "2020_US_cohort.csv"), select = c("housing_tenure", "weight", "heating", "nkids", "age", "hh_income")) 
+data<- as.tibble(data)
+#data <- read.csv(here::here("data", "scaled_manchester_US", "2020_US_cohort.csv"))
+data <- data %>% filter(housing_tenure > 0)
+
+#recast housing tenure for a tidy table. neat strings rather than int codes. also binning some things per ws7 definition.
+data$housing_tenure_simple <- as.character(data$housing_tenure)
+
+# https://www.understandingsociety.ac.uk/documentation/mainstage/variables/tenure_dv/
+data[which(data$housing_tenure == 1), "housing_tenure_simple"] <- "1 - Owned Outright"
+data[which(data$housing_tenure == 2), "housing_tenure_simple"] <- "2 - Mortgaged"
+data[which(data$housing_tenure == 3), "housing_tenure_simple"] <- "5 - Social housing"
+data[which(data$housing_tenure == 4), "housing_tenure_simple"] <- "4 - Housing association"
+data[which(data$housing_tenure == 5), "housing_tenure_simple"] <- "3 - Private Rental"
+data[which(data$housing_tenure == 6), "housing_tenure_simple"] <- "3 - Private Rental"
+data[which(data$housing_tenure == 7), "housing_tenure_simple"] <- "3 - Private Rental" # binning other into private rental for now. 
+data[which(data$housing_tenure == 8), "housing_tenure_simple"] <- "3 - Private Rental" # binning other into private rental for now. 
+
+# Do same for heating as well.
+data$heating <- as.character(data$heating)
+data[which(data$heating == "0"), "heating"] <- "0 - Not Comfortable"
+data[which(data$heating == "1"), "heating"] <- "1 - Comfortable"
+
+data <- data[which(data$weight>0), ]
+data$inverse_weights <- 1/data$weight
+
+```
+
+```{r}
+
+#TODO CHECK SCALING TO NUMBER OF ADULTS
+# according to https://statswales.gov.wales/catalogue/population-and-migration/population/estimates/nationallevelpopulationestimates-by-year-age-ukcountry
+# have 52790493 adults over 16 years old by 2020 mid year estimate.
+#population_scale_factor <- 52.790493 * (10**6) / sum(data$inverse_weights)
+#population_scale_factor <-100
+population_scale_factor <- 1
+
+
+#population_scale_factor <- 67 * (10**6) / sum(data$inverse_weights)
+  
+# "Number of Adults (% of Entire Adult Population)"
+tenure_table1 <- tenure_data_table_weighted_subgroup(data, population_scale_factor, F)
+# children.
+tenure_table2 <- tenure_data_table_weighted_subgroup(data %>% filter(nkids>0), population_scale_factor, T) 
+# no children
+tenure_table3 <- tenure_data_table_weighted_subgroup(data %>% filter(nkids<=0), population_scale_factor, T) 
+ # pensioners. need a better measures of a 'pensioner'. see npensioners_dv variable.
+tenure_table4 <- tenure_data_table_weighted_subgroup(data%>% filter(age>65), population_scale_factor, T) 
+
+
+
+# NOTE THE TOTAL POPULATION CHANGES HERE. LOOKING AT SMALLER POPULATION nrow(poverty_data) RATHER THAN FULL POPULATION nrow(data)
+#"Number of Adults (% of Entire Adult Population in Relative Poverty)" 
+
+poverty_data<- data %>% filter(hh_income < 0.6*median(hh_income)) # standard relative poverty definition.
+#TODO SCALING TO NUMBER OF IN POVERTY ADULTS
+# according to JRF https://www.jrf.org.uk/uk-poverty-2023-the-essential-guide-to-understanding-poverty-in-the-uk
+# 20/21 poverty rates. 9.6m+ adults in JRF defined relative poverty (7.9m working adults, 1.7m pensioners). 3.9m children.
+
+# https://researchbriefings.files.parliament.uk/documents/SN07096/SN07096.pdf UK GOV 2020/2021 stats.
+# poverty rates data were too unreliable to publish (due to pandemic) for this time period.
+
+# https://commonslibrary.parliament.uk/research-briefings/sn07096/ 
+# UK GOV 2020/2023three year rolling average stats instead.
+# stating 11.0m total people (section 3.1) in relative poverty before housing costs. 
+# 8.1m working age adults + 2.1m pensioners after housing costs in 21/22. JRF pulls these exact stats. so no idea where they got the 9.6m above from.
+
+# going with 9.6m for now. is this rught for GB and not UK. 
+
+#poverty_population_scale_factor <- 9.6 * (10**6) / sum(poverty_data$inverse_weights)
+# poverty_population_scale_factor <- 100
+# set to 1 unscaled for now. 
+poverty_population_scale_factor <- 1
+
+# all poverty.
+tenure_table5 <- tenure_data_table_weighted_subgroup(poverty_data, poverty_population_scale_factor, T) 
+# poverty and children.
+tenure_table6 <- tenure_data_table_weighted_subgroup((poverty_data %>% filter(nkids>0)), poverty_population_scale_factor, T) 
+# poverty and no children
+tenure_table7 <- tenure_data_table_weighted_subgroup(poverty_data %>% filter(nkids<=0), poverty_population_scale_factor, T) 
+# poverty and pensioners. need a better measures of a 'pensioner'. see npensioners_dv variable.
+tenure_table8 <- tenure_data_table_weighted_subgroup(poverty_data%>% filter(age>65), poverty_population_scale_factor, T) 
+
+
+final_tenure_table <- cbind(tenure_table1,tenure_table2,tenure_table3,tenure_table4,tenure_table5,tenure_table6,tenure_table7,tenure_table8)
+final_tenure_table <- t(final_tenure_table)
+rownames(final_tenure_table) <- c("Housing Tenure", "All", "With Children", "Without Children", "Pensioners", "Poverty All", "Poverty Children", "Poverty No Children", "Poverty Pensioners")
+
+#colnames(final_tenure_table)[1] <- "Housing Tenure"
+
+output_table <- xtable(final_tenure_table, caption="Testing table 1 for SIPHER flagship paper.", align = "|l|l|l|l|l|l|l|l|l|l|l|")
+
+
+addtorow <- list()
+addtorow$pos <- list(0)
+addtorow$command <- paste0('\\textbackslash Housing Tenure ', paste0(' & \\multicolumn{2}{|l}{', sort(unique(data$housing_tenure_simple)), '}', collapse=''), '\\\\')
+
+
+#print(output_table, file='test.tex', include.colnames=F)
+print(output_table, add.to.row=addtorow, file='gb_test.tex', include.colnames=F)#, hline.after=c(-1,0,1,5,6,10))
+
+
+#final_tenure_table$housing_tenure <- housing_tenure_list
+colnames(final_tenure_table) <- c("All", "PTC Only", "All", "PTC Only", "All", "PTC Only", "All", "PTC Only", "All", "PTC Only")
+write.csv(final_tenure_table, file="GB_test.csv") # names arg drops column names
+
