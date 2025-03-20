@@ -264,6 +264,23 @@ intervention_energyDownLiftNoSupport_uk: setup_uk_scaled
 AIRE_baseline:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
+#############################################
+# HR 20/03/25 All Aire fertility combinations
+AIRE_baseline_noparity: setup
+	bash scripts/aire_submit.sh -c $(NOPARITY_CONFIG) -o $(NOPARITY_MODE)
+
+AIRE_baseline_parity: setup
+	bash scripts/aire_submit.sh -c $(PARITY_CONFIG) -o $(PARITY_MODE)
+
+AIRE_baseline_gb_noparity: setup_gb_scaled
+	bash scripts/aire_submit.sh -c $(NOPARITY_GB_CONFIG) -o $(NOPARITY_GB_MODE)
+
+AIRE_baseline_gb_parity: setup_gb_scaled
+	bash scripts/aire_submit.sh -c $(PARITY_GB_CONFIG) -o $(PARITY_GB_MODE)
+
+AIRE_fertility_suite: AIRE_baseline_noparity AIRE_baseline_parity AIRE_baseline_gb_noparity AIRE_baseline_gb_parity fertility_validation
+#############################################
+
 AIRE_intervention_hhIncome:
 	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
 
