@@ -3,8 +3,9 @@
 # Slurm settings
 ################
 #SBATCH --job-name=parallel_minos_job                 # Job name. Can probably name this better...
-#SBATCH --mail-type=FAIL, END                         # Mail events (NONE, BEGIN, END, FAIL, ALL) # TURNED FAILURE EMAILS OFF. TURN ON AND CHANGE EMAIL IF YOU WANT THIS.
-#SBATCH --mail-user=h.p.rice@leeds.ac.uk              # Where to send mail. please change this.
+#SBATCH --mail-type=FAIL                              # Mail events (NONE, BEGIN, END, FAIL, ALL)
+#SBATCH --mail-type=END
+#SBATCH --mail-user=h.p.rice@leeds.ac.uk              # Where to send mail
 #SBATCH --ntasks=1                                    # Run a single task # THIS IS THE IMPORTANT NUMBER. IF RUNNING BATCH JOBS NEED TO CHANGE THIS MANUALLY! 100 jobs rquired 100 ntasks.
 #SBATCH --cpus-per-task=1                             # Number of CPU cores per task. Not multithreaded so 1 core works fine. may need minimum of 2 depending on system.
 #SBATCH --mem=10gb                                    # Job memory request. If running synthpop jobs may need to increase mem and time.
