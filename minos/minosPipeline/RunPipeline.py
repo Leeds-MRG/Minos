@@ -418,7 +418,7 @@ def RunPipeline(config, intervention=None):
 
     logging.info('Simulation loop start...')
     # Loop over years in the model duration. Step the model forwards a year and save data/metrics.
-    for year in range(config.time.end.year+1-config.time.start.year):
+    for year in range(1, config.time.end.year+1-config.time.start.year):
 
         logging.info(f'Begin simulation for year {config.time.start.year + year}')
 
@@ -429,11 +429,14 @@ def RunPipeline(config, intervention=None):
         print(f'Finished running simulation for year: {config.time.start.year + year}')
         logging.info(f'Finished running simulation for year: {config.time.start.year + year}')
 
+
+        simulation.destroy_untracked_simulants() # destroys untracked people in sim data frame. saves ram.
+        #TODO get working to reduce ram use further. need to add to my vivarium.
+        #simulation.destroy_dead_simulants() # destroys dead people in sim data frame. saves ram.
+
         # get population dataframe.
         pop = simulation.get_population(untracked=True)
         #pop = pop.loc[pop['tracked']==True, ]
-
-        simulation.destroy_untracked_simulants() # destroys dead people in sim data frame. saves ram.
 
         # Assign age brackets to the individuals.
         pop = utils.get_age_bucket(pop)

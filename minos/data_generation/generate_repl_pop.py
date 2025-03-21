@@ -58,7 +58,8 @@ def expand_repl(US_wave, region, final_year=2070):
     max_hidp = US_wave['hidp'].max()
 
     # Find households with a 16 or 17 year old to add as replenishing
-    repl_wave_hidps = US_wave[(US_wave['age'].isin([16, 17]))]['hidp']
+    #repl_wave_hidps = US_wave[(US_wave['age'].isin([16, 17]))]['hidp']
+    repl_wave_hidps = US_wave[(US_wave['age'].isin([16]))]['hidp']
     repl_hhs = US_wave[US_wave['hidp'].isin(repl_wave_hidps)]
     # Change age of 17 year olds to 16 year olds (we take both ages for replenishment as the 16 year old sample is very small)
     repl_hhs['age'][repl_hhs['age'] == 17] = 16
@@ -243,14 +244,13 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         output_dir = 'data/replenishing/scotland_scaled'
         source_year = 2020
     elif region == "manchester":
-        data_source = 'scaled_manchester_aligned_US'  # should it be scaled_manchester_aligned_US?
+        data_source = 'scaled_manchester_aligned_US'
         output_dir = 'data/replenishing/manchester_scaled'
         source_year = 2020
     elif region == 'uk':
         data_source = 'scaled_uk_US'
         output_dir = 'data/replenishing/uk_scaled'
         source_year = 2020
-
 
     # first collect and load the datafile for source_year
     file_name = f"data/{data_source}/{source_year}_US_cohort.csv"
@@ -277,6 +277,10 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
     final_repl['nkids'] = final_repl['nkids'].astype(float)
 
     US_utils.check_output_dir(output_dir)
+
+    if region == "manchester":
+        final_repl['weight'] = 1
+
     final_repl.to_csv(f'{output_dir}/replenishing_pop_2015-{final_year}.csv', index=False)
     print('Replenishing population generated for 2015 - ' + str(final_year))
 
