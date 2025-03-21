@@ -175,15 +175,15 @@ social_science_lineplots:
 	python3 minos/outcomes/make_lineplots_macros.py "default_config" "social_science_all_plots"
 
 aggregate_JASSS_universal_credit:
-	sbatch scripts/aire_single_lineplot_script.sh "default_config" "incremental_25_50_by_5_universal_credit" "SF_12_MCS"
+	sbatch scripts/aire_single_lineplot_script.sh "default_config" "incremental_25_50_by_5_together_universal_credit" "SF_12_MCS"
 	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_MCS"
 
 aggregate_JASSS_living_wage:
-	sbatch scripts/aire_single_lineplot_script.sh "default_config" "incremental_25_50_by_5_universal_credit" "SF_12_MCS"
+	sbatch scripts/aire_single_lineplot_script.sh "default_config" "living_wage" "SF_12_MCS"
 	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_MCS"
 
 aggregate_JASSS_EPCG:
-	sbatch scripts/aire_single_lineplot_script.sh "default_config" "incremental_25_50_by_5_universal_credit" "SF_12_MCS"
+	sbatch scripts/aire_single_lineplot_script.sh "default_config" "epcg_and_no_support" "SF_12_MCS"
 	#python3 minos/outcomes/make_lineplots_macros.py  "energy_manchester_scaled" "GHD_EPCG_GBIS_combined" "SF_12_MCS"
 
 JASSS_all: aggregate_JASSS_universal_credit aggregate_JASSS_living_wage aggregate_JASSS_EPCG
