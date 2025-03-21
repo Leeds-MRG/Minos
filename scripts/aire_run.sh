@@ -6,7 +6,7 @@
 #SBATCH --mail-type=FAIL                              # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-type=END
 #SBATCH --mail-user=h.p.rice@leeds.ac.uk              # Where to send mail
-#SBATCH --array=1-30                                  # Number of runs
+#SBATCH --array=1                                     # Number of runs
 ###SBATCH --ntasks=1                                    # Number of tasks to run, change as desired - disabled 21/03/24 as distinction with array not clear
 #SBATCH --cpus-per-task=1                             # Number of CPU cores per task. Not multithreaded so 1 core works fine. May need minimum of 2 depending on system
 #SBATCH --mem=10gb                                    # Job memory request. If running synthpop jobs may need to increase mem and time
