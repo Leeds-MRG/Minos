@@ -423,7 +423,6 @@ string_to_lineplot_function = {
     # initial line plots
     "all_child": all_child_lineplot,
     "poverty_line_child": poverty_line_child_lineplot,
-    "living_wage": living_wage_lineplot,
     "ebss": ebss_lineplot,
     "all_five": all_five_lineplots,
 
@@ -502,7 +501,6 @@ string_to_lineplot_function = {
     "incremental_25_50_together_universal_credit_default": child_payment_25_50_only,
 
 
-    "social_science_all_plots": social_science_all_plots,
 
     "glasgow_baseline_quintile": quintiles_lineplot,
     "glasgow_relative_poverty_quintile": quintiles_lineplot,
@@ -537,6 +535,14 @@ string_to_lineplot_function = {
     "edinburgh_40_universal_credit_quintiles": quintiles_lineplot,
     "edinburgh_45_universal_credit_quintiles": quintiles_lineplot,
     "edinburgh_50_universal_credit_quintiles": quintiles_lineplot,
+
+    # JASSS plots
+    "social_science_all_plots": social_science_all_plots,
+    #"25_50_universal_credit": universal_credit,
+    #"25_50_relative_poverty": relative_poverty,
+    "living_wage": living_wage_lineplot,
+    "epcg_and_no_support": epcg_and_no_support_lineplot
+
 }
 
 string_to_lineplot_function_args = {
@@ -639,7 +645,12 @@ string_to_lineplot_function_args = {
     "edinburgh_35_universal_credit_quintiles": ['35UniversalCredit', "edinburgh"],
     "edinburgh_40_universal_credit_quintiles": ['40UniversalCredit', "edinburgh"],
     "edinburgh_45_universal_credit_quintiles": ['45UniversalCredit', "edinburgh"],
-    "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit', "edinburgh"]
+    "edinburgh_50_universal_credit_quintiles": ['50UniversalCredit', "edinburgh"],
+
+    "25_50_universal_credit": [25, 50],
+    "25_50_relative_poverty": [25, 50],
+    "epcg_and_no_support": [],
+
 }
 
 if __name__ == '__main__':
