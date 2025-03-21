@@ -62,7 +62,7 @@ class Ageing(Base):
 
         #if type(population['nkids'][0]) == float:
         #population['nkids'] = population['nkids'].astype(float)
-        #population['nkids'] = population['nkids'].astype(int)
+        population['nkids'] = population['nkids'].astype(int)
         self.population_view.update(population[['age', 'time', 'child_ages', 'nkids']])
 
 
