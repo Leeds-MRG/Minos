@@ -15,6 +15,10 @@ synthetic_scotland_data: data scotland_scaled_data synthetic_scotland_repl
 
 synthetic_uk_data: data uk_scaled_data synthetic_uk_repl
 
+aire_aspatial_data_gen:
+	sbatch scripts/aire_data_gen.sh
+
+
 raw_data: ### Generate starting data in the correct format from raw Understanding Society data
 raw_data: $(RAWDATA)/2020_US_cohort.csv
 
