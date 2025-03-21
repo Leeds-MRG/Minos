@@ -33,24 +33,24 @@ fi
 # Set current time for directory naming
 TIME=`date +%Y_%m_%d_%H_%M_%S`
 
-# Create these if they dont exist. Will crash Aire if you dont do this.
+# Create these if they don't exist
 mkdir -p logs
 mkdir -p logs/log
 mkdir -p logs/errors
 
 
 ###########################################
-# Determine array size for minos runs here. Move to argument/better default.
-# --array=1-X will run X jobs (X >= 1)..
+# Determine array size for Minos runs here
+# --array=1-X will run X jobs (X >= 1)
 ###########################################
 
 if [ "$#" -eq 4 ]; then
-  echo "Running baseline MINOS simulation"
-#  sbatch --array=1-5  'scripts/aire_run.sh' -c $2 -o $4 -t $TIME
-    sbatch scripts/aire_run.sh -c $2 -o $4 -t $TIME
+  echo "Running baseline MINOS simulation with config $2, mode $4"
+#  sbatch --array=1-5 'scripts/aire_run.sh' -c $2 -o $4 -t $TIME
+  sbatch scripts/aire_run.sh -c $2 -o $4 -t $TIME
 elif [ "$#" -eq 6 ]; then
-  echo "Running MINOS simulation with $6"
-#  sbatch --array=1-5  'scripts/aire_run.sh' -c $2 -o $4 -i $6 -t $TIME
+  echo "Running MINOS simulation with config $2, mode $4, intervention $6"
+#  sbatch --array=1-5 'scripts/aire_run.sh' -c $2 -o $4 -i $6 -t $TIME
   sbatch scripts/aire_run.sh -c $2 -o $4 -i $6 -t $TIME
 fi
 
