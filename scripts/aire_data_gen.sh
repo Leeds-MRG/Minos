@@ -22,7 +22,7 @@ python3 minos/data_generation/fake_council_tax.py
 python3 minos/data_generation/US_missing_main.py # LOCF and other deterministic correction.
 
 python3 minos/data_generation/generate_composite_vars.py # composite and derived variabes.
-Rscript /home/rob/Minos/minos/data_generation/MICE_imputation.R
+Rscript minos/data_generation/MICE_imputation.R
 python3 minos/data_generation/US_complete_case.py # complete case.
 python3 minos/data_generation/generate_stock_pop.py
 
