@@ -83,11 +83,11 @@ def social_science_all_plots(config_mode):
     #UC_relative_poverty(config_mode, 50)
     #all_five_lineplots(config_mode)
 
-    #epcg_and_no_support_lineplot(config_mode)
-    #living_wage_lineplot(config_mode)
+    epcg_and_no_support_lineplot(config_mode)
+    living_wage_lineplot(config_mode)
 
     incremental_25_to_50(config_mode, "UniversalCredit", "Universal Credit", "who_universal_credit_and_kids")
-    #incremental_25_to_50(config_mode, "RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids")
+    incremental_25_to_50(config_mode, "RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids")
 
 
 ########################################
