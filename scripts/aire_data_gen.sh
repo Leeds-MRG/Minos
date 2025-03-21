@@ -12,12 +12,13 @@
 #SBATCH --output=logs/data_gen/minos_data_gen-%A-%a.out        # Standard output log.
 #SBATCH --error=logs/data_gen/minos_data_gen-%A-%a.err       # Standard error log.
 
+set -e
 
 # the LOCF annoyingly won't run on arc4 without shedloads of memory so running it in login node and then the rest on a job.
 # new HPC so going to rag this one instead and see if it will work.
 mkdir -p logs/data_gen # make dir if not exists
 python3 minos/data_generation/US_format_raw.py --source_dir ../UKDA-6614-stata/stata/stata13_se/ # raw data.
-python /home/rob/Minos/minos/data_generation/fake_council_tax.py
+python3 minos/data_generation/fake_council_tax.py
 python3 minos/data_generation/US_missing_main.py # LOCF and other deterministic correction.
 
 python3 minos/data_generation/generate_composite_vars.py # composite and derived variabes.
