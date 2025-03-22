@@ -51,7 +51,7 @@ def run(args):
     # start year
     year_start = config['time']['start']['year']
 
-    if (args.runID) and ("scaled" in args.config):
+    if (args.runID) and ("scaled" in args.config) and (not config['synthetic']):
         new_input_dir = config['base_input_data_dir'] + (
                 "_" + str(((args.runID - 1) // 10) + 1))  # every 10 runs uses same pop.
         config.update({'input_data_dir': new_input_dir})

@@ -2,16 +2,16 @@
 ################
 # Slurm settings
 ################
-#SBATCH --job-name=parallel_minos_job      # Job name
-#SBATCH --mail-type=FAIL             # Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=gyrc@leeds.ac.uk # Where to send mail
-#SBATCH --nodes=1                    # Run all processes on a single node
-#SBATCH --ntasks=1                   # Run a single task
-#SBATCH --cpus-per-task=2            # Number of CPU cores per task
-#SBATCH --mem=2gb                     # Job memory request
-#SBATCH --time=00:15:00               # Time limit hrs:min:sec
-#SBATCH --output=logs/errors/minos_batch-%A-%a.out   # Standard output log.
-#SBATCH --error=logs/logs/minos_batch-%A-%a.err   # Standard output log.
+#SBATCH --job-name=parallel_minos_job                 # Job name
+#SBATCH --mail-type=FAIL                              # Mail events (NONE, BEGIN, END, FAIL, ALL)
+#SBATCH --mail-user=h.p.rice@leeds.ac.uk              # Where to send mail
+#SBATCH --nodes=1                                     # Run all processes on a single node
+#SBATCH --ntasks=1                                    # Run a single task
+#SBATCH --cpus-per-task=2                             # Number of CPU cores per task
+#SBATCH --mem=2gb                                     # Job memory request
+#SBATCH --time=00:15:00                               # Time limit hrs:min:sec
+#SBATCH --output=logs/errors/minos_batch-%A-%a.out    # Standard output log.
+#SBATCH --error=logs/logs/minos_batch-%A-%a.err       # Standard output log.
 #SBATCH --gres=gpu:rtx_6000:1 # What GPUs you want: 1
 
 #../gpu-burn/gpu_burn # GPU testing.. ignore.

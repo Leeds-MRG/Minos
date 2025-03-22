@@ -122,6 +122,9 @@ class Replenishment(Base):
 
         # HR 24/09/24 Workaround for all cases (US and synthpop): get columns from input data
         column_source = self.config.base_input_data_dir
+        # HR 20/03/25 Another workaround to account for different sized synthpops
+        if self.config.synthetic:
+            column_source = os.path.join(column_source, str(self.config.percentage) + 'pc')
         latest_file = [f for f in os.listdir(column_source) if os.path.isfile(os.path.join(column_source, f))][0]
         view_columns = list(pd.read_csv(os.path.join(column_source, latest_file)).columns)
 
@@ -659,12 +662,13 @@ def create_replenishing_population(pop_size,
                                    sample_ages=SAMPLE_AGES_DEFAULT,
                                    repl_age=REPL_AGE_DEFAULT,
                                    delta_threshold=0.05,
+                                   percentage=1,  # Use 1% pop as quicker to load
                                    ):
 
     if source_pop is None:
         source_path = os.path.join(DATA_PATH, 'scaled_gb_US')
         source_file = f'{repl_year}_US_cohort.csv'
-        source_pop = pd.read_csv(os.path.join(source_path, source_file))
+        source_pop = pd.read_csv(os.path.join(source_path, str(percentage) + 'pc', source_file))
 
     # Get reference values to match
     ref_deets = (PERSISTENT_DIR, PROJECTIONS_DEFAULT)

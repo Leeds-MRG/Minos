@@ -101,7 +101,7 @@ def get_latest_data_by_year(year,
         print('Year {} not in simulation years; returning None'.format(year))
         return None
 
-    file = str(year) + '.csv'
+    file = [f for f in os.listdir(path) if f.endswith(str(year) + '.csv')][0]  # HR 491 Workaround for HPC runs
     # data = pd.read_csv(os.path.join(path, file), low_memory=False)[COLUMNS_TO_READ]
     data = pd.read_csv(os.path.join(path, file), low_memory=False)
     return data
@@ -114,7 +114,7 @@ def get_latest_data(parity=False,
                     ):
     path, years = get_sim_info(parity=parity, synthpop=synthpop)
 
-    file_dict = {y: str(y) + '.csv' for y in years}
+    file_dict = {y: [f for f in os.listdir(path) if f.endswith(str(y) + '.csv')][0] for y in years}  # HR 491 Workaround for HPC runs
     # data = {y: pd.read_csv(os.path.join(path, f), low_memory=False)[COLUMNS_TO_READ] for y, f in file_dict.items()}
     data = {y: pd.read_csv(os.path.join(path, f), low_memory=False, index_col=False) for y, f in file_dict.items()}
     return data
@@ -687,7 +687,8 @@ if __name__ == '__main__':
     # asfr_ref = get_asfr_reference_data()
 
 
-    pop25 = get_latest_data_by_year(year=2025, parity=True, synthpop=True)
+    dl = get_latest_data(parity=True, synthpop=False)
+    pop25 = get_latest_data_by_year(year=2025, parity=True, synthpop=False)
     mp25 = get_metrics(pop=pop25, year=2025)
     # mpall = get_metrics_post(parity=True, synthpop=True, recalculate=True, cache=False, disaggregator=['region'])
     # mpall = get_metrics_post(parity=True, synthpop=False, recalculate=True, cache=False, disaggregator=['region', 'ethnicity'])

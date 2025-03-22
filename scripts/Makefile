@@ -254,136 +254,107 @@ intervention_energyDownLiftNoSupport_uk: setup_uk_scaled
 
 
 #####################################
-## Running MINOS scenarios on Arc4
+## Running MINOS scenarios on AIRE
 #####################################
 
-.phony: arc4_baseline arc4_intervention_hhIncome arc4_intervention_hhIncomeChildUplift
-.phony: arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift
-.phony: arc4_all_scenarios arc4_all_scot_scenarios arc4_cv_baseline
+.phony: AIRE_baseline AIRE_intervention_hhIncome AIRE_intervention_hhIncomeChildUplift
+.phony: AIRE_intervention_PovertyLineChildUplift AIRE_intervention_livingWage AIRE_intervention_energyDownLift
+.phony: AIRE_all_scenarios AIRE_all_scot_scenarios AIRE_cv_baseline
 
-arc4_baseline:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE)
+AIRE_baseline:
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE)
 
-arc4_intervention_hhIncome:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
+#############################################
+# HR 20/03/25 All Aire fertility combinations
+AIRE_baseline_noparity: setup
+	bash scripts/aire_submit.sh -c $(NOPARITY_CONFIG) -o $(NOPARITY_MODE)
 
-arc4_intervention_hhIncomeChildUplift:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift'
+AIRE_baseline_parity: setup
+	bash scripts/aire_submit.sh -c $(PARITY_CONFIG) -o $(PARITY_MODE)
 
-arc4_intervention_PovertyLineChildUplift:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
+AIRE_baseline_gb_noparity: setup_gb_scaled
+	bash scripts/aire_submit.sh -c $(NOPARITY_GB_CONFIG) -o $(NOPARITY_GB_MODE)
 
-arc4_intervention_livingWage:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
+AIRE_baseline_gb_parity: setup_gb_scaled
+	bash scripts/aire_submit.sh -c $(PARITY_GB_CONFIG) -o $(PARITY_GB_MODE)
 
-arc4_intervention_energyDownLift:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
+AIRE_fertility_suite: AIRE_baseline_noparity AIRE_baseline_parity AIRE_baseline_gb_noparity AIRE_baseline_gb_parity AIRE_fertility_validation
+#############################################
 
-arc4_intervention_energyDownLiftNoSupport:
-	bash scripts/arc_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
+AIRE_intervention_hhIncome:
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeIntervention'
 
-arc4_all_scenarios: arc4_baseline arc4_intervention_hhIncomeChildUplift arc4_intervention_PovertyLineChildUplift arc4_intervention_livingWage arc4_intervention_energyDownLift arc4_intervention_energyDownLiftNoSupport
+AIRE_intervention_hhIncomeChildUplift:
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomeChildUplift'
 
-arc4_baseline_cpr:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o $(SUBDIR)
+AIRE_intervention_PovertyLineChildUplift:
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'hhIncomePovertyLineChildUplift'
 
-arc4_intervention_childPovertyReduction:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReduction'
+AIRE_intervention_livingWage:
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'livingWageIntervention'
 
-arc4_intervention_childPovertyReductionRELATIVE:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReductionRELATIVE'
+AIRE_intervention_energyDownLift:
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownlift'
 
-arc4_intervention_childPovertyReductionSUSTAIN:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReductionSUSTAIN'
+AIRE_intervention_energyDownLiftNoSupport:
+	bash scripts/aire_submit.sh -c $(RUN_CONFIG) -o $(MODE) -i 'energyDownliftNoSupport'
 
-arc4_intervention_childPovertyReductionRELATIVE_2:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReductionRELATIVE_2'
+AIRE_all_scenarios: AIRE_baseline AIRE_intervention_hhIncomeChildUplift AIRE_intervention_PovertyLineChildUplift AIRE_intervention_livingWage AIRE_intervention_energyDownLift AIRE_intervention_energyDownLiftNoSupport
 
-arc4_intervention_ChildPovertyReductionABSOLUTE:
-	bash scripts/arc_submit.sh -c $(CONFIG)/default.yaml -o $(SUBDIR) -i 'ChildPovertyReductionABSOLUTE'
+AIRE_baseline_cpr:
+	bash scripts/aire_submit.sh -c $(CONFIG)/default.yaml -o default_cpr
 
-arc4_child_pov_interventions: SUBDIR=default_cpr
-arc4_child_pov_interventions: arc4_baseline_cpr arc4_intervention_childPovertyReduction arc4_intervention_childPovertyReductionRELATIVE
-arc4_child_pov_interventions: arc4_intervention_childPovertyReductionRELATIVE_2 arc4_intervention_ChildPovertyReductionABSOLUTE
+AIRE_intervention_childPovertyReductionRELATIVE:
+	bash scripts/aire_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE'
 
-arc4_baseline_cpr_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR)
+AIRE_intervention_childPovertyReductionRELATIVE_2:
+	bash scripts/aire_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionRELATIVE_2'
 
-arc4_intervention_childPovertyReduction_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReduction'
+AIRE_intervention_ChildPovertyReductionABSOLUTE:
+	bash scripts/aire_submit.sh -c $(CONFIG)/default.yaml -o default_cpr -i 'ChildPovertyReductionABSOLUTE'
 
-arc4_intervention_childPovertyReductionRELATIVE_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReductionRELATIVE'
-
-arc4_intervention_childPovertyReductionSUSTAIN_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReductionSUSTAIN'
-
-arc4_intervention_childPovertyReductionRELATIVE_2_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReductionRELATIVE_2'
-
-arc4_intervention_ChildPovertyReductionABSOLUTE_scotland:
-	bash scripts/arc_submit.sh -c $(CONFIG)/scotland_scaled.yaml -o $(SUBDIR) -i 'ChildPovertyReductionABSOLUTE'
-
-arc4_child_pov_scotland: SUBDIR=scotland_cpr
-arc4_child_pov_scotland: arc4_baseline_cpr_scotland arc4_intervention_childPovertyReduction_scotland
-arc4_child_pov_scotland: arc4_intervention_childPovertyReductionRELATIVE_2_scotland arc4_intervention_ChildPovertyReductionABSOLUTE_scotland
-# arc4_intervention_childPovertyReductionRELATIVE_scotland
-
-arc4_cp_scot_reduced: SUBDIR=scotland_cpr
-arc4_cp_scot_reduced: arc4_baseline_cpr_scotland arc4_intervention_childPovertyReduction_scotland
-
-############### PRIORITY SUBGROUP ONLY RUNS RUNS ###############
-
-arc4_baseline_psub:
-	bash scripts/arc_submit.sh -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup
-
-arc4_intervention_childPovertyReductionRelative_psub:
-	bash scripts/arc_submit.sh -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup -i 'ChildPovertyReductionRELATIVE_psub'
-
-arc4_intervention_childPovertyReductionAbsolute_psub:
-	bash scripts/arc_submit.sh -c $(CONFIG)/priority_subgroup.yaml -o priority_subgroup -i 'ChildPovertyReductionABSOLUTE_psub'
-
-arc4_child_pov_psub: arc4_baseline_psub arc4_intervention_childPovertyReductionRelative_psub arc4_intervention_childPovertyReductionAbsolute_psub
+AIRE_child_pov_interventions: AIRE_baseline_cpr AIRE_intervention_childPovertyReductionRELATIVE_2
+AIRE_child_pov_interventions:  AIRE_intervention_ChildPovertyReductionABSOLUTE
 
 ## All default scenarios
-arc4_all_scenarios_default: setup
-arc4_all_scenarios_default: MODE=default_config
-arc4_all_scenarios_default: RUN_CONFIG=$(CONFIG)/default.yaml
-arc4_all_scenarios_default: arc4_all_scenarios
+AIRE_all_scenarios_default: setup
+AIRE_all_scenarios_default: MODE=default_config
+AIRE_all_scenarios_default: RUN_CONFIG=$(CONFIG)/default.yaml
+AIRE_all_scenarios_default: AIRE_all_scenarios
 
 ## All SF12 scenarios using glasgow scaled population
-arc4_all_scenarios_glasgow: setup_glasgow_scaled
-arc4_all_scenarios_glasgow: MODE=SF12_glasgow_scaled
-arc4_all_scenarios_glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
-arc4_all_scenarios_glasgow: arc4_all_scenarios
+AIRE_all_scenarios_glasgow: setup_glasgow_scaled
+AIRE_all_scenarios_glasgow: MODE=SF12_glasgow_scaled
+AIRE_all_scenarios_glasgow: RUN_CONFIG=$(CONFIG)/glasgow_scaled.yaml
+AIRE_all_scenarios_glasgow: AIRE_all_scenarios
 
 ## All SF12 scenarios using glasgow scaled population
-arc4_all_scenarios_uk: setup_uk_scaled
-arc4_all_scenarios_uk: MODE=SF12_uk_scaled
-arc4_all_scenarios_uk: RUN_CONFIG=$(CONFIG)/uk_scaled.yaml
-arc4_all_scenarios_uk: arc4_all_scenarios
+AIRE_all_scenarios_uk: setup_uk_scaled
+AIRE_all_scenarios_uk: MODE=SF12_uk_scaled
+AIRE_all_scenarios_uk: RUN_CONFIG=$(CONFIG)/uk_scaled.yaml
+AIRE_all_scenarios_uk: AIRE_all_scenarios
 
 ## All Scotland scenarios
 ## DEPRECATED - these have been superseded by the glasgow synthetic population scenarios
-arc4_all_scenarios_scot: setup
-arc4_all_scenarios_scot: MODE=scotland_mode
-arc4_all_scenarios_scot: RUN_CONFIG=$(CONFIG)/scot_default.yaml
-arc4_all_scenarios_scot: arc4_all_scenarios
+AIRE_all_scenarios_scot: setup
+AIRE_all_scenarios_scot: MODE=scotland_mode
+AIRE_all_scenarios_scot: RUN_CONFIG=$(CONFIG)/scot_default.yaml
+AIRE_all_scenarios_scot: AIRE_all_scenarios
 
 ## All SIPHER7 Equivalent Income scenarios
-arc4_all_scenarios_S7: setup_S7
-arc4_all_scenarios_S7: MODE=SIPHER7
-arc4_all_scenarios_S7: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
-arc4_all_scenarios_S7: arc4_all_scenarios
+AIRE_all_scenarios_S7: setup_S7
+AIRE_all_scenarios_S7: MODE=SIPHER7
+AIRE_all_scenarios_S7: RUN_CONFIG=$(CONFIG)/SIPHER7.yaml
+AIRE_all_scenarios_S7: AIRE_all_scenarios
 
 ## All SIPHER7 Equivalent Income scenarios with Glasgow synthetic data
-arc4_all_scenarios_S7_glasgow: setup_glasgow_scaled_S7
-arc4_all_scenarios_S7_glasgow: MODE=SIPHER7_glasgow
-arc4_all_scenarios_S7_glasgow: RUN_CONFIG=$(CONFIG)/S7_glasgow_scaled.yaml
-arc4_all_scenarios_S7_glasgow: arc4_all_scenarios
+AIRE_all_scenarios_S7_glasgow: setup_glasgow_scaled_S7
+AIRE_all_scenarios_S7_glasgow: MODE=SIPHER7_glasgow
+AIRE_all_scenarios_S7_glasgow: RUN_CONFIG=$(CONFIG)/S7_glasgow_scaled.yaml
+AIRE_all_scenarios_S7_glasgow: AIRE_all_scenarios
 
-arc4_cv_baseline: cv_setup
-	bash scripts/arc_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
+AIRE_cv_baseline: cv_setup
+	bash scripts/aire_submit.sh -c $(CONFIG)/cross_validation.yaml -o cross_validation
 
 #####################################
 # Running scenarios on beefy HPC in LIDA.
