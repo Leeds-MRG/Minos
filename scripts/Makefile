@@ -278,7 +278,7 @@ AIRE_baseline_gb_noparity: setup_gb_scaled
 AIRE_baseline_gb_parity: setup_gb_scaled
 	bash scripts/aire_submit.sh -c $(PARITY_GB_CONFIG) -o $(PARITY_GB_MODE)
 
-AIRE_fertility_suite: AIRE_baseline_noparity AIRE_baseline_parity AIRE_baseline_gb_noparity AIRE_baseline_gb_parity fertility_validation
+AIRE_fertility_suite: AIRE_baseline_noparity AIRE_baseline_parity AIRE_baseline_gb_noparity AIRE_baseline_gb_parity AIRE_fertility_validation
 #############################################
 
 AIRE_intervention_hhIncome:
