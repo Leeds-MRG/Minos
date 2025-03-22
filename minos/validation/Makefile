@@ -69,4 +69,4 @@ fertility_validation:
 
 AIRE_fertility_validation:
 	conda install nb_conda_kernels
-	sbatch fertility_validation.sh
+	sbatch minos/validation/fertility_validation.sh
