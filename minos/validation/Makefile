@@ -65,7 +65,7 @@ cv_S7_render:
 ########### Fertility visualisation ###########
 
 fertility_validation:
-	jupyter nbconvert --execute --to html fertility_validation.ipynb
+	jupyter nbconvert --execute --to html minos/validation/fertility_validation.ipynb
 
 AIRE_fertility_validation:
 	conda install nb_conda_kernels
