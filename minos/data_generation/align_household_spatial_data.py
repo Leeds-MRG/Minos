@@ -19,7 +19,11 @@ def main(region, energy_poverty_summary=False):
     """
 
     # load US data, spatial data, and urban/rural classifier data.
-    US_data = pd.read_csv(f"data/scaled_{region}_summary_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
+    if energy_poverty_summary:
+        US_data = pd.read_csv(f"data/scaled_{region}_summary_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
+    else:
+        US_data = pd.read_csv(f"data/scaled_{region}_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
+
     spatial_data = pd.read_csv("persistent_data/spatial_data/Output_Area_to_LSOA_to_MSOA_to_Local_Authority_District_(December_2017)_Lookup_with_Area_Classifications_in_Great_Britain.csv")
     EW_urban_rural_data = pd.read_csv("persistent_data/spatial_data/rural_urban_by_lsoa.csv")
     S_urban_rural_data = pd.read_csv("persistent_data/spatial_data/rural_urban_by_data_zone.csv")
