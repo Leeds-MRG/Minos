@@ -203,94 +203,94 @@ write.csv(final_tenure_table, file=here::here("plots", "aspatial_summary_table.c
 
 ```
 
-```{r}
+<!-- ```{r} -->
 
 
-#Household type
-#All
-#with children
-#without children?
-#with pensioners
+<!-- #Household type -->
+<!-- #All -->
+<!-- #with children -->
+<!-- #without children? -->
+<!-- #with pensioners -->
 
-#print("Total Households: ")
-#print(length(unique(data$hidp)))
+<!-- #print("Total Households: ") -->
+<!-- #print(length(unique(data$hidp))) -->
 
-n_total_households <- length(unique(data$hidp))
+<!-- n_total_households <- length(unique(data$hidp)) -->
 
-children_data <- data %>% 
-                  filter(nkids>0)
-n_children_households <-length(unique(children_data$hidp))
+<!-- children_data <- data %>%  -->
+<!--                   filter(nkids>0) -->
+<!-- n_children_households <-length(unique(children_data$hidp)) -->
 
-#print("Total Households with Children 16yo and Under: ")
-#print(length(unique(children_data$hidp)))
+<!-- #print("Total Households with Children 16yo and Under: ") -->
+<!-- #print(length(unique(children_data$hidp))) -->
 
-childless_data <- data %>% 
-                  filter(nkids<=0)
-n_childless_households <-  length(unique(childless_data$hidp))
+<!-- childless_data <- data %>%  -->
+<!--                   filter(nkids<=0) -->
+<!-- n_childless_households <-  length(unique(childless_data$hidp)) -->
 
-#print("Total Households without Children 16yo and Under: ")
-#print(length(unique(children_data$hidp)))
+<!-- #print("Total Households without Children 16yo and Under: ") -->
+<!-- #print(length(unique(children_data$hidp))) -->
 
-pensioner_data <- data %>%  # need a better condition that this.. see npensioner_dv variable
-                  filter(age>65)
-n_pensioner_households <- length(unique(pensioner_data$hidp))
+<!-- pensioner_data <- data %>%  # need a better condition that this.. see npensioner_dv variable -->
+<!--                   filter(age>65) -->
+<!-- n_pensioner_households <- length(unique(pensioner_data$hidp)) -->
 
-#print("Total Households With Any Adults Over 65yo (Loose definition of pensioner): ")
-#print(length(unique(pensioner_data$hidp)))
+<!-- #print("Total Households With Any Adults Over 65yo (Loose definition of pensioner): ") -->
+<!-- #print(length(unique(pensioner_data$hidp))) -->
 
-household_type_table <- rbind(c("Total Households", n_total_households, 100), 
-      c("Total Households with Children 16yo and Under: ", n_children_households, n_children_households * 100 /n_total_households), 
-      c("Total Households without Children 16yo and Under: ", n_childless_households, n_childless_households* 100 /n_total_households),
-      c("Total Households With Any Adults Over 65yo (Loose definition of pensioner): ", n_pensioner_households,  n_pensioner_households * 100 /n_total_households))
-colnames(household_type_table) <- c("Category", "Number of Unique Households (hidps)", "Percentage of Total Households")
-print(as.tibble(household_type_table))
-```
+<!-- household_type_table <- rbind(c("Total Households", n_total_households, 100),  -->
+<!--       c("Total Households with Children 16yo and Under: ", n_children_households, n_children_households * 100 /n_total_households),  -->
+<!--       c("Total Households without Children 16yo and Under: ", n_childless_households, n_childless_households* 100 /n_total_households), -->
+<!--       c("Total Households With Any Adults Over 65yo (Loose definition of pensioner): ", n_pensioner_households,  n_pensioner_households * 100 /n_total_households)) -->
+<!-- colnames(household_type_table) <- c("Category", "Number of Unique Households (hidps)", "Percentage of Total Households") -->
+<!-- print(as.tibble(household_type_table)) -->
+<!-- ``` -->
 
-```{r}
+<!-- ```{r} -->
 
-#In poverty
-#All
-#with children
-#without children
-#with pensioners
-
-
-#using simple relative poverty definition for now. 
-poverty_data <- data %>% filter(hh_income < 0.6*median(hh_income))
-n_total_poverty_households <- length(unique(data$hidp))
-
-#print("Total Relative Poverty Households: ")
-#print(length(unique(data$hidp)))
-
-poverty_children_data <- poverty_data %>% 
-                  filter(nkids>0)
-n_children_poverty_households <-length(unique(poverty_children_data$hidp))
-
-#print("Total Relative Poverty Households with Children 16yo and Under: ")
-#print(length(unique(children_data$hidp)))
-
-poverty_childless_data <- poverty_data %>% 
-                  filter(nkids<=0)
-n_childless_poverty_households <-  length(unique(poverty_childless_data$hidp))
-
-#print("Total Relative Poverty Households without Children 16yo and Under: ")
-#print(length(unique(childless_data$hidp)))
-
-poverty_pensioner_data <- poverty_data %>%  # need a better condition that this.. see npensioner_dv variable
-                  filter(age>65)
-n_pensioner_poverty_households <- length(unique(poverty_pensioner_data$hidp))
-
-#print("Total  Relative Poverty Households With Any Adults Over 65yo (Loose definition of pensioner): ")
-#print(length(unique(pensioner_data$hidp)))
+<!-- #In poverty -->
+<!-- #All -->
+<!-- #with children -->
+<!-- #without children -->
+<!-- #with pensioners -->
 
 
-poverty_household_type_table <- rbind(c("Total Households", n_total_poverty_households, 20, 100, 20), 
-      c("Total Households with Children 16yo and Under: ", n_children_poverty_households, 20, n_children_poverty_households * 100 /n_total_poverty_households, 20), 
-      c("Total Households without Children 16yo and Under: ", n_childless_poverty_households, 20, n_childless_poverty_households* 100 /n_total_poverty_households, 20),
-      c("Total Households With Any Adults Over 65yo (Loose definition of pensioner): ", n_pensioner_poverty_households,  20, n_pensioner_poverty_households * 100 /n_total_poverty_households, 20))
-colnames(poverty_household_type_table) <- c("Category", "Number of Unique Households (hidps)", "Number of households in Poor Thermal Comfort", "Percentage of Total Households")
-print(as.tibble(poverty_household_type_table))
-```
+<!-- #using simple relative poverty definition for now.  -->
+<!-- poverty_data <- data %>% filter(hh_income < 0.6*median(hh_income)) -->
+<!-- n_total_poverty_households <- length(unique(data$hidp)) -->
+
+<!-- #print("Total Relative Poverty Households: ") -->
+<!-- #print(length(unique(data$hidp))) -->
+
+<!-- poverty_children_data <- poverty_data %>%  -->
+<!--                   filter(nkids>0) -->
+<!-- n_children_poverty_households <-length(unique(poverty_children_data$hidp)) -->
+
+<!-- #print("Total Relative Poverty Households with Children 16yo and Under: ") -->
+<!-- #print(length(unique(children_data$hidp))) -->
+
+<!-- poverty_childless_data <- poverty_data %>%  -->
+<!--                   filter(nkids<=0) -->
+<!-- n_childless_poverty_households <-  length(unique(poverty_childless_data$hidp)) -->
+
+<!-- #print("Total Relative Poverty Households without Children 16yo and Under: ") -->
+<!-- #print(length(unique(childless_data$hidp))) -->
+
+<!-- poverty_pensioner_data <- poverty_data %>%  # need a better condition that this.. see npensioner_dv variable -->
+<!--                   filter(age>65) -->
+<!-- n_pensioner_poverty_households <- length(unique(poverty_pensioner_data$hidp)) -->
+
+<!-- #print("Total  Relative Poverty Households With Any Adults Over 65yo (Loose definition of pensioner): ") -->
+<!-- #print(length(unique(pensioner_data$hidp))) -->
+
+
+<!-- poverty_household_type_table <- rbind(c("Total Households", n_total_poverty_households, 20, 100, 20),  -->
+<!--       c("Total Households with Children 16yo and Under: ", n_children_poverty_households, 20, n_children_poverty_households * 100 /n_total_poverty_households, 20),  -->
+<!--       c("Total Households without Children 16yo and Under: ", n_childless_poverty_households, 20, n_childless_poverty_households* 100 /n_total_poverty_households, 20), -->
+<!--       c("Total Households With Any Adults Over 65yo (Loose definition of pensioner): ", n_pensioner_poverty_households,  20, n_pensioner_poverty_households * 100 /n_total_poverty_households, 20)) -->
+<!-- colnames(poverty_household_type_table) <- c("Category", "Number of Unique Households (hidps)", "Number of households in Poor Thermal Comfort", "Percentage of Total Households") -->
+<!-- print(as.tibble(poverty_household_type_table)) -->
+<!-- ``` -->
 
 
 
