@@ -157,3 +157,9 @@ $(MANCHESTERSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DA
 
 $(DATADIR)/replenishing/manchester_scaled/replenishing_pop_2015-2070.csv: $(MANCHESTERSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/heating/logit/heating_2020_2021.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --region 'manchester'
+
+
+aire_synthetic_manchester_data: data manchester_scaled_data synthetic_manchester_repl
+	bash scripts/arc4_manchester_data_gen.sh
+
+
