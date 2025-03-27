@@ -10,7 +10,7 @@
 #SBATCH --mem=30G                                                 # Job memory request
 #SBATCH --time=06:00:00                                           # Time limit hrs:min:sec
 #SBATCH --output=logs/data_gen/minos_data_gen-%A-%a.out        # Standard output log.
-#SBATCH --error=logs/data_gen/minos_data_gen.err-%A-%a.err       # Standard error log.
+#SBATCH --error=logs/data_gen/minos_data_gen-%A-%a.err       # Standard error log.
 
 set -e # throws error if any command fails. otherwise would just keep going.
 

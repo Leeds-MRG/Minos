@@ -47,7 +47,7 @@ with pensioners
 
 # load in data
 # either composite or synthpop data
-data <- read.csv(here::here("data", "composite_US", "2020_US_cohort.csv"))
+data <- read.csv(here::here("data", "imputed_final_US", "2020_US_cohort.csv"))
 #data <- read.csv(here::here("data", "scaled_manchester_US", "2020_US_cohort.csv"))
 data <- data %>% filter(housing_tenure > 0)
 
@@ -193,12 +193,12 @@ addtorow$command <- paste0('\\textbackslash Housing Tenure ', paste0(' & \\multi
 
 
 #print(output_table, file='test.tex', include.colnames=F)
-print(output_table, add.to.row=addtorow, file='test.tex', include.colnames=F)#, hline.after=c(-1,0,1,5,6,10))
+print(output_table, add.to.row=addtorow, file=here::here("plots", "aspatial_summary_table.tex"), include.colnames=F)#, hline.after=c(-1,0,1,5,6,10))
 
 
 #final_tenure_table$housing_tenure <- housing_tenure_list
 colnames(final_tenure_table) <- c("All", "PTC Only", "All", "PTC Only", "All", "PTC Only", "All", "PTC Only", "All", "PTC Only")
-write.csv(final_tenure_table, file="test.csv") # names arg drops column names
+write.csv(final_tenure_table, file=here::here("plots", "aspatial_summary_table.csv")) # names arg drops column names
 
 
 ```
@@ -434,5 +434,5 @@ print(output_table, add.to.row=addtorow, file=here::here("plots", paste0(populat
 
 #final_tenure_table$housing_tenure <- housing_tenure_list
 colnames(final_tenure_table) <- c("All", "PTC Only", "All", "PTC Only", "All", "PTC Only", "All", "PTC Only", "All", "PTC Only")
-write.csv(final_tenure_table, file=here::here("plots", paste0(population_scale_factor, "_GB_poor_thermal_comfort_population_summaries.csv")) # names arg drops column names
+write.csv(final_tenure_table, file=here::here("plots", paste0(population_scale_factor, "_GB_poor_thermal_comfort_population_summaries.csv"))) # names arg drops column names
 
