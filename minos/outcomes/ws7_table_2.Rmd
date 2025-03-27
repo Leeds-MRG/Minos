@@ -149,7 +149,9 @@ return(row_table)
 
 ```{r}
 
-population_scale_factor <- 67 * (10**6) / sum(data$inverse_weights)
+#population_scale_factor <- 67 * (10**6) / sum(data$inverse_weights)
+population_scale_factor <- 1
+
   
 # "Number of Adults (% of Entire Adult Population)"
 tenure_table1 <- tenure_data_table_weighted_subgroup(data, population_scale_factor, F)
@@ -166,7 +168,9 @@ tenure_table4 <- tenure_data_table_weighted_subgroup(data%>% filter(age>65), pop
 #"Number of Adults (% of Entire Adult Population in Relative Poverty)" 
 
 poverty_data<- data %>% filter(hh_income < 0.6*median(hh_income)) # standard relative poverty definition.
-poverty_population_scale_factor <- 67 * (10**6) / sum(poverty_data$inverse_weights)
+#poverty_population_scale_factor <- 67 * (10**6) / sum(poverty_data$inverse_weights)
+poverty_population_scale_factor <- 1
+
 
 # all poverty.
 tenure_table5 <- tenure_data_table_weighted_subgroup(poverty_data, poverty_population_scale_factor, T) 
@@ -429,10 +433,10 @@ addtorow$command <- paste0('\\textbackslash Housing Tenure ', paste0(' & \\multi
 
 
 #print(output_table, file='test.tex', include.colnames=F)
-print(output_table, add.to.row=addtorow, file=here::here("plots", paste0(population_scale_factor, '_gb_poor_thermal_comfort_summaries.tex')), include.colnames=F)#, hline.after=c(-1,0,1,5,6,10))
+print(output_table, add.to.row=addtorow, file=here::here("plots", paste0(population_scale_factor, '_GB_summaries_table.tex')), include.colnames=F)#, hline.after=c(-1,0,1,5,6,10))
 
 
 #final_tenure_table$housing_tenure <- housing_tenure_list
 colnames(final_tenure_table) <- c("All", "PTC Only", "All", "PTC Only", "All", "PTC Only", "All", "PTC Only", "All", "PTC Only")
-write.csv(final_tenure_table, file=here::here("plots", paste0(population_scale_factor, "_GB_poor_thermal_comfort_population_summaries.csv"))) # names arg drops column names
+write.csv(final_tenure_table, file=here::here("plots", paste0(population_scale_factor, "_GB_summaries_table.csv"))) # names arg drops column names
 
