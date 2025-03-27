@@ -245,9 +245,9 @@ def generate_replenishing(projections, scotland_mode, cross_validation, inflated
         data_source = 'scaled_manchester_aligned_US'
         output_dir = 'data/replenishing/manchester_scaled'
         source_year = 2020
-    elif region == 'uk':
-        data_source = 'scaled_uk_US'
-        output_dir = 'data/replenishing/uk_scaled'
+    elif region == 'gb':
+        data_source = 'scaled_gb_US'
+        output_dir = 'data/replenishing/gb_scaled'
         source_year = 2020
 
 

@@ -5,7 +5,7 @@ import pandas as pd
 from US_utils import check_output_dir, save_file
 
 
-def main(region):
+def main(region, energy_poverty_summary=False):
     """ Main function for updating spatial variables on scaled synthetic data for MINOS.
 
     Parameters
@@ -44,11 +44,14 @@ def main(region):
     lsoa_region_dict = dict(spatial_data[["LSOA11CD", "RGN11NM"]].values)
     US_data['region'] = US_data['ZoneID'].map(lsoa_region_dict)
 
-    # save data.
-    check_output_dir(f"data/scaled_{region}_aligned_US/")  # check save directory exists or create it.
-    save_file(US_data, f"data/scaled_{region}_aligned_US/", '', 2020)
-
-
+    if not energy_poverty_summary:
+        # save data.
+        check_output_dir(f"data/scaled_{region}_aligned_US/")  # check save directory exists or create it.
+        save_file(US_data, f"data/scaled_{region}_aligned_US/", '', 2020)
+    else:
+        # save data.
+        check_output_dir(f"data/scaled_{region}_summary_aligned_US/")  # check save directory exists or create it.
+        save_file(US_data, f"data/scaled_{region}_summary_aligned_US/", '', 2020)
 
 if __name__ == '__main__':
     region = 'manchester'

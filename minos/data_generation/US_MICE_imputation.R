@@ -48,6 +48,8 @@ main <- function(n_imputations, iterations_per_imputation){
                     "hh_income",
                     "neighbourhood_safety",
                     "S7_labour_state",
+                    "S7_physical_health",
+                    "S7_mental_health",
                     "yearly_energy",
                     "nutrition_quality",
                     "job_hours",
@@ -77,6 +79,17 @@ main <- function(n_imputations, iterations_per_imputation){
   start.data$auditc <- as.factor(start.data$auditc)  
   start.data$S7_labour_state <- as.factor(start.data$S7_labour_state)  
   start.data$marital_status <- as.factor(start.data$marital_status)  
+  start.data$housing_quality <- as.factor(start.data$housing_quality)  
+  start.data$S7_physical_health <- as.factor(start.data$S7_physical_health)  
+  start.data$S7_mental_health <- as.factor(start.data$S7_mental_health)  
+  start.data$loneliness <- as.factor(start.data$loneliness)  
+  start.data$job_sec <- as.factor(start.data$job_sec)  
+  start.data$education_state <- as.factor(start.data$education_state)  
+  start.data$active <- as.factor(start.data$active)  
+  start.data$financial_situation <- as.factor(start.data$financial_situation)  
+  start.data$future_financial_situation <- as.factor(start.data$future_financial_situation)  
+  start.data$housing_tenure <- as.factor(start.data$housing_tenure)  
+  
   
   other.data <- start.data[, !names(start.data) %in% mice_columns]
   mice.data <- start.data[, c(mice_columns)]

@@ -67,7 +67,7 @@ def get_data_zones(region):
         data_zones = pd.read_csv("persistent_data/spatial_data/manchester_lsoas.csv")["LSOA11CD"]
     elif region == "sheffield":
         data_zones = pd.read_csv("persistent_data/spatial_data/sheffield_lsoas.csv")["LSOA11CD"]
-    elif region == "uk":
+    elif region == "gb":
         data_zones = None
     else:
         print("Error! Invalid region defined for spatial subsetting.")
@@ -76,7 +76,7 @@ def get_data_zones(region):
     return data_zones
 
 
-def main(region, percentage = 100, bootstrapping=False, n=100_000):
+def main(region, percentage = 100, bootstrapping=False, n=100_000, energy_poverty_summary_subset=False):
     """
     1. Grab individual synthetic spatial population for UK.
     2. Take subset of spatial population in a specific subregion.
@@ -109,6 +109,12 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     data_zones = get_data_zones(region)
     US_data = pd.read_csv("data/imputed_final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
     #US_data = pd.read_csv("data/final_US/2020_US_cohort.csv")  # only expanding on one year of US data for 2021.
+
+    if energy_poverty_summary_subset:
+        energy_summary_columns = ["housing_tenure", "weight", "heating", "nkids",
+                                  "age", "hh_income", "hidp", "pidp", "time"]
+        US_data = US_data[energy_summary_columns]
+
     if type(data_zones) == pd.core.series.Series:
         subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
     else:
@@ -156,11 +162,15 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
 
     #sampled_data.update(sampled_data.select_dtypes(include=np.number).applymap('{:,g}'.format))
 
-    US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
-    US_utils.save_file(sampled_data, f"data/scaled_{region}_US/", '', 2020)
+    if not energy_poverty_summary_subset:
+        US_utils.check_output_dir(f"data/scaled_{region}_US/")  # check save directory exists or create it.
+        US_utils.save_file(sampled_data, f"data/scaled_{region}_summary_US/", '', 2020)
+    else:
+        US_utils.check_output_dir(f"data/scaled_summary_{region}_US/")  # check save directory exists or create it.
+        US_utils.save_file(sampled_data, f"data/scaled_{region}_summary_US/", '', 2020)
 
     print("aligning other spatial variables")
-    align_main(region)
+    align_main(region, True)
 
 if __name__ == '__main__':
 
@@ -174,6 +184,8 @@ if __name__ == '__main__':
                         help="Bootstrapping the synthetic population to incudce uncertainty?")
     parser.add_argument("-s", "--bootstrap_sample_size", required=False, type=int,
                         help="How many bootstrap samples to take. Should only be used with do_bootstrapping above.")
+    parser.add_argument("-e", "--energy_poverty_summary_subset", required=False, type=bool,
+                        help="Do you want to keep a small subset of columns used to create synthetic population energy poverty summary tables?")
 
     args = vars(parser.parse_args())
     print(args)
@@ -190,11 +202,10 @@ if __name__ == '__main__':
         bootstrap_sample_size = args['bootstrap_sample_size']
     else:
         bootstrap_sample_size = 1
-
+    if "energy_poverty_summary_subset" in args.keys():
+        energy_poverty_summary_subset = args['energy_poverty_summary_subset']
     # region = 'manchester'
     # percentage = 10
     # do_bootstrapping = False
     # bootstrap_sample_size = 1
-    main(region, percentage, do_bootstrapping, bootstrap_sample_size)
-
-
+    main(region, percentage, do_bootstrapping, bootstrap_sample_size, energy_poverty_summary_subset)
