@@ -193,12 +193,12 @@ addtorow$command <- paste0('\\textbackslash Housing Tenure ', paste0(' & \\multi
 
 
 #print(output_table, file='test.tex', include.colnames=F)
-print(output_table, add.to.row=addtorow, file=here::here("plots", "aspatial_summary_table.tex"), include.colnames=F)#, hline.after=c(-1,0,1,5,6,10))
+print(output_table, add.to.row=addtorow, file=here::here("plots", "aspatial_summaries_table.tex"), include.colnames=F)#, hline.after=c(-1,0,1,5,6,10))
 
 
 #final_tenure_table$housing_tenure <- housing_tenure_list
 colnames(final_tenure_table) <- c("All", "PTC Only", "All", "PTC Only", "All", "PTC Only", "All", "PTC Only", "All", "PTC Only")
-write.csv(final_tenure_table, file=here::here("plots", "aspatial_summary_table.csv")) # names arg drops column names
+write.csv(final_tenure_table, file=here::here("plots", "aspatial_summaries_table.csv")) # names arg drops column names
 
 
 ```
@@ -429,7 +429,7 @@ addtorow$command <- paste0('\\textbackslash Housing Tenure ', paste0(' & \\multi
 
 
 #print(output_table, file='test.tex', include.colnames=F)
-print(output_table, add.to.row=addtorow, file=here::here("plots", paste0(population_scale_factor, '_gb_poor_thermal_comfort.tex')), include.colnames=F)#, hline.after=c(-1,0,1,5,6,10))
+print(output_table, add.to.row=addtorow, file=here::here("plots", paste0(population_scale_factor, '_gb_poor_thermal_comfort_summaries.tex')), include.colnames=F)#, hline.after=c(-1,0,1,5,6,10))
 
 
 #final_tenure_table$housing_tenure <- housing_tenure_list
