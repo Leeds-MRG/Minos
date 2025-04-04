@@ -183,7 +183,20 @@ aggregate_JASSS_living_wage:
 aggregate_JASSS_EPCG:
 	sbatch scripts/aire_single_lineplot_script.sh "default_config" "epcg_and_no_support" "SF_12_MCS"
 
+aggregate_JASSS_25_universal_credit_quintiles:
+	sbatch scripts/aire_single_lineplot_script.sh "default_config" "25_universal_credit_income_quintiles" "SF_12_MCS"
+
+aggregate_JASSS_50_universal_credit_quintiles:
+	sbatch scripts/aire_single_lineplot_script.sh "default_config" "50_universal_credit_income_quintiles" "SF_12_MCS"
+
+aggregate_JASSS_living_wage_quintiles:
+	sbatch scripts/aire_single_lineplot_script.sh "default_config" "living_wage_income_quintiles" "SF_12_MCS"
+
+aggregate_JASSS_EPCG_quintiles:
+	sbatch scripts/aire_single_lineplot_script.sh "default_config" "epcg_income_quintiles" "SF_12_MCS"
+
 JASSS_all: aggregate_JASSS_universal_credit aggregate_JASSS_living_wage aggregate_JASSS_EPCG
+JASSS_quintiles: aggregate_JASSS_25_universal_credit_quintiles aggregate_JASSS_50_universal_credit_quintiles aggregate_JASSS_EPCG_quintiles aggregate_JASSS_living_wage_quintiles
 
 #################################
 # Custom subset for scotgov piece

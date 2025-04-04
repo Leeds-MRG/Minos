@@ -114,6 +114,12 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_fourth_simd_quintile": [who_alive, [who_kth_simd_quintile, [4]]],
                      "who_fifth_simd_quintile": [who_alive, [who_kth_simd_quintile, [5]]],
 
+                     "who_first_income_quintile": [who_alive, [who_kth_income_quintile, [1]]],
+                     "who_second_income_quintile": [who_alive, [who_kth_income_quintile, [2]]],
+                     "who_third_income_quintile": [who_alive, [who_kth_income_quintile, [3]]],
+                     "who_fourth_income_quintile": [who_alive, [who_kth_income_quintile, [4]]],
+                     "who_fifth_income_quintile": [who_alive, [who_kth_income_quintile, [5]]],
+
                      "who_priority_subgroups_first_simd_quintile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_quintile, [1]]],
                      "who_priority_subgroups_second_simd_quintile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_quintile, [2]]],
                      "who_priority_subgroups_third_simd_quintile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_quintile, [3]]],
@@ -382,6 +388,9 @@ def who_kth_simd_decile(df, *args):
     k = args[0][0]
     return df.loc[df["simd_decile"] == k]
 
+def who_kth_income_quintile(df, *args):
+    k = args[0][0]
+    return df.loc[pd.qcut(df["hh_income"], 5) == k, ]
 
 def who_kth_simd_quintile(df, *args):
     k = args[0][0]

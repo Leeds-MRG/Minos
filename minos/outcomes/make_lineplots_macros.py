@@ -179,13 +179,23 @@ def epcg_simd_deciles_lineplot(*args):
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method)
 
 
-def quintiles_lineplot(config_mode, source, region):
+def quintiles_lineplot(config_mode, source, region=None):
     directories = (f"{source}," * 6)[:-1]  # repeat 6 times and cut off last comma.
     tags = "National Average,First,Second,Third,Fourth,Fifth"
     subset_function_strings = "who_alive,who_first_simd_quintile,who_second_simd_quintile,who_third_simd_quintile,who_fourth_simd_quintile,who_fifth_simd_quintile"
     prefix = f"{source}_{region}_simd_quintiles_"
     ref = "National Average"
     v = "SF_12"
+    method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+
+
+def income_quintiles_lineplot(config_mode, source, region=None, v="SF_12"):
+    directories = (f"{source}," * 6)[:-1]  # repeat 6 times and cut off last comma.
+    tags = "National Average,First,Second,Third,Fourth,Fifth"
+    subset_function_strings = "who_alive,who_first_income_quintile,who_second_income_quintile,who_third_income_quintile,who_fourth_income_quintile,who_fifth_income_quintile"
+    prefix = f"{source}_income_quintiles_"
+    ref = "National Average"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
@@ -541,7 +551,11 @@ string_to_lineplot_function = {
     #"25_50_universal_credit": universal_credit,
     #"25_50_relative_poverty": relative_poverty,
     "living_wage": living_wage_lineplot,
-    "epcg_and_no_support": epcg_and_no_support_lineplot
+    "epcg_and_no_support": epcg_and_no_support_lineplot,
+    "25_universal_credit_income_quintiles": income_quintiles_lineplot,
+    "50_universal_credit_income_quintiles": income_quintiles_lineplot,
+    "living_wage_income_quintiles": income_quintiles_lineplot,
+    "epcg_income_quintiles": income_quintiles_lineplot,
 
 }
 
@@ -650,7 +664,10 @@ string_to_lineplot_function_args = {
     "25_50_universal_credit": [25, 50],
     "25_50_relative_poverty": [25, 50],
     "epcg_and_no_support": [],
-
+    "25_universal_credit_income_quintiles": ['25UniversalCredit'],
+    "50_universal_credit_income_quintiles": ['25UniversalCredit'],
+    "living_wage_income_quintiles": ['livingWageIntervention'],
+    "epcg_income_quintiles": ['EPCG'],
 }
 
 if __name__ == '__main__':
