@@ -191,7 +191,7 @@ def get_required_intervention_variables(subset_function_string):
     if "boosted" in subset_function_string:
         default_variables += ["income_boosted", "boost_amount"]
 
-    if "decile" in subset_function_string or "quintile" in subset_function_string:
+    if "simd_decile" in subset_function_string or "simd_quintile" in subset_function_string:
         default_variables += ["ZoneID", "simd_decile"]
 
     if "kids" in subset_function_string:
