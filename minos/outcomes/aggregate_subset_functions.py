@@ -176,7 +176,7 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
     for subset_function in subset_chain:
         if type(subset_function) == list: # if the function has additional args pass them here.
             subset_function, subset_args = subset_function
-            data.loc[list(set(data.index) - set(subset_function(data, subset_args)).index), "who_final_boosted_subset"] *= False
+            data.loc[list(set(data.index) - set(subset_function(data, subset_args).index)), "who_final_boosted_subset"] *= False
         else: # if function has no additional args pass them here.
             data.loc[list(set(data.index) - set(subset_function(data).index)), "who_final_boosted_subset"] *= False
 
@@ -391,7 +391,6 @@ def who_kth_simd_decile(df, *args):
 def who_kth_income_quintile(df, *args):
     k = args[0][0]
     split = pd.qcut(df['hh_income'], q=5, labels=[1, 2, 3, 4, 5])
-    print(df.loc[split == k,].shape)
     return df.loc[split == k,]
 
 def who_kth_simd_quintile(df, *args):
