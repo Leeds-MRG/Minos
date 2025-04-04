@@ -667,7 +667,7 @@ string_to_lineplot_function_args = {
     "25_universal_credit_income_quintiles": ['25UniversalCredit'],
     "50_universal_credit_income_quintiles": ['25UniversalCredit'],
     "living_wage_income_quintiles": ['livingWageIntervention'],
-    "epcg_income_quintiles": ['EPCG'],
+    "epcg_income_quintiles": ['energyDownlift'],
 }
 
 if __name__ == '__main__':
