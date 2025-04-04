@@ -390,7 +390,8 @@ def who_kth_simd_decile(df, *args):
 
 def who_kth_income_quintile(df, *args):
     k = args[0][0]
-    return df.loc[pd.qcut(df["hh_income"], q=5, labels=range(1, 6)) == k, ]
+    split = pd.qcut(df['hh_income'], q=5, labels=[1, 2, 3, 4, 5])
+    return df.loc[split == k,]
 
 def who_kth_simd_quintile(df, *args):
     k = args[0][0]
