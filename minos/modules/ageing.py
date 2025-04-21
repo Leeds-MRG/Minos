@@ -6,6 +6,14 @@ import numpy as np
 
 class Ageing(Base):
 
+    # Special methods for vivarium.
+    @property
+    def name(self):
+        return "ageing"
+
+    def __repr__(self):
+        return "Ageing()"
+
     def setup(self, builder):
         """ Method for initialising the depression module.
 
@@ -120,11 +128,3 @@ class Ageing(Base):
                 age_chain = "childless"
 
         return age_chain, new_nkids
-
-    # Special methods for vivarium.
-    @property
-    def name(self):
-        return "ageing"
-
-    def __repr__(self):
-        return "Ageing()"
