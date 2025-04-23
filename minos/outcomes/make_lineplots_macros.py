@@ -77,7 +77,7 @@ def all_five_lineplots(*args):
                   method='nanmean')
 
 
-def social_science_all_plots(config_mode):
+def JASSS_all_plots(config_mode):
     # all social science lineplots together.
     #UC_relative_poverty(config_mode, 25)
     #UC_relative_poverty(config_mode, 50)
@@ -88,6 +88,14 @@ def social_science_all_plots(config_mode):
 
     incremental_25_to_50(config_mode, "UniversalCredit", "Universal Credit", "who_universal_credit_and_kids")
     incremental_25_to_50(config_mode, "RelativePoverty", "Relative Poverty", "who_below_poverty_line_and_kids")
+    incremental_25_to_50_by_5_together(config_mode,
+                                       "UniversalCredit",
+                                       "Universal Credit",
+                                       "who_universal_credit_and_kids")
+    incremental_25_to_50_by_5_together(config_mode,
+                                       "RelativePoverty",
+                                       "Relative Poverty",
+                                       "who_below_poverty_line_and_kids")
 
 
 ########################################
@@ -354,6 +362,8 @@ def incremental_25_to_50_by_5(config_mode, intervention_name, intervention_tag, 
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method,
                       region=region)
         uplift_amount += increment
+        method = 'SF12_AUC'
+        lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 
 def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervention_tag, subset_function, region):
@@ -373,6 +383,7 @@ def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervent
     v = "SF_12"
     method = 'nanmean'
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
+
 
 
 def child_payment_25_50_only(config_mode, source, tag, subset_function, region):
@@ -547,7 +558,7 @@ string_to_lineplot_function = {
     "edinburgh_50_universal_credit_quintiles": quintiles_lineplot,
 
     # JASSS plots
-    "social_science_all_plots": social_science_all_plots,
+    "JASSS_all_plots": JASSS_all_plots,
     #"25_50_universal_credit": universal_credit,
     #"25_50_relative_poverty": relative_poverty,
     "living_wage": living_wage_lineplot,
@@ -665,7 +676,7 @@ string_to_lineplot_function_args = {
     "25_50_relative_poverty": [25, 50],
     "epcg_and_no_support": [],
     "25_universal_credit_income_quintiles": ['25UniversalCredit'],
-    "50_universal_credit_income_quintiles": ['25UniversalCredit'],
+    "50_universal_credit_income_quintiles": ['50UniversalCredit'],
     "living_wage_income_quintiles": ['livingWageIntervention'],
     "epcg_income_quintiles": ['energyDownlift'],
 }

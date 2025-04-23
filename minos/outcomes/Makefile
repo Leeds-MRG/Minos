@@ -171,8 +171,8 @@ aggregate_25_all_children:
 # Custom subset for social science paper #
 ##########################################
 
-social_science_lineplots:
-	python3 minos/outcomes/make_lineplots_macros.py "default_config" "social_science_all_plots"
+JASSS_lineplots:
+	python3 minos/outcomes/make_lineplots_macros.py "default_config" "JASSS_all_plots"
 
 aggregate_JASSS_universal_credit:
 	sbatch scripts/aire_single_lineplot_script.sh "default_config" "incremental_25_50_by_5_together_universal_credit" "SF_12_MCS"

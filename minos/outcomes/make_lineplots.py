@@ -453,11 +453,18 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         #aggregate_lineplot(aggregate_long_stack, "plots", prefix, f"{v}_AUC", method)
         #aggregate_long_stack = aggregate_long_stack.reset_index(drop = True)
 
-        aggregate_long_stack2 = aggregate_long_stack.groupby(["tag", "year"]).agg({'SF_12_AUC': "mean",
-                                                                                   'intervention_cost': 'mean',
-                                                                                   'number_boosted': "mean",
-                                                                                   'population_size': "mean",
-                                                                                   "prct_below_45.6": "mean"})
+        aggregate_long_stack2 = aggregate_long_stack.groupby(["tag", "year"]).agg({'SF_12_AUC': ["mean", "std"],
+                                                                                   'intervention_cost': ["mean", "std"],
+                                                                                   'number_boosted': ["mean", "std"],
+                                                                                   'population_size': ["mean", "std"],
+                                                                                   "prct_below_45.6": ["mean", "std"]})
+
+        # aggregate_long_stack2 = aggregate_long_stack.groupby(["tag", "year"]).agg({'SF_12_AUC': "mean",
+        #                                                                            'intervention_cost': 'mean',
+        #                                                                            'number_boosted': "mean",
+        #                                                                            'population_size': "mean",
+        #                                                                            "prct_below_45.6": "mean"})
+
         aggregate_long_stack2 = aggregate_long_stack2.reset_index(drop = False)
         file_name = "plots/" + "".join(directories) + "_counts_over_time.csv"
         aggregate_long_stack2.to_csv(file_name)
