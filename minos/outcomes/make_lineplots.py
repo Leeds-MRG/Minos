@@ -430,7 +430,7 @@ def quintiles_lineplot(df, destination, prefix, v, method):
         file_name = f"{v}_aggs_by_year.pdf"
     file_name = os.path.join(destination, file_name)
 
-    variable_name_map = {"SF_12_MCS": "SF-12 MCS", "SF_12_PCS": "SF-12 PCS", "yearly_energy": "Yearly Energy"}
+    variable_name_map = {"SF_12_MCS": "SF-12 MCS", "SF_12_PCS": "SF-12 PCS", "yearly_energy": "Yearly Energy", "SF_12": "SF-12 MCS"}
 
     # Sort out axis labels
     y_label = variable_name_map[v]
