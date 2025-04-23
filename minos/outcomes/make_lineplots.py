@@ -183,6 +183,7 @@ def aggregate_variables_by_year(source, tag, years, subset_func_string, v="SF_12
                 single_year_aggregates = pd.DataFrame(aggregated_means, columns = [v])
                 single_year_aggregates['year'] = year
                 single_year_aggregates['tag'] = tag
+                single_year_aggregates['subset_function'] = subset_func_string
                 aggregated_data = pd.concat([aggregated_data, single_year_aggregates])
             elif v in ['housing_quality', 'neighbourhood_safety', 'loneliness']:
                 for i, single_year_aggregate in enumerate(aggregated_means):
@@ -505,7 +506,7 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         latest_file_path = find_latest_source_file_path(file_path)
         years = find_MINOS_years_range(latest_file_path)
 
-        print(f"Aggregating for source {latest_file_path}, tag {tag} using {method.__name__} over {v}")
+        print(f"Aggregating for source {latest_file_path}, tag {tag} using {method.__name__} over {v} using subset {subset_function_string}")
         new_aggregate_data = aggregate_variables_by_year(latest_file_path, tag, years,
                                                          subset_function_string, v=v, ref=ref,
                                                          method=method, region=region)
