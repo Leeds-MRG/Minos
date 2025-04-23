@@ -366,7 +366,7 @@ def incremental_25_to_50_by_5(config_mode, intervention_name, intervention_tag, 
         lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode, ref=ref, v=v, method=method, region=region)
 
 
-def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervention_tag, subset_function, region):
+def incremental_25_to_50_by_5_together(config_mode, intervention_name, intervention_tag, subset_function, region=None):
     """
     The same intervention in increments from £25 to £50
     """

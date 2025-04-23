@@ -392,6 +392,76 @@ def child_uplift_cost_sum(df, v, weights='weight'):
     weights = 1/group[weights].sum()
     return np.nansum(weights * group[v].min())/np.nansum(weights)
 
+
+def quintiles_lineplot(df, destination, prefix, v, method):
+    """ Plot lineplot over sources and years for aggregated v.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataframe with mean SF12 values over time by intervention.
+    destination : str
+        Where is the plot being saved to.
+    Returns
+    -------
+    None
+    """
+
+    df[v] -= 1
+    df[v] *= 100
+
+    # set year to int for formatting purposes
+    df['year'] = pd.to_datetime(df['year'], format='%Y')
+
+    # now rename some vars for plot labelling and formatting
+    # Capital letter for 'year'
+    # 'tag' renamed to 'Legend'
+    df.rename(columns={"year": "Year",
+                       "tag": "Quintiles"},
+              inplace=True)
+    df.reset_index(drop=True, inplace=True)
+
+    f = plt.figure()
+    sns.lineplot(data=df, x='Year', y=v, hue='Quintiles', style='Quintiles', markers=True, palette='Set2')
+    if prefix:
+        file_name = f"{prefix}_{v}_aggs_by_year.pdf"
+    else:
+        file_name = f"{v}_aggs_by_year.pdf"
+    file_name = os.path.join(destination, file_name)
+
+    variable_name_map = {"SF_12_MCS": "SF-12 MCS", "SF_12_PCS": "SF-12 PCS", "yearly_energy": "Yearly Energy"}
+
+    # Sort out axis labels
+    y_label = variable_name_map[v]
+    #if v == 'SF_12_MCS':
+    #   y_label = 'SF12 MCS Percentage Change'
+
+    y_label = f"{v} "
+
+    if method == weighted_nanmean:
+        y_label += " Weighted Mean"
+    elif v == "SF_12_MCS_AUC":
+        y_label += " AUC"
+    elif v == "SF_12_MCS_ICER":
+        y_label += " ICER"
+
+    plt.legend(title="Quintile")
+    plt.ylabel(y_label)
+    plt.tight_layout()
+
+    dir_name = os.path.dirname(file_name)
+    if not os.path.isdir(dir_name):
+        print("Plots folder not found; creating...")
+        os.mkdir(dir_name)
+    plt.savefig(file_name)
+    print(f"Lineplot saved to {file_name}")
+
+    # this is dumb but these changes are global for some reason.
+    df.rename(columns={"Year": "year",
+                       "Legend": "tag"},
+              inplace=True)
+
+
 def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
          method='nanmean', region=None):
     """ Main method for converting multiple sources of MINOS data into a lineplot.
@@ -442,9 +512,26 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
         aggregate_long_stack = pd.concat([aggregate_long_stack, new_aggregate_data])
 
     if v == "SF_12" and method == weighted_nanmean:
-        scaled_data = relative_scaling(aggregate_long_stack, v, ref)
-        print("relative scaling done. plotting.. ")
-        aggregate_lineplot(scaled_data, "plots", prefix, v, method)
+        print("start relative scaling..")
+        scaled_data = pd.DataFrame()
+        do_income_quintiles=False
+        if do_income_quintiles:
+            for subset_function_string in np.unique(aggregate_long_stack['subset_function']):
+                aggregate_long_stack_subsection = aggregate_long_stack.loc[
+                    aggregate_long_stack['subset_function'] == subset_function_string,]
+                aggregate_long_stack_subsection = relative_scaling(aggregate_long_stack_subsection, v, ref)
+                aggregate_long_stack_subsection = aggregate_long_stack_subsection.loc[
+                    aggregate_long_stack_subsection['tag'] != "Baseline",]
+                scaled_data = pd.concat([scaled_data, aggregate_long_stack_subsection])
+            scaled_data['tag'] = scaled_data['tag'].replace({"First": 1, "Second": 2, "Third": 3, "Fourth": 4, "Fifth": 5})
+
+            quintiles_lineplot(scaled_data, "plots", prefix, v, method)
+
+        else:
+            scaled_data = relative_scaling(aggregate_long_stack, v, ref)
+            print("relative scaling done. plotting.. ")
+            aggregate_lineplot(scaled_data, "plots", prefix, v, method)
+
     elif v == "SF_12" and method == aggregate_boosted_counts_and_cumulative_score:
         # groupby intervention and cumsum over time.
         aggregate_long_stack[f"{v}_AUC"] = aggregate_long_stack.groupby(['tag', 'id'])[f"summed_{v}"].cumsum()
