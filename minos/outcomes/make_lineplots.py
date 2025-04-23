@@ -463,7 +463,7 @@ def quintiles_lineplot(df, destination, prefix, v, method):
 
 
 def main(directories, tags, subset_function_strings, prefix, mode='default_config', ref="Baseline", v="SF_12",
-         method='nanmean', region=None):
+         method='nanmean', region=None, do_income_quintiles=False):
     """ Main method for converting multiple sources of MINOS data into a lineplot.
 
 
@@ -514,7 +514,6 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
     if v == "SF_12" and method == weighted_nanmean:
         print("start relative scaling..")
         scaled_data = pd.DataFrame()
-        do_income_quintiles=False
         if do_income_quintiles:
             for subset_function_string in np.unique(aggregate_long_stack['subset_function']):
                 aggregate_long_stack_subsection = aggregate_long_stack.loc[
