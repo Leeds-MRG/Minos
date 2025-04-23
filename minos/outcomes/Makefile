@@ -172,7 +172,8 @@ aggregate_25_all_children:
 ##########################################
 
 JASSS_lineplots:
-	python3 minos/outcomes/make_lineplots_macros.py "default_config" "JASSS_all_plots"
+	sbatch scripts/aire_single_lineplot_script.sh "default_config" "JASSS_all_plots" "SF_12_MCS"
+	# python3 minos/outcomes/make_lineplots_macros.py "default_config" "JASSS_all_plots"
 
 aggregate_JASSS_universal_credit:
 	sbatch scripts/aire_single_lineplot_script.sh "default_config" "incremental_25_50_by_5_together_universal_credit" "SF_12_MCS"
