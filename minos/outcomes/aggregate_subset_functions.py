@@ -126,6 +126,23 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_fourth_income_quintile_boosted": [who_alive, who_boosted, [who_kth_income_quintile, [4]]],
                      "who_fifth_income_quintile_boosted": [who_alive, who_boosted, [who_kth_income_quintile, [5]]],
 
+                     "who_first_income_quintile_universal_credit": [who_alive, who_universal_credit, [who_kth_income_quintile, [1]]],
+                     "who_second_income_quintile_universal_credit": [who_alive, who_universal_credit, [who_kth_income_quintile, [2]]],
+                     "who_third_income_quintile_universal_credit": [who_alive, who_universal_credit, [who_kth_income_quintile, [3]]],
+                     "who_fourth_income_quintile_universal_credit": [who_alive, who_universal_credit, [who_kth_income_quintile, [4]]],
+                     "who_fifth_income_quintile_universal_credit": [who_alive, who_universal_credit, [who_kth_income_quintile, [5]]],
+
+                     "who_first_income_quintile_below_living_wage": [who_alive, who_below_living_wage, [who_kth_income_quintile, [1]]],
+                     "who_second_income_quintile_below_living_wage": [who_alive, who_below_living_wage, [who_kth_income_quintile, [2]]],
+                     "who_third_income_quintile_below_living_wage": [who_alive, who_below_living_wage, [who_kth_income_quintile, [3]]],
+                     "who_fourth_income_quintile_below_living_wage": [who_alive, who_below_living_wage, [who_kth_income_quintile, [4]]],
+                     "who_fifth_income_quintile_below_living_wage": [who_alive, who_below_living_wage, [who_kth_income_quintile, [5]]],
+
+                     "who_first_income_quintile_uses_energy": [who_alive, who_uses_energy, [who_kth_income_quintile, [1]]],
+                     "who_second_income_quintile_uses_energy": [who_alive, who_uses_energy, [who_kth_income_quintile, [2]]],
+                     "who_third_income_quintile_uses_energy": [who_alive, who_uses_energy, [who_kth_income_quintile, [3]]],
+                     "who_fourth_income_quintile_uses_energy": [who_alive, who_uses_energy, [who_kth_income_quintile, [4]]],
+                     "who_fifth_income_quintile_uses_energy": [who_alive, who_uses_energy, [who_kth_income_quintile, [5]]],
 
                      "who_priority_subgroups_first_simd_quintile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_quintile, [1]]],
                      "who_priority_subgroups_second_simd_quintile": [who_alive, who_kids, who_priority_subgroups, [who_kth_simd_quintile, [2]]],

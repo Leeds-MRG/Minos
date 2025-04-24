@@ -222,11 +222,12 @@ def income_quintiles_lineplot(config_mode, source, region=None, v="SF_12"):
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode,
                   ref=ref, v=v, method=method, region=region, do_income_quintiles=True)
 
-def boosted_income_quintiles_lineplot(config_mode, source, region=None, v="SF_12"):
+def boosted_income_quintiles_lineplot(config_mode, source, region=None, v="SF_12", *args):
 
+    subset = args[1]
     directories = "baseline,"*5 + (f"{source}," * 5)[:-1]  # repeat 5 times and cut off last comma.
     tags = "Baseline,Baseline,Baseline,Baseline,Baseline,First,Second,Third,Fourth,Fifth"
-    subset_function_strings = """who_first_income_quintile_boosted,who_second_income_quintile_boosted,who_third_income_quintile_boosted,who_fourth_income_quintile_boosted,who_fifth_income_quintile_boosted,who_first_income_quintile_boosted,who_second_income_quintile_boosted,who_third_income_quintile_boosted,who_fourth_income_quintile_boosted,who_fifth_income_quintile_boosted"""
+    subset_function_strings = f"""who_first_income_quintile_{subset},who_second_income_quintile_{subset},who_third_income_quintile_{subset},who_fourth_income_quintile_{subset},who_fifth_income_quintile_{subset},who_first_income_quintile_boosted,who_second_income_quintile_boosted,who_third_income_quintile_boosted,who_fourth_income_quintile_boosted,who_fifth_income_quintile_boosted"""
 
     # directories = "baseline,"*2 + (f"{source}," * 2)[:-1]  # repeat 5 times and cut off last comma.
     # tags = "Baseline,Baseline,First,Second"
@@ -713,10 +714,10 @@ string_to_lineplot_function_args = {
     "25_50_universal_credit": [25, 50],
     "25_50_relative_poverty": [25, 50],
     "epcg_and_no_support": [],
-    "25_universal_credit_income_quintiles": ['25UniversalCredit'],
-    "50_universal_credit_income_quintiles": ['50UniversalCredit'],
-    "living_wage_income_quintiles": ['livingWageIntervention'],
-    "epcg_income_quintiles": ['energyDownlift'],
+    "25_universal_credit_income_quintiles": ['25UniversalCredit', "universal_credit"],
+    "50_universal_credit_income_quintiles": ['50UniversalCredit', "universal_credit"],
+    "living_wage_income_quintiles": ['livingWageIntervention', "below_living_wage"],
+    "epcg_income_quintiles": ['energyDownlift', "uses_energy"],
 }
 
 if __name__ == '__main__':
