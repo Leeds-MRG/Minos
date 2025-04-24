@@ -224,6 +224,7 @@ def income_quintiles_lineplot(config_mode, source, region=None, v="SF_12"):
 
 def boosted_income_quintiles_lineplot(config_mode, source, region=None, v="SF_12", *args):
 
+    print(args)
     subset = args[1]
     directories = "baseline,"*5 + (f"{source}," * 5)[:-1]  # repeat 5 times and cut off last comma.
     tags = "Baseline,Baseline,Baseline,Baseline,Baseline,First,Second,Third,Fourth,Fifth"
