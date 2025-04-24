@@ -732,4 +732,4 @@ if __name__ == '__main__':
         plot_function_args = []
 
     print(plot_function_args)
-    plot_function(config_mode, *plot_function_args)
+    plot_function(config_mode, plot_function_args)
