@@ -222,10 +222,8 @@ def income_quintiles_lineplot(config_mode, source, region=None, v="SF_12"):
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode,
                   ref=ref, v=v, method=method, region=region, do_income_quintiles=True)
 
-def boosted_income_quintiles_lineplot(config_mode, source, region=None, v="SF_12", *args):
+def boosted_income_quintiles_lineplot(config_mode, source, subset, region=None, v="SF_12"):
 
-    print(args)
-    subset = args[1]
     directories = "baseline,"*5 + (f"{source}," * 5)[:-1]  # repeat 5 times and cut off last comma.
     tags = "Baseline,Baseline,Baseline,Baseline,Baseline,First,Second,Third,Fourth,Fifth"
     subset_function_strings = f"""who_first_income_quintile_{subset},who_second_income_quintile_{subset},who_third_income_quintile_{subset},who_fourth_income_quintile_{subset},who_fifth_income_quintile_{subset},who_first_income_quintile_boosted,who_second_income_quintile_boosted,who_third_income_quintile_boosted,who_fourth_income_quintile_boosted,who_fifth_income_quintile_boosted"""
@@ -732,4 +730,4 @@ if __name__ == '__main__':
         plot_function_args = []
 
     print(plot_function_args)
-    plot_function(config_mode, plot_function_args)
+    plot_function(config_mode, *plot_function_args)
