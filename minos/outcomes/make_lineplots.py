@@ -440,13 +440,13 @@ def quintiles_lineplot(df, destination, prefix, v, method):
     y_label = f"{v} "
 
     if method == weighted_nanmean:
-        y_label += " Weighted Mean"
+        y_label += " Mean Percentage Change"
     elif v == "SF_12_MCS_AUC":
         y_label += " AUC"
     elif v == "SF_12_MCS_ICER":
         y_label += " ICER"
 
-    plt.legend(title="Quintile")
+    plt.legend(title="Income Quintile")
     plt.ylabel(y_label)
     plt.tight_layout()
 
