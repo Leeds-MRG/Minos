@@ -27,6 +27,20 @@ EWS_JSON = os.path.join(SPATIAL_DIR, 'UK_super_outputs.geojson')
 MAP_SCALE = 50  # Unit in shapefile/geojson, appears to be metres
 LA_DIR = os.path.join(SPATIAL_DIR, 'data_by_la')
 
+# HR 21/02/24 Some city regions to LA maps for #413; all correct for LSOA (2011) and LA (2022)
+REGIONAL_LA_DICT = {'Greater Manchester': ['Manchester', 'Salford', 'Trafford', 'Wigan', 'Stockport', 'Bury', 'Bolton',
+                                           'Oldham', 'Tameside', 'Rochdale'],
+                    'Glasgow City Region': ['East Dunbartonshire', 'East Renfrewshire', 'Glasgow City', 'Inverclyde',
+                                            'North Lanarkshire', 'Renfrewshire', 'South Lanarkshire',
+                                            'West Dunbartonshire'],
+                    'South Yorkshire Combined Authority': ['Sheffield', 'Barnsley', 'Doncaster', 'Rotherham'],
+                    'Sheffield City Region': ['Sheffield', 'Barnsley', 'Doncaster', 'Rotherham', 'Chesterfield',
+                                              'North East Derbyshire', 'Bolsover', 'Bassetlaw', 'Derbyshire Dales'],
+                    'Cardiff Capital Region': ['Blaenau Gwent', 'Bridgend', 'Caerphilly', 'Cardiff', 'Merthyr Tydfil',
+                                               'Monmouthshire', 'Newport', 'Rhondda Cynon Taf', 'Torfaen',
+                                               'Vale of Glamorgan'],
+                    }
+
 
 def add_local_authorities(df):
 
@@ -59,9 +73,10 @@ def add_local_authorities(df):
 #     return ews_out
 
 
-def cache_ews_json(ews_json=EWS_JSON,
-                   ews_shapefile=EWS_SHAPEFILE,
-                   scale=MAP_SCALE):
+def get_ews_json(ews_json=EWS_JSON,
+                 ews_shapefile=EWS_SHAPEFILE,
+                 scale=MAP_SCALE,
+                 cache=True):
 
     # 1. First try to get cached, oven-ready version of EWS geojson...
     try:
@@ -111,9 +126,11 @@ def cache_ews_json(ews_json=EWS_JSON,
                   'LAD22CD': 'LA_Code',
                   'LAD22NM': 'LAName'}
     ews_final.rename(columns=column_map, inplace=True)
-    print("Caching to {}...".format(ews_json))
-    ews_final.to_file(ews_json)
-    print("Done")
+
+    if cache:
+        print("Caching to {}...".format(ews_json))
+        ews_final.to_file(ews_json)
+        print("Done")
 
     return ews_final
 
@@ -155,34 +172,81 @@ def get_json_by_la(la_list=[],
     return jsons_by_la
 
 
+''' HR 21/02/24 Renaming to match json dumping below (generate_subset_jsons) '''
+def generate_subsets(spatial_path=SPATIAL_DIR):
+    # load in full UK wide lookup.
+    # get this data here https://geoportal.statistics.gov.uk/datasets/0d11d17118ec44fcbe890fed53df4a9d_0/explore
+    # lookup_file_name = os.path.join(spatial_path, "Output_Area_to_LSOA_to_MSOA_to_Local_Authority_District_(December_2017)_Lookup_with_Area_Classifications_in_Great_Britain.csv")
+    # lsoa_lookup = pd.read_csv(lookup_file_name)
+    # la_name = 'LAD17NM'
+    # country_name = 'CTRY11NM'
+    # lsoa_code = 'LSOA11CD'
+
+    ''' HR 06/02/24 Standardising lookups, re. 389 '''
+    lsoa_lookup = get_lsoa_la_map()
+    la_name = 'LAD22NM'
+    country_name = 'CTRY11NM'
+    lsoa_code = 'LSOA11CD'
+
+    # Subsetting data from desired regions
+    sheffield_subset = lsoa_lookup.loc[lsoa_lookup[la_name] == "Sheffield", ]
+    manchester_subset = lsoa_lookup.loc[lsoa_lookup[la_name] == "Manchester", ]
+    glasgow_subset = lsoa_lookup.loc[lsoa_lookup[la_name] == "Glasgow City", ]
+    scotland_subset = lsoa_lookup.loc[lsoa_lookup[country_name] == "Scotland", ]
+
+    greater_manchester_subset = lsoa_lookup.loc[lsoa_lookup['LAD22NM'].isin(REGIONAL_LA_DICT['Greater Manchester'])]
+    glasgow_city_region_subset = lsoa_lookup.loc[lsoa_lookup['LAD22NM'].isin(REGIONAL_LA_DICT['Glasgow City Region'])]
+    sheffield_city_region_subset = lsoa_lookup.loc[lsoa_lookup['LAD22NM'].isin(REGIONAL_LA_DICT['Sheffield City Region'])]
+
+    # Only taking required column
+    sheffield_lsoas = sheffield_subset[lsoa_code]
+    manchester_lsoas = manchester_subset[lsoa_code]
+    glasgow_data_zones = glasgow_subset[lsoa_code]
+    scotland_data_zones = scotland_subset[lsoa_code]
+
+    greater_manchester_lsoas = greater_manchester_subset[lsoa_code]
+    glasgow_city_region_lsoas = glasgow_city_region_subset[lsoa_code]
+    sheffield_city_region_lsoas = sheffield_city_region_subset[lsoa_code]
+
+    # Saving
+    sheffield_lsoas.to_csv(os.path.join(spatial_path, "sheffield_lsoas.csv"))
+    manchester_lsoas.to_csv(os.path.join(spatial_path, "manchester_lsoas.csv"))
+    glasgow_data_zones.to_csv(os.path.join(spatial_path, "glasgow_data_zones.csv"))
+    scotland_data_zones.to_csv(os.path.join(spatial_path, "scotland_data_zones.csv"))
+
+    greater_manchester_lsoas.to_csv(os.path.join(spatial_path, "greater_manchester_lsoas.csv"))
+    glasgow_city_region_lsoas.to_csv(os.path.join(spatial_path, "glasgow_city_region_lsoas.csv"))
+    sheffield_city_region_lsoas.to_csv(os.path.join(spatial_path, "sheffield_city_region_lsoas.csv"))
+
+
+''' HR 21/02/24 Dump jsons for any subset region '''
+def generate_subset_jsons(lsoa_files,
+                          geo=None,
+                          spatial_path=SPATIAL_DIR):
+    if geo is None:
+        geo = get_ews_json()
+
+    for file in lsoa_files:
+        file_full = os.path.join(spatial_path, file)
+        lsoas = pd.read_csv(file_full)['LSOA11CD']
+        geometry = geo.loc[geo['ZoneID'].isin(lsoas)]
+        bits = file_full.split('.')
+        file_json = bits[0] + '.json'
+        geometry.to_file(file_json)
+
+
 if __name__ == '__main__':
 
-    ''' Just run this line to generate cached json of LSOAs/DZs '''
-    ews = cache_ews_json()
+    ''' Run these two lines to generate cached json of LSOAs/DZs '''
+    ews = get_ews_json(cache=True)
     ews_cached = cache_by_la_json(ews)
 
-    # ''' Testing 1: Just Glasgow, comparing with pre-322 version '''
-    # glasgow = os.path.join(up(__file__), 'spatial_data', 'glasgow_data_zones.csv')
-    # g = pd.read_csv(glasgow)['lsoa11cd']
-    #
-    # js = os.path.join(up(__file__), 'spatial_data', 'UK_super_outputs_pre322.geojson')  # Pre-322
-    # # js = os.path.join(up(__file__), 'spatial_data', 'UK_super_outputs.geojson')  # New version
-    # df_uk = gpd.read_file(js)
-    # df_glas = df_uk.loc[df_uk['ZoneID'].isin(g)]
-    # df_glas.plot()
-    #
-    # ''' Testing 2: Look at Manchester and Salford overlaps/gaps '''
-    # la_name = 'LAName'
-    # df_manc = ews.loc[ews[la_name].isin(['Manchester', 'Salford'])].copy()
-    # df_manc['color'] = df_manc[la_name].map({'Manchester': 'r', 'Salford': 'b'})
-    # df_manc.plot(color=df_manc['color'])
-    #
-    # ''' HR 08/02/24 Testing for caching/retrieval by LA '''
-    # las = ['E06000038', 'E08000027', 'W06000020', 'W06000021']  # Last one is made up, so should be excluded
-    # loaded = get_json_by_la(las)
-    # la_code = 'LA_Code'
-    # colour_map = {'E06000038': 'r', 'E08000027': 'b', 'W06000020': 'g'}
-    #
-    # conc = pd.concat(loaded.values())
-    # conc['c'] = conc[la_code].map(colour_map)
-    # conc.plot(color=conc.c)
+    ''' Run line below to generate all geographical subsets and dump to CSV '''
+    generate_subsets()
+
+    ''' Testing for #413: create, retrieve and plot geometry from json for all LSOAs in Greater Manchester '''
+    subset_files = ["greater_manchester_lsoas.csv"]
+    geo = get_ews_json()
+    generate_subset_jsons(subset_files, geo=geo)
+    # gm_geom = gpd.read_file(os.path.join(SPATIAL_DIR, "greater_manchester_lsoas.json"))
+    # gm_geom.plot()
