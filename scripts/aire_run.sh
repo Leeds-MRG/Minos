@@ -5,7 +5,7 @@
 #SBATCH --job-name=parallel_minos_job                   # Job name
 #SBATCH --mail-type=FAIL                                # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=gyrc@leeds.ac.uk                    # Where to send mail. if this is not you change it or I will forward them all.
-#SBATCH --array=1-100                                    # Run a single task. Chance size as desired.
+#SBATCH --array=1-200                                    # Run a single task. Chance size as desired.
 #SBATCH --cpus-per-task=1                               # Number of CPU cores per array task.
 #SBATCH --mem=10G                                       # Job memory request. Needs a lot for synthpop jobs.
 #SBATCH --time=6:00:00                                 # Time limit hrs:min:sec
