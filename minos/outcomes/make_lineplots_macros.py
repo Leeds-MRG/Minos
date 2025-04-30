@@ -246,6 +246,42 @@ def boosted_income_quintiles_lineplot(config_mode, source, subset, region=None, 
     lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode,
                   ref=ref, v=v, method=method, region=region, do_income_quintiles=True)
 
+def persistent_income_quintiles_lineplot(config_mode, source, subset, region=None, v="SF_12"):
+
+    directories = "baseline,"*5 + (f"{source}," * 5)[:-1]  # repeat 5 times and cut off last comma.
+    tags = "Baseline,Baseline,Baseline,Baseline,Baseline,First,Second,Third,Fourth,Fifth"
+
+    subset_function_strings = ["who_persistent_first_income_quintile",
+                               "who_persistent_second_income_quintile",
+                               "who_persistent_third_income_quintile",
+                               "who_persistent_fourth_income_quintile",
+                               "who_persistent_fifth_income_quintile",
+                               "who_persistent_first_income_quintile",
+                               "who_persistent_second_income_quintile",
+                               "who_persistent_third_income_quintile",
+                               "who_persistent_fourth_income_quintile",
+                               "who_persistent_fifth_income_quintile"
+                               ]
+    subset_function_strings = ','.join(subset_function_strings)
+    # directories = "baseline,"*2 + (f"{source}," * 2)[:-1]  # repeat 5 times and cut off last comma.
+    # tags = "Baseline,Baseline,First,Second"
+    # subset_function_strings = """who_first_simd_quintile,who_second_simd_quintile,who_first_simd_quintile,who_second_simd_quintile"""
+
+    prefix = f"{source}_boosted_income_quintiles"
+    ref = "Baseline"
+    method = 'nanmean'
+    region=None
+
+    # directories = (f"{source}," * 6)[:-1]  # repeat 6 times and cut off last comma.
+    # tags = "National Average,First,Second,Third,Fourth,Fifth"
+    # subset_function_strings = "who_alive,who_first_income_quintile,who_second_income_quintile,who_third_income_quintile,who_fourth_income_quintile,who_fifth_income_quintile"
+    # prefix = f"{source}_income_quintiles_"
+    # ref = "National Average"
+    # method = 'nanmean'
+    lineplot_main(directories, tags, subset_function_strings, prefix, mode=config_mode,
+                  ref=ref, v=v, method=method, region=region, do_income_quintiles=True)
+
+
 ######################################################
 # Space for child uplifts split by amount and subset #
 ######################################################
@@ -601,10 +637,10 @@ string_to_lineplot_function = {
     #"25_50_relative_poverty": relative_poverty,
     "living_wage": living_wage_lineplot,
     "epcg_and_no_support": epcg_and_no_support_lineplot,
-    "25_universal_credit_income_quintiles": boosted_income_quintiles_lineplot,
-    "50_universal_credit_income_quintiles": boosted_income_quintiles_lineplot,
-    "living_wage_income_quintiles": boosted_income_quintiles_lineplot,
-    "epcg_income_quintiles": boosted_income_quintiles_lineplot,
+    "25_universal_credit_income_quintiles": persistent_income_quintiles_lineplot,
+    "50_universal_credit_income_quintiles": persistent_income_quintiles_lineplot,
+    "living_wage_income_quintiles": persistent_income_quintiles_lineplot,
+    "epcg_income_quintiles": persistent_income_quintiles_lineplot,
 
 }
 
@@ -729,5 +765,4 @@ if __name__ == '__main__':
     else:
         plot_function_args = []
 
-    print(plot_function_args)
     plot_function(config_mode, *plot_function_args)

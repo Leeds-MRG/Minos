@@ -120,6 +120,13 @@ def dynamic_subset_function(data, subset_chain_string=None, mode='default_config
                      "who_fourth_income_quintile": [who_alive, [who_kth_income_quintile, [4]]],
                      "who_fifth_income_quintile": [who_alive, [who_kth_income_quintile, [5]]],
 
+                     "who_persistent_first_income_quintile": [who_alive, [who_persistent_kth_income_quintile, [1]]],
+                     "who_persistent_second_income_quintile": [who_alive, [who_persistent_kth_income_quintile, [2]]],
+                     "who_persistent_third_income_quintile": [who_alive, [who_persistent_kth_income_quintile, [3]]],
+                     "who_persistent_fourth_income_quintile": [who_alive, [who_persistent_kth_income_quintile, [4]]],
+                     "who_persistent_fifth_income_quintile": [who_alive, [who_persistent_kth_income_quintile, [5]]],
+
+
                      "who_first_income_quintile_boosted": [who_alive, who_boosted, [who_kth_income_quintile, [1]]],
                      "who_second_income_quintile_boosted": [who_alive, who_boosted, [who_kth_income_quintile, [2]]],
                      "who_third_income_quintile_boosted": [who_alive, who_boosted, [who_kth_income_quintile, [3]]],
@@ -420,6 +427,10 @@ def who_kth_income_quintile(df, *args):
 def who_kth_simd_quintile(df, *args):
     k = args[0][0]
     return df.loc[np.ceil(df["simd_decile"]/2) == k]
+
+def who_persistent_kth_simd_quintile(df, *args):
+    k = args[0][0]
+    return df.loc[df["2020_hh_income_quintiles"] == k]
 
 
 def who_glasgow(df):
