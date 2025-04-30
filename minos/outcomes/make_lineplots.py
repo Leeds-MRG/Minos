@@ -446,7 +446,7 @@ def quintiles_lineplot(df, destination, prefix, v, method):
     elif v == "SF_12_MCS_ICER":
         y_label += " ICER"
 
-    plt.legend(title="Income Quintile")
+    plt.legend(title="Income Quintile (1 Lowest Income)")
     plt.ylabel(y_label)
     plt.tight_layout()
 
