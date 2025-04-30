@@ -243,6 +243,9 @@ def get_required_intervention_variables(subset_function_string):
     if "living_wage" in subset_function_string:
         default_variables += ["region", "hourly_wage", "age", "job_hours"]
 
+    if "persistent" in subset_function_string:
+        default_variables += ["X2020_hh_income_quintiles"]
+
     #print(subset_function_string, default_variables)
 
     required_variables_dict = {        
@@ -428,9 +431,9 @@ def who_kth_simd_quintile(df, *args):
     k = args[0][0]
     return df.loc[np.ceil(df["simd_decile"]/2) == k]
 
-def who_persistent_kth_simd_quintile(df, *args):
+def who_persistent_kth_income_quintile(df, *args):
     k = args[0][0]
-    return df.loc[df["2020_hh_income_quintiles"] == k]
+    return df.loc[df["X2020_hh_income_quintiles"] == k]
 
 
 def who_glasgow(df):

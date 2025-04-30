@@ -222,7 +222,7 @@ def generate_hh_income(data):
               axis=1,
               inplace=True)
 
-    data['2020_hh_income_quintiles'] = (pd.qcut(data['hh_income'], q=5, labels=range(1, 6)))
+    data['2020_hh_income_quintiles'] = pd.qcut(data['hh_income'], q=5, labels=range(1, 6))
     return data
 
 
