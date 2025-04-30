@@ -267,7 +267,7 @@ def persistent_income_quintiles_lineplot(config_mode, source, subset, region=Non
     # tags = "Baseline,Baseline,First,Second"
     # subset_function_strings = """who_first_simd_quintile,who_second_simd_quintile,who_first_simd_quintile,who_second_simd_quintile"""
 
-    prefix = f"{subset}_persistent_income_quintiles"
+    prefix = f"{source}_persistent_income_quintiles"
     ref = "Baseline"
     method = 'nanmean'
     region=None
