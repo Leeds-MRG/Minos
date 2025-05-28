@@ -382,9 +382,12 @@ def find_MINOS_years_range(file_path):
 def weighted_nanmean(df, v, weights = "weight", scale=1):
     #df = df.loc[df['weight'] > 0]
     #df.loc[df.index, weights] = 1/df[weights]
-    #return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
-    #return np.nansum(df[v])
+    return np.nansum(df[v] * df[weights]) / sum(df[weights]) * scale
+
+
+def unweighted_nanmean(df, v, weights = "weight", scale=1):
     return np.nanmean(df[v])
+
 
 def child_uplift_cost_sum(df, v, weights='weight'):
     # get unique households
@@ -447,7 +450,7 @@ def quintiles_lineplot(df, destination, prefix, v, method):
     elif v == "SF_12_MCS_ICER":
         y_label += " ICER"
 
-    plt.legend(title="Income Quintile \n (1 Lowest Income)")
+    plt.legend(title="Income Quintile")
     plt.ylabel(y_label)
     plt.tight_layout()
 
@@ -487,6 +490,8 @@ def main(directories, tags, subset_function_strings, prefix, mode='default_confi
     # Without using eval this is the best way I can think of to import from string to function.
     if method == "nanmean" or method == "weighted_nanmean":
         method = weighted_nanmean
+    elif method == "unweighted_nanmean":
+        method = unweighted_nanmean
     elif method == "percentages":
         method = aggregate_percentage_counts
     elif method == "child_uplift_cost_sum":

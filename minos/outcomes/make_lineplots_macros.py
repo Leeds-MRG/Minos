@@ -269,7 +269,7 @@ def persistent_income_quintiles_lineplot(config_mode, source, subset, region=Non
 
     prefix = f"{source}_persistent_income_quintiles"
     ref = "Baseline"
-    method = 'nanmean'
+    method = 'unweighted_nanmean'
     region=None
 
     # directories = (f"{source}," * 6)[:-1]  # repeat 6 times and cut off last comma.
