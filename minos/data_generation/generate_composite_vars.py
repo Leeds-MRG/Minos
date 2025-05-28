@@ -162,10 +162,10 @@ def calculate_hourly_wage(data):
     # data["hourly_wage"][(data["total_income"] >= 0) & (data["total_hours"] >= 0)] = data["total_income"] / (data["total_hours"] * 4)
     # data["hourly_wage"][(data["total_income"] < 0) | (data["total_hours"] < 0)] = -9
 
-    data.loc[data['age'] >= 25, 'hourly_wage'] = data.loc[data['age'] >= 25, 'hourly_wage'].clip(lower=8.72)
-    data.loc[(data['age'] >= 21) & (data['age'] < 25), 'hourly_wage'] = data.loc[(data['age'] >= 21) & (data['age'] < 25), 'hourly_wage'].clip(lower=8.20)
-    data.loc[(data['age'] >= 18) & (data['age'] < 21), 'hourly_wage'] = data.loc[(data['age'] >= 18) & (data['age'] < 21), 'hourly_wage'].clip(lower=6.45)
-    data.loc[data['age'] < 18, 'hourly_wage'] = data.loc[data['age'] < 18, 'hourly_wage'].clip(lower=4.55)
+    #data.loc[data['age'] >= 25, 'hourly_wage'] = data.loc[data['age'] >= 25, 'hourly_wage'].clip(lower=8.72)
+    #data.loc[(data['age'] >= 21) & (data['age'] < 25), 'hourly_wage'] = data.loc[(data['age'] >= 21) & (data['age'] < 25), 'hourly_wage'].clip(lower=8.20)
+    #data.loc[(data['age'] >= 18) & (data['age'] < 21), 'hourly_wage'] = data.loc[(data['age'] >= 18) & (data['age'] < 21), 'hourly_wage'].clip(lower=6.45)
+    #data.loc[data['age'] < 18, 'hourly_wage'] = data.loc[data['age'] < 18, 'hourly_wage'].clip(lower=4.55)
 
     # add in missing codes for known missings
     data["hourly_wage"][data["labour_state_raw"] == "Unemployed"] = -1

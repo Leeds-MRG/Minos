@@ -546,17 +546,17 @@ class livingWageIntervention(Base):
         logging.info(
             f"\tApplying effects of the living wage intervention in year {event.time.year}...")
 
-        pop = self.population_view.get(event.index, query="alive =='alive'")
+        pop = self.population_view.get(event.index, query="alive =='alive' & hh_income<2000")
         # TODO probably a faster way to do this than resetting the whole column.
         #pop['hh_income'] -= pop['boost_amount']
         # reset boost amount to 0 before calculating next uplift
         pop['boost_amount'] = 0
 
-        pop.loc[pop['age'] >= 25, 'hourly_wage'] = pop.loc[pop['age'] >= 25, 'hourly_wage'].clip(lower=8.72)
-        pop.loc[(pop['age'] >= 21) & (pop['age'] < 25), 'hourly_wage'] = pop.loc[(pop['age'] >= 21) & (pop['age'] < 25), 'hourly_wage'].clip(lower=8.20)
-        pop.loc[(pop['age'] >= 18) & (pop['age'] < 21), 'hourly_wage'] = pop.loc[
-            (pop['age'] >= 18) & (pop['age'] < 21), 'hourly_wage'].clip(lower=6.45)
-        pop.loc[pop['age'] < 18, 'hourly_wage'] = pop.loc[pop['age'] < 18, 'hourly_wage'].clip(lower=4.55)
+        #pop.loc[pop['age'] >= 25, 'hourly_wage'] = pop.loc[pop['age'] >= 25, 'hourly_wage'].clip(lower=8.72)
+        #pop.loc[(pop['age'] >= 21) & (pop['age'] < 25), 'hourly_wage'] = pop.loc[(pop['age'] >= 21) & (pop['age'] < 25), 'hourly_wage'].clip(lower=8.20)
+        #pop.loc[(pop['age'] >= 18) & (pop['age'] < 21), 'hourly_wage'] = pop.loc[
+        #    (pop['age'] >= 18) & (pop['age'] < 21), 'hourly_wage'].clip(lower=6.45)
+        #pop.loc[pop['age'] < 18, 'hourly_wage'] = pop.loc[pop['age'] < 18, 'hourly_wage'].clip(lower=4.55)
 
 
         # 03/11/23 - Changing living wage values to match the living wage foundation, recently had an increase
