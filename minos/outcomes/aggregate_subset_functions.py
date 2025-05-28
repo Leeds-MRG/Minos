@@ -285,6 +285,7 @@ def who_adult(df):
 
 def who_below_living_wage(df):
 
+    df = df.loc[df['hh_income'] < 2000, ]
     # who in london, works, and is below living wage of £13.15
     who_uplifted_London = df['hourly_wage'] > 0
     who_uplifted_London *= df['region'] == 'London'
