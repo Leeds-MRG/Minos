@@ -687,7 +687,7 @@ if __name__ == '__main__':
     # asfr_ref = get_asfr_reference_data()
 
 
-    dl = get_latest_data(parity=True, synthpop=False)
+    # dl = get_latest_data(parity=True, synthpop=False)
     pop25 = get_latest_data_by_year(year=2025, parity=True, synthpop=False)
     mp25 = get_metrics(pop=pop25, year=2025)
     # mpall = get_metrics_post(parity=True, synthpop=True, recalculate=True, cache=False, disaggregator=['region'])
