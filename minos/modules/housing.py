@@ -56,22 +56,39 @@ class Housing(Base):
         # columns_created is the columns created by this module.
         # view_columns is the columns from the main population used in this module. essentially what is needed for
         # transition models and any outputs.
-        view_columns = ["age",
-                        "sex",
-                        "ethnicity",
-                        "region",
-                        "education_state",
-                        "housing_quality",
-                        "neighbourhood_safety",
-                        "loneliness",
-                        "nutrition_quality",
-                        "ncigs",
+        # view_columns = ["age",
+        #                 "sex",
+        #                 "ethnicity",
+        #                 "region",
+        #                 "education_state",
+        #                 "housing_quality",
+        #                 "neighbourhood_safety",
+        #                 "loneliness",
+        #                 "nutrition_quality",
+        #                 "ncigs",
+        #                 'hh_income',
+        #                 'hh_income_diff',
+        #                 'housing_tenure',
+        #                 'SF_12',
+        #                 'behind_on_bills',
+        #                 'financial_situation']
+
+        view_columns = ['age',
+                        'sex',
+                        'ethnicity',
+                        'region',
+                        'education_state',
+                        'neighbourhood_safety',
+                        'loneliness',
+                        'nutrition_quality',
+                        'ncigs',
                         'hh_income',
-                        'hh_income_diff',
                         'housing_tenure',
-                        'SF_12',
+                        'housing_quality',
                         'behind_on_bills',
-                        'financial_situation']
+                        'financial_situation',
+                        'job_sec',
+                        ]
 
         self.population_view = builder.population.get_view(columns=view_columns)
 
