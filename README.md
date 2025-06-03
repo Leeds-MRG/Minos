@@ -72,3 +72,4 @@ If you find a bug in *Minos* please submit an issue here at Github. If you have 
 - Hugh Rice: h.p.rice@leeds.ac.uk
 - Nik Lomax n.m.lomax@leeds.ac.uk
 - Nick Rhodes: n.g.rhodes@leeds.ac.uk
+- Andreas Hoehn: andreas.hoehn@glasgow.ac.uk
