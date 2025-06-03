@@ -59,7 +59,7 @@ A. Uninstall the offending packages with ```remove.packages()``` and then, if ne
 
 B. Reset your base environment to an earlier state (see [here](https://stackoverflow.com/questions/41914139/how-to-reset-anaconda-root-environment), for example).
 
-C. If you still encounter problems, we recommend you uninstall and reinstall Anaconda/Miniconda entirely to start from a fresh base environment.
+C. If you still encounter problems, we recommend to uninstall and reinstall Anaconda/Miniconda entirely to start from a fresh base environment.
 
 ### Information, issues and contacts
 
