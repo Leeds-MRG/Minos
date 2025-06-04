@@ -66,6 +66,12 @@ base.dat <- read_singular_local_out(out.path, 'baseline',
 ## Constants
 
 ```{r}
+create.if.not.exists <- function(path) {
+  if(!file.exists(path)) {
+    dir.create(path = path, recursive = TRUE)
+  }
+}
+
 start.year <- 2020
 save.path <- here::here("plots", "handovers", 'default')
 create.if.not.exists(save.path)
@@ -75,6 +81,9 @@ raw.dat <- raw.dat %>%
   filter(time <= start.year)
 
 shall.we.save <- FALSE
+```
+```{r}
+
 ```
 
 # DEMOGRAPHICS
