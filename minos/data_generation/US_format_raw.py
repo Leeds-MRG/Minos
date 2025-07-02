@@ -554,34 +554,33 @@ def format_ukhls_sipher7(data, year):
         data['S7_physical_health'] = data['S7_physical_health'].fillna(-9)
         data = data.astype({'S7_physical_health': 'int8'})
         # Physical health: 3 Assume Some of the time
-        data['S7_physical_health'] = np.where(data['S7_physical_health'] < 1, 3, data['S7_physical_health'])
+        # data['S7_physical_health'] = np.where(data['S7_physical_health'] < 1, 3, data['S7_physical_health'])
 
     if year > 2009:  # Mental health (scsf4a) is only available from wave 2
         # Mental health: fix individuals with nan (replace nan with -9: missing)
         data['S7_mental_health'] = data['S7_mental_health'].fillna(-9)
         data = data.astype({'S7_mental_health': 'int8'})
         # Mental health: 3 Assume Some of the time
-        data['S7_mental_health'] = np.where(data['S7_mental_health'] < 1, 3, data['S7_mental_health'])
+        # data['S7_mental_health'] = np.where(data['S7_mental_health'] < 1, 3, data['S7_mental_health'])
 
     if year > 2016: # Loneliness (sclonely) is only available from wave 9
         # Loneliness: fix individuals with nan (replace nan with -9: missing)
         data['loneliness'] = data['loneliness'].fillna(-9)
         data = data.astype({'loneliness': 'int8'})
         # Loneliness: 2 Assume Some of the time
-        data['loneliness'] = np.where(data['loneliness'] < 1, 2, data['loneliness'])
-
+        # data['loneliness'] = np.where(data['loneliness'] < 1, 2, data['loneliness'])
 
     # Washing machine: fix individuals with nan (replace nan with -1: don't know)
     data['washing_machine'] = data['washing_machine'].fillna(-1)
     data = data.astype({'washing_machine': 'int8'})
     # Washing machine: 0 Assume Not mentioned
-    data['washing_machine'] = np.where(data['washing_machine'] < 1, 0, data['washing_machine'])
+    # data['washing_machine'] = np.where(data['washing_machine'] < 1, 0, data['washing_machine'])
 
     # Microwave oven: fix individuals with nan (replace nan with -1: don't know)
     data['microwave'] = data['microwave'].fillna(-1)
     data = data.astype({'microwave': 'int8'})
     # Microwave oven: 0 Assume Not mentioned
-    data['microwave'] = np.where(data['microwave'] < 1, 0, data['microwave'])
+    # data['microwave'] = np.where(data['microwave'] < 1, 0, data['microwave'])
     return data
 
 
@@ -921,19 +920,19 @@ def format_data(year, data, verbose):
     data['fridge_freezer'] = data['fridge_freezer'].fillna(-1)
     data = data.astype({'fridge_freezer': 'int8'})
     # fridge_freezer: 0 Assume Not mentioned
-    data['fridge_freezer'] = np.where(data['fridge_freezer'] < 1, 0, data['fridge_freezer'])
+    # data['fridge_freezer'] = np.where(data['fridge_freezer'] < 1, 0, data['fridge_freezer'])
 
     # tumble_dryer (cduse7): fix individuals with nan (replace nan with -1: don't know)
     data['tumble_dryer'] = data['tumble_dryer'].fillna(-1)
     data = data.astype({'tumble_dryer': 'int8'})
     # tumble_dryer: 0 Assume Not mentioned
-    data['tumble_dryer'] = np.where(data['tumble_dryer'] < 1, 0, data['tumble_dryer'])
+    # data['tumble_dryer'] = np.where(data['tumble_dryer'] < 1, 0, data['tumble_dryer'])
 
     # dishwasher (cduse8): fix individuals with nan (replace nan with -1: don't know)
     data['dishwasher'] = data['dishwasher'].fillna(-1)
     data = data.astype({'dishwasher': 'int8'})
     # dishwasher: 0 Assume Not mentioned
-    data['dishwasher'] = np.where(data['dishwasher'] < 1, 0, data['dishwasher'])
+    # data['dishwasher'] = np.where(data['dishwasher'] < 1, 0, data['dishwasher'])
 
     #if year == 2014 or year == 2020: #only adding these child age chains to input data years for now.
     if year >= 2014:
