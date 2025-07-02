@@ -125,7 +125,7 @@ def house_retrofit_intervention(
     inflated = False
     region = 'manchester'
 
-    final_year = 2045  # change me if you change the yaml file
+    final_year = 2035  # change me if you change the yaml file
     generate_replenishing(projections=projections,
                           scotland_mode=scotland_mode,
                           cross_validation=cross_validation,
