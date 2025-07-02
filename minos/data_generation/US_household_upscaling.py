@@ -107,29 +107,29 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     sdb = GeneralDataQueries()
 
     # get synthetic data.
-    #if region in ['scotland', 'glasgow', 'edinburgh']:
-    #    synthpop_file_path = "persistent_data/spatial_data/HH2011PopEst2020S_population.csv"
-    #elif region in ['uk', 'manchester', 'sheffield']:
-    # synthpop_file_path = "persistent_data/spatial_data/HH2011PopEst2020UK_population.csv"
-    # synthpop_file_path = "persistent_data/spatial_data/20230413HHEW_population.csv"
+    if region in ['scotland', 'glasgow', 'edinburgh']:
+       synthpop_file_path = "persistent_data/spatial_data/HH2011PopEst2020S_population.csv"
+    elif region in ['uk', 'manchester', 'sheffield']:
+        # synthpop_file_path = "persistent_data/spatial_data/HH2011PopEst2020UK_population.csv"
+        synthpop_file_path = "persistent_data/spatial_data/20230413HHEW_population.csv"
 
-    # try:
-    #     synthpop_data = pd.read_csv(synthpop_file_path)  # this is individual population weighted data.
-    # except FileNotFoundError as e:
-    #     print(e)
-    #     print(f"Synthetic population file not found at {synthpop_file_path}. Please ask MINOS maintainers for access.")
-    #     raise
+    try:
+        synthpop_data = pd.read_csv(synthpop_file_path)  # this is individual population weighted data.
+    except FileNotFoundError as e:
+        print(e)
+        print(f"Synthetic population file not found at {synthpop_file_path}. Please ask MINOS maintainers for access.")
+        raise
 
-    db_vars = {'households': ['household_id']}
-    subsetted_synthpop = sdb.ca_data_at_lsoa_level(ca_name='Greater Manchester', db_vars=db_vars, hh_based_syn=True)
-    subsetted_synthpop_data = pd.DataFrame(subsetted_synthpop, columns=['ZoneID', 'hidp'])
+    # db_vars = {'households': ['household_id']}
+    # subsetted_synthpop = sdb.ca_data_at_lsoa_level(ca_name='Greater Manchester', db_vars=db_vars, hh_based_syn=True)
+    # subsetted_synthpop_data = pd.DataFrame(subsetted_synthpop, columns=['ZoneID', 'hidp'])
 
-    # data_zones = pd.Series(sdb.ca_lsoa_codes(ca_name='Greater Manchester'))
+    data_zones = pd.Series(sdb.ca_lsoa_codes(ca_name='Greater Manchester'))
     # data_zones = get_data_zones(region)
-    # if type(data_zones) == pd.core.series.Series:
-    #     subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
-    # else:
-    #     subsetted_synthpop_data = synthpop_data # no subsetting for full UK population.
+    if type(data_zones) == pd.core.series.Series:
+        subsetted_synthpop_data = subset_zone_ids(synthpop_data, data_zones)
+    else:
+        subsetted_synthpop_data = synthpop_data # no subsetting for full UK population.
 
     # if bootstrapping sample from subsetted synthetic data with replacement.
     # if bootstrapping:
@@ -151,7 +151,8 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     merged_data['pidp'] = merged_data.index  # creating new pidps.
 
     # take subset of sample if desired. defaults to 100% for now.
-    sampled_data = take_synthpop_sample(merged_data, percentage/100)
+    # sampled_data = take_synthpop_sample(merged_data, percentage/100)
+    sampled_data = merged_data
     print(f"Taking {percentage}% of sample giving {sampled_data.shape[0]} rows.")
     #exhasutive_sampled_data = take_exhaustive_synthpop_sample(merged_data, percentage)
     #exhasutive_sampled_data.reset_index(inplace=True, drop=True)
@@ -166,8 +167,6 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
     # only works for scotland? could get regular imd for UK.
     if region in ['scotland', 'glasgow', 'edinburgh', 'manchester']:
         sampled_data = merge_with_spatial_attributes(sampled_data, get_spatial_attribute_data(region), "ZoneID")
-
-
 
     sampled_data['weight'] = 1  # force sample weights to 1. as this data is expanded weights no longer representative
     # but still updating weights helps with weighted aggregates later.
