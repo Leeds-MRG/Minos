@@ -69,6 +69,34 @@ heating_ukhls = US_utils.load_json(json_source, "heating_ukhls.json")
 ## Location
 region_dict = US_utils.load_json(json_source, "region.json")
 
+def format_age(data, year):
+    """ Format age data.
+
+    Parameters
+    ----------
+    data
+
+    Returns
+    -------
+    data with correct age
+    """
+    data = data.assign(
+        age=lambda df_: df_['age'].astype('int8'),
+        birth_year=lambda df_: df_['birth_year'].astype('int16')
+    )
+
+    # apply correction to age in case it is negative (based on birth_year)
+    data['age'] = np.where((data['age'] < 0) & (data['birth_year'] > 0),
+                           year - data['birth_year'], data['age'])
+
+    if year >= 2015:  # apply correction to age in case it is negative (based on chkwebdoby)
+        data['age'] = np.where((data['age'] < 0) & (data['chkwebdoby'] > 0),
+                               year - data['chkwebdoby'], data['age'])
+
+    data = data.drop(data[data['age'] < 0].index)
+    data = data.drop(columns=['chkwebdoby'])
+
+    return data
 
 def format_sex(data):
     """ Format sex data.
@@ -215,6 +243,7 @@ def format_ukhls_columns(year):
                       'crvand': 'vandalism',  # neighbourhood vandalism issues
                       'ctband_dv': 'council_tax',  # council tax derived.
                       'dvage': 'age',  # age derived.
+                      'chkwebdoby': 'chkwebdoby',  # Check Respondent year of birth web (used to correct age if needed)
                       'fihhmnnet1_dv': 'hh_netinc',  # household net income derived
                       'gor_dv': 'region',  # government region
                       'hheat': 'heating',  # household heating
@@ -314,7 +343,6 @@ def format_ukhls_columns(year):
                       'hhsize': 'hhsize', # number of people in household
                       'tenure_dv': 'housing_tenure', # housing tenure type (owned, rented etc.)
                       'urban_dv': 'urban', # urban or rural household.
-                      'xphsdba': "behind_on_bills", # are you up to date on all household bills? (1/2/3).
                       "ncars": "ncars",
                       # There are dozens of benefits variables in US this seems like
                       # the simplest and most complete for our purposes.
@@ -417,6 +445,9 @@ def format_ukhls_ethnicity(data):
     data : pd.DataFrame
         Data with ethnicities formatted.
     """
+    # fix ethnicity (don't just delete individuals, assume it is missing (-9))
+    data['ethnicity'] = data['ethnicity'].fillna(-9)
+    data = data.assign(ethnicity=lambda df_: df_['ethnicity'].astype('int8'))
     # Map ethnicity integers to strings.
     data["ethnicity"] = data["ethnicity"].astype(str).map(ethnicity_ukhls)
     return data
@@ -454,6 +485,10 @@ def format_ukhls_education(data):
         Data after formatting educations.
     """
     # Map education ints to strings.
+    # Fix education_state (those with nan get -9: missing)
+    data['education_state'] = data['education_state'].fillna(-9)
+    data['newest_education_state'] = data['newest_education_state'].fillna(-9)
+    data = data.astype({'education_state': 'int', 'newest_education_state': 'int'})
     who_new_education = data.loc[~data['newest_education_state'].isin(US_utils.missing_types)].index
     data.loc[who_new_education, 'education_state'] = data.loc[who_new_education, 'newest_education_state']
     data["education_state"] = data["education_state"].astype(str).map(education)
@@ -493,8 +528,60 @@ def format_ukhls_employment(data):
     current behaviour.
     For now just assume they are unemployed and assign their industries to 0."""
 
+    # fix individuals with nan (replace nan with -1: don't know)
+    data['labour_state_raw'] = data['labour_state_raw'].fillna(-1)
+    data = data.assign(labour_state_raw=lambda df_: df_['labour_state_raw'].astype('int8'))
     # Remap job statuses.
     data["labour_state_raw"] = data["labour_state_raw"].astype(str).map(labour_ukhls)
+    return data
+
+def format_ukhls_sipher7(data, year):
+    """
+    Format SIPHER-7 variables
+    Parameters
+    ----------
+    data: pd.DataFrame
+        Data frame to format SIPHER-7 variables
+
+    Returns
+    -------
+    data : Pd.DataFrame
+            Data with formatted SIPHER-7 variables
+    """
+
+    if year > 2009:  # Physical health (scsf3a) is only available from wave 2
+        # Physical health: fix individuals with nan (replace nan with -9: missing)
+        data['S7_physical_health'] = data['S7_physical_health'].fillna(-9)
+        data = data.astype({'S7_physical_health': 'int8'})
+        # Physical health: 3 Assume Some of the time
+        data['S7_physical_health'] = np.where(data['S7_physical_health'] < 1, 3, data['S7_physical_health'])
+
+    if year > 2009:  # Mental health (scsf4a) is only available from wave 2
+        # Mental health: fix individuals with nan (replace nan with -9: missing)
+        data['S7_mental_health'] = data['S7_mental_health'].fillna(-9)
+        data = data.astype({'S7_mental_health': 'int8'})
+        # Mental health: 3 Assume Some of the time
+        data['S7_mental_health'] = np.where(data['S7_mental_health'] < 1, 3, data['S7_mental_health'])
+
+    if year > 2016: # Loneliness (sclonely) is only available from wave 9
+        # Loneliness: fix individuals with nan (replace nan with -9: missing)
+        data['loneliness'] = data['loneliness'].fillna(-9)
+        data = data.astype({'loneliness': 'int8'})
+        # Loneliness: 2 Assume Some of the time
+        data['loneliness'] = np.where(data['loneliness'] < 1, 2, data['loneliness'])
+
+
+    # Washing machine: fix individuals with nan (replace nan with -1: don't know)
+    data['washing_machine'] = data['washing_machine'].fillna(-1)
+    data = data.astype({'washing_machine': 'int8'})
+    # Washing machine: 0 Assume Not mentioned
+    data['washing_machine'] = np.where(data['washing_machine'] < 1, 0, data['washing_machine'])
+
+    # Microwave oven: fix individuals with nan (replace nan with -1: don't know)
+    data['microwave'] = data['microwave'].fillna(-1)
+    data = data.astype({'microwave': 'int8'})
+    # Microwave oven: 0 Assume Not mentioned
+    data['microwave'] = np.where(data['microwave'] < 1, 0, data['microwave'])
     return data
 
 
@@ -512,6 +599,12 @@ def format_ukhls_heating(data):
             Data with formatted heating column.
     """
     ## Need to reverse the binary heating variable as it is in the opposite orientation to the corresponding ukhls var
+    # Fix individuals with nan by replacing them with -1 (don't know)
+    data['heating'] = data['heating'].fillna(-1)
+    data = data.assign(heating=lambda df_: df_['heating'].astype('int8'))
+    # Heating: Convert 3 and negative numbers to 2, assume No adequate heating (for the moment let MICE predict this)
+    # data['heating'] = np.where(data['heating'] == 3, 2, data['heating'])
+    # data['heating'] = np.where(data['heating'] < 1, 2, data['heating'])
     data["heating"] = data["heating"].astype(str).map(heating_ukhls)
     return data
 
@@ -551,6 +644,7 @@ def format_ukhls_household_composition(data):
         22: 9,  # 3 or more adults, no children, excl. any couples => other not family with children
         23: 8,  # 3 or more adults, 1 or more children, excl. any couples => other not family with children
     }
+    data = data[data['hh_composition'].notna()]
 
     data = data.assign(
         household_composition = lambda df_: df_['hh_composition'].astype(int).map(household_composition_dic),
@@ -588,6 +682,104 @@ def format_analysis_weight(data, year):
               inplace=True)
     return data
 
+def combine_indall_hhresp(year, indall_name, hhresp_name):
+    """ Function to collect and merge the indall and hhresp files for a specific year.
+
+        Parameters
+        ----------
+        year : int
+            The `year` of the wave being processed.
+        indresp_name : str
+            The name of the indresp file for specific year
+        hhresp_name : str
+            Name of the hhresp file for specific year
+        Returns
+        -------
+        indresp_hhresp: Pd.DataFrame
+            Dataframe containing indresp and hhresp data combined on hid
+        """
+    # load both indresp and hhresp files
+    indall = US_utils.load_file(indall_name)
+    hhresp = US_utils.load_file(hhresp_name)
+
+    # calculate wave letter based on year, and generate hidp variable name for use as merge key
+    wave_letter = US_utils.get_wave_letter(year)
+    if year < 2009:
+        merge_key = f"b{wave_letter}_hidp"
+    else:
+        merge_key = f"{wave_letter}_hidp"
+
+    # merge the data on the hidp variable and return combined dataframe.
+    # Code here prevents duplicate columns that occur in both datasets. 44444
+    combined = indall.merge(right=hhresp, on=merge_key, how='left', suffixes=('', '_delme'))
+    combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
+    return combined
+
+def combine_indall_indresp(year, indall_data, indresp_name):
+    """ Function to collect and merge the indresp and hhsamp files for a specific year.
+
+        Parameters
+        ----------
+        year : int
+            The `year` of the wave being processed.
+        indresp_name : str
+            The name of the indresp file for specific year
+        combined : str
+            Name of the hhsamp file for specific year
+        Returns
+        -------
+        indresp_hhsamp: pd.DataFrame
+            Dataframe containing indresp and hhresp data combined on hid
+        """
+    # load both indresp and hhresp files
+    indresp = US_utils.load_file(indresp_name)
+
+    # calculate wave letter based on year, and generate hidp variable name for use as merge key
+    wave_letter = US_utils.get_wave_letter(year)
+    if year < 2009:
+        merge_key = f"b{wave_letter}_hidp"
+    else:
+        merge_key = f"{wave_letter}_hidp"
+    merge_key = 'pidp'
+
+    # merge the data on the hidp variable and return combined dataframe.
+    # Code here prevents duplicate columns that occur in both datasets. 44444
+    combined = indall_data.merge(right=indresp, on=merge_key, how='left', suffixes=('', '_delme'))
+    # combined = combined.drop_duplicates(subset=['pidp'])
+    combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
+    return combined
+
+def combine_indall_hhsamp(year, indall_data, hhsamp_name):
+    """ Function to collect and merge the indresp and hhsamp files for a specific year.
+
+        Parameters
+        ----------
+        year : int
+            The `year` of the wave being processed.
+        indresp_name : str
+            The name of the indresp file for specific year
+        combined : str
+            Name of the hhsamp file for specific year
+        Returns
+        -------
+        indresp_hhsamp: pd.DataFrame
+            Dataframe containing indresp and hhresp data combined on hid
+        """
+    # load both indresp and hhresp files
+    hhsamp = US_utils.load_file(hhsamp_name)
+
+    # calculate wave letter based on year, and generate hidp variable name for use as merge key
+    wave_letter = US_utils.get_wave_letter(year)
+    if year < 2009:
+        merge_key = f"b{wave_letter}_hidp"
+    else:
+        merge_key = f"{wave_letter}_hidp"
+
+    # merge the data on the hidp variable and return combined dataframe.
+    # Code here prevents duplicate columns that occur in both datasets. 44444
+    combined = indall_data.merge(right=hhsamp, on=merge_key, how='left', suffixes=('', '_delme'))
+    combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
+    return combined
 
 def combine_indresp_hhresp(year, indresp_name, hhresp_name):
     """ Function to collect and merge the indresp and hhresp files for a specific year.
@@ -619,6 +811,39 @@ def combine_indresp_hhresp(year, indresp_name, hhresp_name):
     # merge the data on the hidp variable and return combined dataframe.
     # Code here prevents duplicate columns that occur in both datasets. 44444
     combined = indresp.merge(right=hhresp, on=merge_key, suffixes=('', '_delme'))
+    combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
+    return combined
+
+def combine_hhresp_indall(year, indresp_hhresp_data, indall_name):
+    """ Function to collect and merge the hhresp and indall files for a specific year.
+
+        Parameters
+        ----------
+        year : int
+            The `year` of the wave being processed.
+        indresp_hhresp_data : DataFrame
+            The name of the indresp file for specific year
+        indall_name : str
+            Name of the indall file for specific year
+        Returns
+        -------
+        indresp_hhresp: Pd.DataFrame
+            Dataframe containing indresp and hhresp data combined on hid
+        """
+    # load both indresp and hhresp files
+    indall = US_utils.load_file(indall_name)
+
+    # calculate wave letter based on year, and generate hidp variable name for use as merge key
+    wave_letter = US_utils.get_wave_letter(year)
+    if year < 2009:
+        merge_key = f"b{wave_letter}_hidp"
+    else:
+        merge_key = f"{wave_letter}_hidp"
+
+    # merge the data on the hidp variable and return combined dataframe.
+    # Code here prevents duplicate columns that occur in both datasets. 44444
+    combined = indresp_hhresp_data.merge(right=indall, how='left', on=merge_key, suffixes=('', '_delme'))
+    combined = combined.drop_duplicates(subset=['pidp'])
     combined = combined[[c for c in combined.columns if not c.endswith("_delme")]]
     return combined
 
@@ -675,6 +900,7 @@ def format_data(year, data, verbose):
 
     # Format columns by categories.
     # Categories that are formatted the same regardless of wave.
+    data = format_age(data, year)
     data = format_sex(data)
     data = format_academic_year(data)
     #data = format_mental_state(data)
@@ -684,12 +910,36 @@ def format_data(year, data, verbose):
     data = format_ukhls_ethnicity(data)
     data = format_ukhls_employment(data)
     data = format_ukhls_education(data)
-    data = format_ukhls_heating(data)
+    data = format_ukhls_sipher7(data, year)
+    if year >= 2009:
+        data = format_ukhls_heating(data)  # heating (hheat) variable is only available from wave 1
     data = format_ukhls_household_composition(data)
+
+    # Fix other variables related to housing quality (not SIPHER-7 related)
+
+    # fridge_freezer (cduse5): fix individuals with nan (replace nan with -1: don't know)
+    data['fridge_freezer'] = data['fridge_freezer'].fillna(-1)
+    data = data.astype({'fridge_freezer': 'int8'})
+    # fridge_freezer: 0 Assume Not mentioned
+    data['fridge_freezer'] = np.where(data['fridge_freezer'] < 1, 0, data['fridge_freezer'])
+
+    # tumble_dryer (cduse7): fix individuals with nan (replace nan with -1: don't know)
+    data['tumble_dryer'] = data['tumble_dryer'].fillna(-1)
+    data = data.astype({'tumble_dryer': 'int8'})
+    # tumble_dryer: 0 Assume Not mentioned
+    data['tumble_dryer'] = np.where(data['tumble_dryer'] < 1, 0, data['tumble_dryer'])
+
+    # dishwasher (cduse8): fix individuals with nan (replace nan with -1: don't know)
+    data['dishwasher'] = data['dishwasher'].fillna(-1)
+    data = data.astype({'dishwasher': 'int8'})
+    # dishwasher: 0 Assume Not mentioned
+    data['dishwasher'] = np.where(data['dishwasher'] < 1, 0, data['dishwasher'])
 
     #if year == 2014 or year == 2020: #only adding these child age chains to input data years for now.
     if year >= 2014:
         data = US_format_raw_children_data.main(data, year)
+    else:
+        data = data[data['age'] > 15]
     data = format_analysis_weight(data, year)
 
     return data
@@ -713,16 +963,20 @@ def main(wave_years: list, file_source: str, verbose: bool, file_output: str) ->
         # Two types of wave with different naming conventions and variables.
         # The BHPS waves circa 2008 and ukhls waves post 2009 have different classes for processing.
 
+        if year >= 2009:
+            zt = 0.1234
+
         # Merge the indresp and hhresp files for a particular year then format
-        indresp_name = US_utils.US_file_name(year, file_source, "indresp")
+        indall_name = US_utils.US_file_name(year, file_source, "indall")
         hhresp_name = US_utils.US_file_name(year, file_source, "hhresp")
+        indresp_name = US_utils.US_file_name(year, file_source, "indresp")
         hhsamp_name = US_utils.US_file_name(year, file_source, "hhsamp")
 
+        indall_data = combine_indall_hhresp(year, indall_name, hhresp_name)
+        indall_data = combine_indall_indresp(year, indall_data, indresp_name)
+        indall_data = combine_indall_hhsamp(year, indall_data, hhsamp_name)
 
-        indresp_hhresp_data = combine_indresp_hhresp(year, indresp_name, hhresp_name)
-        indresp_hhresp_hhsamp = combine_indresp_hhsamp(year, indresp_hhresp_data, hhsamp_name)
-
-        data = format_data(year, indresp_hhresp_hhsamp, verbose)
+        data = format_data(year, indall_data, verbose)
 
         # check for and remove any null rows (1 created in bhps due to merge)
         data = data.loc[~data["pidp"].isnull()]
@@ -787,7 +1041,7 @@ if __name__ == "__main__":
     # source = "/Users/robertclay/UKDA-6614-stata/stata/stata13_se/" # hardcoded source for debugging.
     output = "data/raw_US/"
 
-    #main(years, source, verbose, output)
+    main(years, source, verbose, output)
 
-    with Pool(cpu_count()) as p:
-        p.starmap(multithread_main, zip(years, repeat(source), repeat(verbose), repeat(output)))
+    # with Pool(cpu_count()) as p:
+    #     p.starmap(multithread_main, zip(years, repeat(source), repeat(verbose), repeat(output)))
