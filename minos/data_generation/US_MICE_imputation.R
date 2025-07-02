@@ -65,7 +65,15 @@ main <- function(n_imputations, iterations_per_imputation){
                     'yearly_other_fuel',
                     'smoker',
                     "number_of_bedrooms",
-                    "number_of_rooms"
+                    "number_of_rooms",
+                    "S7_physical_health",
+                    "S7_mental_health",
+                    "loneliness",
+                    "washing_machine",
+                    "microwave",
+                    "fridge_freezer",
+                    "tumble_dryer",
+                    "dishwasher"
                     #'has_gas', 
                     #'has_oil', 
                     #"has_other", 
