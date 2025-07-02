@@ -13,7 +13,7 @@ def main(input_raw_data, year):
     # download children datasets in one at a time
     child_name = US_utils.US_file_name(year, "../UKDA-6614-stata/stata/stata13_se/", "child")    # get hidp, pidp, and age.
     child_data = US_utils.load_file(child_name)
-    print('child_data %d' % len(child_data.index))
+    # print('child_data %d' % len(child_data.index))
 
     # format child data.
     attribute_columns = US_utils.wave_prefix(['hidp', 'age_dv', 'pidp'], year)
@@ -34,19 +34,19 @@ def main(input_raw_data, year):
     collapsed_children_US_with_children = collapsed_children_US_with_children.drop_duplicates(subset=['pidp'])
     collapsed_children_US_with_children = collapsed_children_US_with_children[[c for c in collapsed_children_US_with_children.columns if not c.endswith("_delme")]]
     # collapsed_children_US_with_children = pd.concat([input_raw_data, child_data])
-    print('collapsed_children_US_with_children ', len(collapsed_children_US_with_children.index))
+    # print('collapsed_children_US_with_children ', len(collapsed_children_US_with_children.index))
 
     # removing orphans.
     # calculating number of adults per hidp.
     # if 0 adults in the house the children are orphans?
     #orphans = collapsed_children_US_with_children.groupby(['hidp']).filter(lambda x : sum(x['is_adult']) == 0)
     collapsed_children_US_with_children = collapsed_children_US_with_children.groupby('hidp').filter(lambda x : sum(x['is_adult']) > 0)
-    print('remove orphans ', len(collapsed_children_US_with_children.index))
+    # print('remove orphans ', len(collapsed_children_US_with_children.index))
 
     # sanity check for number of child rows vs declared nkids
     actual_children = collapsed_children_US_with_children.groupby(['hidp'])['is_child'].sum()
     declared_children = collapsed_children_US_with_children.groupby(['hidp'])['nkids'].max()
-    print('SAE ', sum(np.abs(actual_children - declared_children))) # Sum absolute error. lower is better.
+    # print('SAE ', sum(np.abs(actual_children - declared_children))) # Sum absolute error. lower is better.
 
     # grab children
     # join ages into a string seperated by -
@@ -54,7 +54,7 @@ def main(input_raw_data, year):
     final_US_with_children = final_US_with_children.assign(age=lambda df_: df_['age'].astype('int8'))
     final_US_with_children['age'] = final_US_with_children['age'].astype(str)
     chained_ages = final_US_with_children.loc[final_US_with_children['is_child'] == True, ].groupby('hidp', as_index=False)['age'].apply('_'.join)
-    print('final_US_with_children ', len(final_US_with_children.index))
+    # print('final_US_with_children ', len(final_US_with_children.index))
 
     # merge chained child ages back onto adults in the dataframe. tidy up generated child rows and columns needed.
     collapsed_children_US = pd.merge(final_US_with_children, chained_ages, how='left', on='hidp')
@@ -77,7 +77,7 @@ def main(input_raw_data, year):
     collapsed_children_US.reset_index(inplace=True, drop=True)
     collapsed_children_US = collapsed_children_US.loc[collapsed_children_US['is_adult'] == 1, ]
     collapsed_children_US = collapsed_children_US.drop(['age_x', 'age_y', 'is_adult', 'is_child'], axis=1)
-    print('collapsed_children_US ', len(collapsed_children_US.index))
+    # print('collapsed_children_US ', len(collapsed_children_US.index))
 
     # save data
     #US_utils.save_file(collaped_children_US, "children_ages_US/", "", year)
