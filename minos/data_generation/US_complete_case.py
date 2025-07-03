@@ -156,6 +156,11 @@ def input_main():
                           "nkids_ind", 'S7_labour_state', 'job_hours', 'hourly_wage']
     # REMOVED:  'job_sector', 'labour_state'
 
+    # Consider calling generate_composite_housing_quality from generate_composite_vars in here to update housing_quality
+    # following MICE imputation
+    from generate_composite_vars import generate_composite_housing_quality
+    data = generate_composite_housing_quality(data)
+
     data = complete_case_varlist(data, complete_case_vars)
     data = data.loc[~(data['child_ages'].str.contains('-9') == True)]  # remove any household with dodgy age chains.
 
