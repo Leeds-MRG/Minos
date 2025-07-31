@@ -2,10 +2,23 @@
 File for adding new cohorts from Understanding Society data to the population
 """
 
+import sys
+import os
+from os.path import dirname as up
+import numpy as np
 import pandas as pd
 import logging
 from minos.modules.base_module import Base
+import minos.data_generation.generate_repl_pop as grp
+import minos.data_generation.US_utils as uut
 
+
+PERSISTENT_DIR = os.path.join(up(up(up(__file__))), 'persistent_data')
+PROJECTIONS_DEFAULT = 'age-sex-ethnic_projections_2008-2061.csv'
+REPL_AGE_DEFAULT = 16
+SAMPLE_AGES_DEFAULT = [16, 17, 18]
+DATA_PATH = os.path.join(up(up(up(__file__))), 'data')
+TRANSITIONS_PATH = os.path.join(DATA_PATH, 'transitions')
 
 # suppressing a warning that isn't a problem
 pd.options.mode.chained_assignment = None # default='warn' #supress SettingWithCopyWarning
@@ -29,7 +42,7 @@ class Replenishment(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
         self.current_year = builder.configuration.time.start.year
-        config = builder.configuration
+        self.config = builder.configuration
 
         # Define which columns are seen in builder.population.get_view calls.
         # Also defines which columns are created by on_initialize_simulants.
@@ -125,10 +138,29 @@ class Replenishment(Base):
         #                 ]
 
 
-        view_columns = list(pd.read_csv(config.input_data_dir +
+        view_columns = list(pd.read_csv(self.config.input_data_dir +
                                         "/" +
-                                        str(config.time.start.year) +
+                                        str(self.config.time.start.year) +
                                         "_US_cohort.csv").columns)
+
+        # # HR 24/09/24 Workaround for all cases (US and synthpop): get columns from input data
+        # column_source = self.config.base_input_data_dir
+        # # HR 20/03/25 Another workaround to account for different sized synthpops
+        # if self.config.synthetic:
+        #     column_source = os.path.join(column_source, str(self.config.percentage) + 'pc')
+        # latest_file = [f for f in os.listdir(column_source) if os.path.isfile(os.path.join(column_source, f))][0]
+        # view_columns = list(pd.read_csv(os.path.join(column_source, latest_file)).columns)
+        #
+        # if self.config.synthetic:  # only have spatial column and new pidp for synthpop.
+        #     try:
+        #         view_columns += self.config.replenishing_columns  # HR 13/09/24 Workaround to reduce data size for GB synthpop
+        #     except:
+        #         view_columns += ["ZoneID",
+        #                          # "new_pidp",
+        #                          'local_simd_deciles',
+        #                          'simd_decile',
+        #                          # 'cluster'
+        #                          ]
 
 
         #if config.synthetic:  # only have spatial column and new pidp for synthpop.
@@ -284,78 +316,84 @@ class NoReplenishment(Base):
             Vivarium's control object. Stores all simulation metadata and allows modules to use it.
         """
         self.current_year = builder.configuration.time.start.year
-        config = builder.configuration
+        self.config = builder.configuration
 
         # Define which columns are seen in builder.population.get_view calls.
         # Also defines which columns are created by on_initialize_simulants.
-        view_columns = ['pidp',
-                        'age',
-                        'sex',
-                        'education_state',
-                        'alive',
-                        'ethnicity',
-                        'entrance_time',
-                        'time',
-                        'exit_time',
-                        'job_industry',
-                        'job_occupation',
-                        'job_sec',
-                        'job_duration_m',
-                        'job_duration_y',
-                        'depression',
-                        'academic_year',
-                        'hidp',
-                        'birth_month',
-                        'birth_year',
-                        'nobs',
-                        'region',
-                        'SF_12_MCS',
-                        'hh_int_y',
-                        'hh_int_m',
-                        'Date',
-                        'housing_quality',
-                        'hh_income',
-                        'neighbourhood_safety',
-                        'ncigs',
-                        'alcohol_spending',
-                        'smoker',
-                        'loneliness',
-                        'weight',
-                        'ndrinks',
-                        'nkids',
-                        'max_educ',
-                        'yearly_energy',
-                        'job_sector',
-                        'SF_12_MCSp',
-                        'gross_pay_se',
-                        'nutrition_quality',
-                        'job_hours_se',
-                        'job_hours',
-                        'job_inc',
-                        'jb_inc_per',
-                        'hourly_wage',
-                        'gross_paypm',
-                        'marital_status',
-                        'phealth',
-                        'hh_comp',
-                        'S7_labour_state',
-                        'S7_housing_quality',
-                        'S7_neighbourhood_safety',
-                        'S7_physical_health',
-                        'S7_mental_health',
-                        'job_hours_diff',
-                        ]
+        # view_columns = ['pidp',
+        #                 'age',
+        #                 'sex',
+        #                 'education_state',
+        #                 'alive',
+        #                 'ethnicity',
+        #                 'entrance_time',
+        #                 'time',
+        #                 'exit_time',
+        #                 'job_industry',
+        #                 'job_occupation',
+        #                 'job_sec',
+        #                 'job_duration_m',
+        #                 'job_duration_y',
+        #                 'depression',
+        #                 'academic_year',
+        #                 'hidp',
+        #                 'birth_month',
+        #                 'birth_year',
+        #                 'nobs',
+        #                 'region',
+        #                 'SF_12_MCS',
+        #                 'hh_int_y',
+        #                 'hh_int_m',
+        #                 'Date',
+        #                 'housing_quality',
+        #                 'hh_income',
+        #                 'neighbourhood_safety',
+        #                 'ncigs',
+        #                 'alcohol_spending',
+        #                 'smoker',
+        #                 'loneliness',
+        #                 'weight',
+        #                 'ndrinks',
+        #                 'nkids',
+        #                 'max_educ',
+        #                 'yearly_energy',
+        #                 'job_sector',
+        #                 'SF_12_MCSp',
+        #                 'gross_pay_se',
+        #                 'nutrition_quality',
+        #                 'job_hours_se',
+        #                 'job_hours',
+        #                 'job_inc',
+        #                 'jb_inc_per',
+        #                 'hourly_wage',
+        #                 'gross_paypm',
+        #                 'marital_status',
+        #                 'phealth',
+        #                 'hh_comp',
+        #                 'S7_labour_state',
+        #                 'S7_housing_quality',
+        #                 'S7_neighbourhood_safety',
+        #                 'S7_physical_health',
+        #                 'S7_mental_health',
+        #                 'job_hours_diff',
+        #                 ]
 
-        if config.synthetic:  # only have spatial column and new pidp for synthpop.
-            view_columns += ["ZoneID",
-                             # "new_pidp",
-                             'local_simd_deciles',
-                             'simd_decile',
-                             # 'cluster'
-                             ]
+        view_columns = list(pd.read_csv(self.config.input_data_dir +
+                                        "/" +
+                                        str(self.config.time.start.year) +
+                                        "_US_cohort.csv").columns)
+
+        # if config.synthetic:  # only have spatial column and new pidp for synthpop.
+        #     view_columns += ["ZoneID",
+        #                      # "new_pidp",
+        #                      'local_simd_deciles',
+        #                      'simd_decile',
+        #                      # 'cluster'
+        #                      ]
+        columns_created = ['entrance_time']
 
         # Shorthand methods for readability.
-        self.population_view = builder.population.get_view(view_columns)  # view simulants
+        self.population_view = builder.population.get_view(view_columns + columns_created)  # view simulants
         self.simulant_creater = builder.population.get_simulant_creator()  # create simulants.
         self.register = builder.randomness.register_simulants  # register new simulants to CRN streams (seed them).
 
@@ -369,7 +407,7 @@ class NoReplenishment(Base):
 
         # Defines how this module initialises simulants when self.simulant_creater is called.
         builder.population.initializes_simulants(self.on_initialize_simulants,
-                                                 creates_columns=view_columns)
+                                                 creates_columns=view_columns + columns_created)
         # Register ageing, updating time and replenishment events on time_step.
         #builder.event.register_listener('time_step', self.age_simulants)
         #builder.event.register_listener('time_step', self.update_time)
@@ -408,7 +446,7 @@ class NoReplenishment(Base):
             #new_population = new_population[(new_population['age'] == 16)]
 
             # After setup only load in agents from new cohorts who arent yet in the population frame via ids (PIDPs).
-            new_population = pd.DataFrame(columns=["entrance_time", "age"])
+            # new_population = pd.DataFrame(columns=["entrance_time", "age"])
             new_population = pop_data.user_data["new_cohort"]
             new_population.loc[new_population.index, "entrance_time"] = pop_data.user_data["creation_time"]
             new_population.loc[new_population.index, "age"] = new_population["age"].astype(float)
@@ -423,6 +461,11 @@ class NoReplenishment(Base):
         # Register simulants entrance time and age to CRN. I.E keep them seeded.
         # Add new simulants to the overall population frame.
         self.register(new_population[["entrance_time", "age"]])
+        new_population['yearly_energy'] = new_population['yearly_energy'].astype(float)
+        new_population['behind_on_bills'] = new_population['behind_on_bills'].astype(int)
+        new_population['active'] = new_population['active'].astype(int)
+        new_population['ncars'] = new_population['ncars'].astype(int)
+        new_population['financial_situation'] = new_population['financial_situation'].astype(int)
         self.population_view.update(new_population)
 
     def on_time_step(self, event):
@@ -436,6 +479,8 @@ class NoReplenishment(Base):
             The `event` that triggered the function call.
         """
         # no replenishment after initial cohort. do nothing...
+
+        population = self.population_view.get(event.index, query="alive == 'alive'")
         pass
 
     def age_simulants(self, event):
@@ -473,3 +518,267 @@ class NoReplenishment(Base):
 
     def __repr__(self):
         return "NoReplenishment()"
+
+# HR 09/02/25 Return Euclidean distance between two vectors
+def euclidean(v1, v2):
+    d = np.sqrt(np.sum((v1 - v2) ** 2))
+    return d
+
+# HR 09/02/25 Objective function for simulated annealing function - used as measure of convergence
+def objective_function(df, target_dict):
+
+    PENALTY_VALUE = 10.0  # Setting this >0 avoids samples with empty categories being produced
+
+    obj = 0.0
+    for v, t in target_dict.items():
+        if isinstance(t, (int, float)):  # For int/float
+            m = df[v].mean()
+            new_val = euclidean(m, t)
+        elif isinstance(t, dict):  # For categoricals
+
+            vc = df[v].value_counts(normalize=True)
+
+            # Must check all categories in target are present; if not, add zero value to avoid ValueError
+            if set(t) != set(df[v]):
+                not_present = set(t) - set(df[v])
+                for _np in not_present:
+                    vc.loc[_np] = PENALTY_VALUE
+
+            vec = np.array(vc.sort_index())
+            t_sorted = ([v for (k, v) in sorted(t.items())])
+
+            new_val = euclidean(vec, t_sorted)
+        else:
+            new_val = PENALTY_VALUE
+        obj += new_val
+    return obj
+
+def sample_with_constraints(df,
+                            target_dict,
+                            frac=0.1,
+                            n=None,
+                            delta_threshold=0.002,  # Convergence threshold
+                            subfrac=0.005,  # Relative size of subsample to replace
+                            T_0=1000.0,  # Initial temperature
+                            alpha=0.99,  # Cooling rate
+                            ):
+    """
+    Returns a fractional sample of the input dataframe with a set of values close to the target set.
+    Uses simulated annealing to find the sample.
+
+    Parameters:
+    df (pandas.DataFrame): The input dataframe
+    target_dict (dict): The target set of values
+    frac (float): The size of the sample to be returned, expressed as a fraction of the input dataframe
+
+    Returns:
+    pandas.DataFrame: A fractional sample of the input dataframe with a mean value close to the target values
+    """
+    # Get size of sample to create -> this prioritises n if it is specified
+    if n is not None and isinstance(n, (int, float, )):
+        frac = n / len(df)
+
+    # Initialise variables
+    oversample = frac > 1.0  # Only allow for duplicates per sample if requested size bigger than repl source pop
+    current_sample = df.sample(frac=frac, replace=oversample)
+    current_obj = objective_function(current_sample, target_dict)  # Objective of current sample
+    T = T_0
+
+    # Run simulated annealing loop
+    i = 0
+
+    # while T > 1.0:
+    while current_obj > delta_threshold:
+
+        # 1. Get subsample to be used as replacement
+        n_replace = int(subfrac * frac * len(df))
+        to_replace = df.sample(n=n_replace)
+
+        # 2. Replace random rows in current sample with subsample
+        new_sample = current_sample.sample(frac=1)[:-n_replace]  # Shuffle then drop last n rows
+        new_sample = pd.concat([new_sample, to_replace])
+
+        # 3. Calculate objective of proposed sample
+        new_obj = objective_function(new_sample, target_dict)
+        diff = new_obj - current_obj
+
+        # 4. If proposed sample better than current sample, keep it; otherwise discard
+        # Accept or reject the new sample based on the Metropolis criterion
+        # if diff < 0 or np.exp(-diff / T) > np.random.rand():
+        if diff < 0:
+            current_sample = new_sample
+            current_obj = new_obj
+
+        # Cool down the system
+        T *= alpha
+        sys.stdout.write('\rIteration no. {} (obj: {:.6f}), N = {}'.format(i, current_obj, len(current_sample)))
+
+        # # Check if the current sample is close enough to the target mean
+        # if abs(current_obj - target) < delta_threshold:
+        #     break
+
+        i += 1
+
+    print('\r')
+    return current_sample, current_obj
+
+def get_age_fraction_by_year_newethpop(_path, _file, ages):
+    if isinstance(ages, (int, )):
+        ages = [ages]
+    pop = pd.read_csv(os.path.join(_path, _file))
+
+    age_frac_by_year = {}
+    for age in ages:
+        age_frac_by_year[age] = pop.groupby('year').apply(
+            lambda x: x.loc[x['age'] == age]['count'].sum() / x['count'].sum()).to_dict()
+    return age_frac_by_year
+
+def get_ethnicity_by_year_newethpop(_path, _file, ages):
+    if isinstance(ages, (int, )):
+        ages = [ages]
+    pop = pd.read_csv(os.path.join(_path, _file))
+
+    eth_by_year = {}
+    for age in ages:
+        sub = pop.loc[pop['age'] == age]
+        eth_by_year[age] = sub.groupby('year').apply(
+            lambda x: x.groupby('ethnicity')['count'].sum() / x['count'].sum()).T.to_dict()
+    return eth_by_year
+
+def get_sex_by_year_newethpop(_path, _file, ages):
+    if isinstance(ages, (int, )):
+        ages = [ages]
+    pop = pd.read_csv(os.path.join(_path, _file))
+
+    eth_by_year = {}
+    for age in ages:
+        sub = pop.loc[pop['age'] == age]
+        eth_by_year[age] = sub.groupby('year').apply(
+            lambda x: x.groupby('sex')['count'].sum() / x['count'].sum()).T.to_dict()
+    return eth_by_year
+
+# HR 10/02/25 Get size of cohort required to give certain proportion of total population
+def get_cohort_size_by_proportion(target_proportion, pop_size):
+    cohort_size = pop_size / ((1.0 / target_proportion) - 1.0)
+    return cohort_size
+
+# HR 13/02/25 Correct all time variables in repl cohort; this reproduces functionality in generate_repl_pop.expand_repl
+def correct_temporal_variables(pop, repl_year, current_year):
+
+    year_increment = current_year - repl_year
+    pop['time'] = current_year
+    # pop['birth_year'] = pop['birth_year'] + year_increment
+    # pop['hh_int_y'] = pop['hh_int_y'].astype(int) + year_increment
+    # pop = uut.generate_interview_date_var(pop)
+
+    return pop
+
+# HR 12/02/25 Wrapper for creating repl pop at runtime or offline
+def create_replenishing_population(pop_size,
+                                   target_year,
+                                   repl_year=2019,
+                                   source_pop=None,
+                                   sample_ages=SAMPLE_AGES_DEFAULT,
+                                   repl_age=REPL_AGE_DEFAULT,
+                                   delta_threshold=0.05,
+                                   percentage=1,  # Use 1% pop as quicker to load
+                                   ):
+
+    if source_pop is None:
+        source_path = os.path.join(DATA_PATH, 'scaled_gb_US')
+        source_file = f'{repl_year}_US_cohort.csv'
+        source_pop = pd.read_csv(os.path.join('data/scaled_manchester_aligned_US', '2020_US_cohort.csv'))
+        # source_pop = pd.read_csv(os.path.join(source_path, str(percentage) + 'pc', source_file))
+
+    # Get reference values to match
+    ref_deets = (PERSISTENT_DIR, PROJECTIONS_DEFAULT)
+    afrac = get_age_fraction_by_year_newethpop(*ref_deets, ages=16)
+    aeth = get_ethnicity_by_year_newethpop(*ref_deets, ages=16)
+    asex = get_sex_by_year_newethpop(*ref_deets, ages=16)
+
+    # Get sex and ethnicity fractions to be used as targets in simulated annealing algorithm + sample size
+    sex_target = asex[repl_age][target_year]
+    eth_target = aeth[repl_age][target_year]
+    af = afrac[repl_age][target_year]
+    repl_size = get_cohort_size_by_proportion(af, pop_size)
+
+    # source_pop = source_pop.astype({'sex': 'int8'})
+    # source_pop = source_pop.astype({'ethnicity': 'int8'})
+    # source_pop = source_pop.astype({'age': 'int8'})
+
+    # Filter source population for valid values only; avoids missing value issues during simulated annealing
+    source_filtered = source_pop.loc[(source_pop['sex'].isin(sex_target)) &
+                                     (source_pop['ethnicity'].isin(eth_target)) &
+                                     (source_pop['age'].isin(sample_ages)),
+    ]
+
+    repl_pop, obj = sample_with_constraints(source_filtered,
+                                            target_dict={'sex': sex_target,
+                                                         'ethnicity': eth_target,
+                                                         },
+                                            delta_threshold=delta_threshold,
+                                            n=repl_size,
+                                            )
+
+    # 1. Correct ages and times/dates; need to do [age, birth_year, hh_int_y, time]; function for Date is in US_utils
+    repl_pop.loc[repl_pop['age'] != REPL_AGE_DEFAULT, 'age'] = REPL_AGE_DEFAULT  # Accounts for possibility of drawing repl from ages other than 16yos
+    repl_pop = correct_temporal_variables(repl_pop, repl_year=2019, current_year=target_year)
+
+    # 2. Predict max_educ variable (uses transition model); function is in generate_repl_pop
+    repl_pop.loc[repl_pop['education_state'] > 2, 'education_state'] = 2
+    repl_pop.reset_index(drop=True, inplace=True)  # Avoids issue with transition model (duplicate index values)
+    repl_pop = grp.predict_education(repl_pop, TRANSITIONS_PATH)
+
+    return repl_pop
+
+# HR 13/02/25 Class specifically for use with individual-level GB synthpop
+# Main difference to Replenishment (from which it inherits) are:
+# 1. Replenishing population is created at runtime from the synthpop; this uses the same projections as Replenishment
+# but repl pop size is specified explicitly, rather than through weights
+# 2. As a result, the on_time_step method is vastly simpler
+class ReplenishmentHousehold(Replenishment):
+
+    @property
+    def name(self):
+        return "ReplenishmentHousehold"
+
+    def __repr__(self):
+        return "ReplenishmentHousehold()"
+
+    def on_time_step(self, event):
+        """ On time step add new simulants to the module.
+        New simulants to be added must be 16 years old, the number and ethnicity/sex distribution matched to
+        population projections
+
+        Parameters
+        ----------
+        event : vivarium.population.PopulationEvent
+            The `event` that triggered the function call.
+        """
+
+        logging.info("REPLENISHMENT (INDIVIDUAL LEVEL FOR GB SYNTHPOP)")
+        print('Running replenishment for GB synthpop...')
+
+        population = self.population_view.get(event.index, query="alive == 'alive'")
+        print('Pop. size:', len(population))
+        current_year = event.time.year
+        new_wave = create_replenishing_population(pop_size=len(population),
+                                                  target_year=current_year,
+                                                  )
+        cohort_size = len(new_wave)
+        print('Repl cohort size:', cohort_size)
+
+        # 3. Reset index to avoid Pandas ValueErrors due to duplicate indices in current and repl pops
+        m = max(population.index)
+        new_wave.index = range(m, m + cohort_size)
+
+        # Populate repl config, to be passed to simulant_creater
+        new_cohort_config = {'sim_state': 'time_step',
+                             'creation_time': event.time,
+                             'new_cohort': new_wave,
+                             'cohort_type': "replenishment",
+                             'cohort_size': cohort_size}
+
+        # Create simulants, which adds repl pop to population
+        self.simulant_creater(cohort_size, population_configuration=new_cohort_config)
+        logging.info(f"\tTotal new 16 year olds added to the model: {cohort_size}")
