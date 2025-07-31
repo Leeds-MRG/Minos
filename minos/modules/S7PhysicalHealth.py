@@ -102,6 +102,7 @@ class S7PhysicalHealth(Base):
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
+        phys_health_prob_df['S7_physical_health'] = phys_health_prob_df['S7_physical_health'].astype(float)
         self.population_view.update(phys_health_prob_df['S7_physical_health'])
 
     def calculate_S7_physical_health(self, pop):

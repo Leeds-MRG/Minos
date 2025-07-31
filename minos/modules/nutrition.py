@@ -227,6 +227,8 @@ class lmmYJNutrition(Base):
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
         #print('nutrition', np.mean(newWaveNutrition['nutrition_quality']))
+
+        newWaveNutrition['nutrition_quality'] = newWaveNutrition['nutrition_quality'].astype(float)
         self.population_view.update(newWaveNutrition[['nutrition_quality']])#, 'nutrition_quality_diff']])
 
     def calculate_nutrition(self, pop):

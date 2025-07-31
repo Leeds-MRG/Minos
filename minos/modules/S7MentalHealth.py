@@ -101,6 +101,7 @@ class S7MentalHealth(Base):
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new income
+        men_health_prob_df['S7_mental_health'] = men_health_prob_df['S7_mental_health'].astype(float)
         self.population_view.update(men_health_prob_df['S7_mental_health'])
 
     def calculate_S7_mental_health(self, pop):

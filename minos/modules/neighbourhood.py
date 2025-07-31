@@ -96,7 +96,7 @@ class Neighbourhood(Base):
 
         # Draw individuals next states randomly from this distribution.
         # Update population with new neighbourhood
-        self.population_view.update(neighbourhood_prob_df['neighbourhood_safety'])
+        self.population_view.update(neighbourhood_prob_df['neighbourhood_safety'].astype(float))
 
 
     def calculate_neighbourhood(self, pop):

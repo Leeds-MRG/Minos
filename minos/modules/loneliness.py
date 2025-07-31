@@ -98,7 +98,7 @@ class Loneliness(Base):
                                                               loneliness_prob_df) + 1
         loneliness_prob_df.index = pop.index
 
-        self.population_view.update(loneliness_prob_df["loneliness"].astype(int))
+        self.population_view.update(loneliness_prob_df["loneliness"].astype(float))
 
     def calculate_loneliness(self, pop):
         """Calculate loneliness transition distribution based on provided people/indices.

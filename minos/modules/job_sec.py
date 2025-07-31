@@ -97,7 +97,7 @@ class JobSec(Base):
         pop['job_sec'] = job_sec_prob_df['job_sec']
         pop['job_sec'][~pop['S7_labour_state'].isin(['PT Employed', 'FT Employed'])] = 0
 
-        self.population_view.update(job_sec_prob_df["job_sec"])
+        self.population_view.update(job_sec_prob_df["job_sec"].astype(float))
 
     def calculate_job_sec(self, pop):
         """Calculate housing transition distribution based on provided people/indices.
