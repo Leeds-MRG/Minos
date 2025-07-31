@@ -1,0 +1,65 @@
+randomness:
+  key_columns: ['entrance_time', 'age']
+time:
+  start: {year: 2020, month: 10, day: 15}
+  end:   {year: 2025, month: 10, day: 15}
+  step_size: 365.25  # Days
+population:
+  age_start: 0
+  age_end: 100
+
+mortality_file: 'regional_mortality_2011_2061.csv'
+fertility_file: 'regional_fertility_2011_2061.csv'
+input_data_dir: "data/scaled_manchester_aligned_US"
+persistent_data_dir: "persistent_data"
+output_data_dir: "output"
+
+transition_dir: 'data/transitions'
+replenishing_dir: 'data/replenishing/manchester_scaled'
+
+cross_validation: FALSE
+synthetic: TRUE
+
+# Correct ordering of components is automated in RunPipeline, so can be passed in any order here now.
+#components : [MWB(), Loneliness(), Tobacco(), Alcohol(), Neighbourhood(), Income(), Housing(), Labour(), Nutrition(), Education(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+#components : [MWB(), Loneliness(), Tobacco(), Neighbourhood(), Housing(), Nutrition(), Income(), Education(), Mortality(), Replenishment()]
+#components : [lmmYJMWB(), Loneliness(), nCars(), lmmTobacco(), S7Labour(), HourlyWage(),
+#              JobSec(), Neighbourhood(), Heating(), Housing(), lmmYJNutrition(), lmmYJNetIncome(), behindOnBills(), financialSituation(),
+#              energyBills(), lmmYJOutgoings(), Education(), Ageing(), Mortality(), nkidsFertilityAgeSpecificRates(), Replenishment()]
+
+
+# no equivalent income modules.
+#components : [QALYs(), lmmYJPCS(), lmmYJMWB(), Loneliness(), nCars(), #lmmTobacco(), MaterialDeprivation(), HourlyWage(),
+#              PhysicalActivity(), Alcohol(), S7Labour(),
+#              JobSec(), Neighbourhood(), Heating(), Housing(), lmmYJNutrition(), Neighbourhood(),
+#              lmmYJNetIncome(), behindOnBills(),
+#              financialSituation(), energyBills(), lmmYJOutgoings(), Education(), Ageing(), Mortality(),
+#              nkidsFertilityAgeSpecificRates(), Replenishment()]
+
+# sf12 and equivalent income modules.
+components : [QALYs(), lmmYJPCS(), lmmYJMWB(),
+              S7MentalHealth(), S7PhysicalHealth(), S7Neighbourhood(), S7EquivalentIncome(),
+              Loneliness(), nCars(), PhysicalActivity(), Alcohol(), S7Labour(),
+              JobSec(), Neighbourhood(), # Heating(), Housing(), Neighbourhood(),
+              lmmYJNutrition(), lmmYJNetIncome(), behindOnBills(), financialSituation(), energyBills(),
+              lmmYJOutgoings(), Education(), Ageing(), Mortality(),
+              nkidsFertilityAgeSpecificRates(), NoReplenishment()]
+
+scale_rates:
+  method: "constant"
+  constant:
+    education: 1
+    mortality: 1
+    fertility: 1
+
+
+
+#keep_columns : ["weight", "pidp", "hidp",
+#                "alive", "SF_12_MCS", "SF_12_PCS", 'time',
+#                "housing_quality", "hh_income", "neighbourhood_safety",
+#                "nkids", "loneliness", "age",
+#                "ethnicity", "marital_status", "S7_labour_state",
+#                'has_newborn', "region", "hourly_wage",
+#                "age", "yearly_energy", 'heating']
+#intervention_keep_columns : ["income_boosted", "boost_amount"]
+#synthpop_keep_columns : ["ZoneID", "simd_decile"]
