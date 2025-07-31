@@ -68,7 +68,6 @@ main <- function(n_imputations, iterations_per_imputation){
                     "number_of_rooms",
                     "S7_physical_health",
                     "S7_mental_health",
-                    "loneliness",
                     "washing_machine",
                     "microwave",
                     "fridge_freezer",
