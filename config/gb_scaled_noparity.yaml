@@ -10,7 +10,7 @@ population:
     age_end: 100
 
 parity: False
-percentage: 5
+percentage: 1
 
 base_input_data_dir: "data/scaled_gb_US"
 persistent_data_dir: "persistent_data"
