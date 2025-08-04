@@ -30,6 +30,8 @@ data/*.csv
 data/final_US/cross_validation/*
 data/replenishing/*
 data/imputed_final_US/*
+data/mice_US/*
+data/scaled_gb_US/*
 # R transitions objects and coefficient files
 data/transitions/*coefficients.txt
 data/transitions/*.rds
