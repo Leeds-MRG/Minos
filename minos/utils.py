@@ -822,7 +822,7 @@ def solve_for_n(a, r, s):
     return n
 
 
-def search(a, n, s, r0=None, tol=1e-8, iters=100, factor=FACTOR_DEFAULT):
+def search(a, n, s, r0=0.5, tol=1e-8, iters=100, factor=FACTOR_DEFAULT):
     """
     Wrapper for "solve" function to avoid numerical instabilities
 
