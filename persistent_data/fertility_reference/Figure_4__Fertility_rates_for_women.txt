@@ -1,0 +1,3 @@
+# HR 07/08/25 Fertility rate projections for UK, ASFR by five-year age bracket
+# Downloaded from here: https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationprojections/methodologies/nationalpopulationprojectionsfertilityassumptions2022based
+# N.B. Filename shortened as was way too long
