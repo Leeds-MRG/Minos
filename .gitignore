@@ -43,6 +43,8 @@ data/transitions/*
 data/transitions/*/*
 data/transitions/*/*/*
 data/outcomes/paper1_plots/*
+data/fertility/*
+data/fertility/*/*
 
 # build stuff
 build/
