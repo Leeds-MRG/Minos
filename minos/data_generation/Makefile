@@ -78,6 +78,8 @@ uk_scaled_data: $(UKSCALEDDATA)/2020_US_cohort.csv
 
 gb_scaled_data: $(GBSCALEDDATA)/10pc/2019_US_cohort.csv
 
+data_ipf_fertility: $(FERTILITYDATA)/population/population_2045.csv
+
 synthetic_uk_repl: $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.csv
 
 scot_priority_sub_data: $(PSUBDATA)/2020_US_cohort.csv
@@ -167,6 +169,9 @@ $(GBSCALEDDATA)/10pc/2019_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAG
 
 $(DATADIR)/replenishing/uk_scaled/replenishing_pop_2015-2070.csv: $(UKSCALEDDATA)/2020_US_cohort.csv $(TRANSITION_DATA)/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py -m --region 'uk'
+
+$(FERTILITYDATA)/population/population_2045.csv: $(DATAGEN)/generate_ipf_fertility_data.py
+	$(PYTHON) $(DATAGEN)/generate_ipf_fertility_data.py
 
 # Synthetic populations consisting of only those in a priority subgroup household
 $(PSUBDATA)/2020_US_cohort.csv: $(FINALDATA)/2021_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py

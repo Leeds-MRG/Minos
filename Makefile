@@ -28,6 +28,7 @@ SCOTLANDSCALEDDATA = $(DATADIR)/scaled_scotland_US
 GLASGOWSCALEDDATA = $(DATADIR)/scaled_glasgow_US
 UKSCALEDDATA = $(DATADIR)/scaled_uk_US
 GBSCALEDDATA = $(DATADIR)/scaled_gb_US
+FERTILITYDATA = $(DATADIR)/fertility
 TESTING = $(SOURCEDIR)/testing
 MICEDATA = $(DATADIR)/mice_US
 IMPUTEDCOMPLETEDATA = $(DATADIR)/imputed_complete_US
@@ -109,6 +110,8 @@ setup: ### Setup target to prepare everything required for simulation.
 ### Runs install, prepares input data, estimates transition models, and generates input populations
 setup: install data transitions_default replenishing_data
 
+setup_ipf: setup data_ipf_fertility
+
 setup_inflated: install data transitions_default inflated_data inflated_repl
 
 setup_S7: install data transitions_SIPHER7 replenishing_data
@@ -130,6 +133,8 @@ setup_scotland_scaled_S7: install synthetic_glasgow_data transitions_SIPHER7 syn
 setup_uk_scaled: install data synthetic_uk_data transitions_default synthetic_uk_repl
 
 setup_gb_scaled: install data synthetic_gb_data transitions_default
+
+setup_gb_scaled_ipf: setup_gb_scaled data_ipf_fertility
 
 setup_uk_scaled_S7: install synthetic_uk_data transitions_SIPHER7 synthetic_uk_repl
 
