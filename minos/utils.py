@@ -283,14 +283,10 @@ def make_uniform_pop_data(age_bin_midpoint=False):
 REPLACEMENTS_DEFAULT = {"\n": "\n"} # i.e. do nothing
 
 
-def get_nearest(reference_list, value):
-    # HR 17/04/23 To grab nearest value in list of integers
-    if value in reference_list:
-        nearest = value
-    elif value < min(reference_list):
-        nearest = min(reference_list)
-    elif value > max(reference_list):
-        nearest = max(reference_list)
+# HR 15/08/25 New version to account for integers and floats
+def get_nearest(ref_values, value):
+    j = {k: abs(k - value) for k in ref_values}
+    nearest = min(j, key=j.get)
     return nearest
 
 
