@@ -394,3 +394,39 @@ class nkidsFertilityAgeSpecificRates(Base):
         columns = ['year_start', 'year_end', 'ethnicity', 'age_start', 'age_end', 'mean_value']
         asfr_data = asfr_data.loc[asfr_data.sex == 2][columns]
         return asfr_data
+
+
+class FertilityIPF(nkidsFertilityAgeSpecificRates):
+
+    @property
+    def name(self):
+        return 'fertility_ipf'
+
+    def __repr__(self):
+        return "FertilityIPF()"
+
+    def setup(self, builder):
+        # Load in birth rate lookup table data and build lookup table.
+        self.parity_max = builder.data.load("parity_max")
+
+        if self.parity:
+            print("Running with parity")
+            key_columns = ['sex', 'ethnicity', 'nkids_ind']
+        else:
+            print("Running without parity")
+            key_columns = ['sex', 'ethnicity']
+
+        view_columns = ['sex', 'ethnicity', 'age', 'hidp', 'pidp',
+                        'nkids', 'nkids_ind', 'nresp',
+                        'child_ages', 'child_ages_ind',
+                        'nnewborn_hh', 'nnewborn']
+        columns_created = []
+
+        # Add new columns to population required for module using build in sim creator.
+        self.population_view = builder.population.get_view(view_columns + columns_created)
+
+        # Add listener event to check who has given birth on each time step using the on_time_step function below.
+        super().setup(builder)
+
+    def on_time_step(self, event):
+        print('Running on_time_step for FertilityIPF... Doing nothing, but vigorously')
