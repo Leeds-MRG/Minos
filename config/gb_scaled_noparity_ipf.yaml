@@ -24,7 +24,7 @@ cross_validation: FALSE
 synthetic: TRUE
 
 # Correct ordering of components is automated in RunPipeline, so can be passed in any order here
-components: [Ageing(), Mortality(), FertilityIPF(), Replenishment()]
+components: [Ageing(), Mortality(), FertilityIPF(), ReplenishmentIndividual()]
 
 scale_rates:
     method: "constant"
