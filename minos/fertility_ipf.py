@@ -328,7 +328,7 @@ def get_constraints_data(year, age_range=AGE_RANGE_DEFAULT):
 
 
 # HR 13/08/25 Rolling IPF solution into a function
-def get_ipf_solutions(year, normaliser='nep', recalculate=False):
+def get_ipf_solutions(year, normaliser='nep', recalculate=False, _save=False):
     # First try and load from file, if present
     births_fullpath = os.path.join(BIRTHS_PATH, 'births_' + str(year) + '.csv')
     pop_fullpath = os.path.join(POP_PATH, 'population_' + str(year) + '.csv')
@@ -378,10 +378,11 @@ def get_ipf_solutions(year, normaliser='nep', recalculate=False):
     df_b = pd.DataFrame({'births': result_b.flatten()}, index=index)
     df_p = pd.DataFrame({'population': result_p.flatten()}, index=index)
 
-    # Check/create data folders and dump data
-    check_fertility_folders()
-    df_b.to_csv(births_fullpath)
-    df_p.to_csv(pop_fullpath)
+    if _save:
+        # Check/create data folders and dump data
+        check_fertility_folders()
+        df_b.to_csv(births_fullpath)
+        df_p.to_csv(pop_fullpath)
 
     return df_b, df_p
 
