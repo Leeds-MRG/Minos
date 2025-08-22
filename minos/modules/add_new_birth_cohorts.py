@@ -413,10 +413,10 @@ class FertilityIPF(nkidsFertilityAgeSpecificRates):
 
         if self.parity:
             print("Running with parity")
-            key_columns = ['sex', 'ethnicity', 'nkids_ind']
+            self.key_columns = ['sex', 'ethnicity', 'nkids_ind']
         else:
             print("Running without parity")
-            key_columns = ['sex', 'ethnicity']
+            self.key_columns = ['sex', 'ethnicity']
 
         view_columns = ['alive', 'sex', 'ethnicity', 'age', 'hidp', 'pidp',
                         'nkids', 'nkids_ind', 'nresp',
@@ -425,24 +425,23 @@ class FertilityIPF(nkidsFertilityAgeSpecificRates):
         columns_created = []
 
         # Add new columns to population required for module using build in sim creator.
-        self.population_view = builder.population.get_view(view_columns + columns_created)
+        self.population_view = builder.population.get_view(view_columns)
 
         # Add listener event to check who has given birth on each time step using the on_time_step function below.
         super().setup(builder)
 
     def on_time_step(self, event):
-        print('\nRunning on_time_step for FertilityIPF...\n')
-
         year = event.time.year
         population = self.population_view.get(event.index, query='alive == "alive"')
         # population['nnewborn'] = 0
 
         # Get reference fertility rate and IPF-based tables of births and population data
         ref_val = get_tfr_projections().loc[year].values[0]
-        births_table, pop_table = get_ipf_solutions(year, recalculate=False, _save=False)  # Get cached tables
+        births_table, pop_table = get_ipf_solutions(year, recalculate=False, _save=False, parity=self.parity)  # Get cached tables
 
         # Iterate rate table to match reference fertility metric (TFR initially) and produce population
         population, rt, _, __ = match_rate_table(population, births_table, pop_table, 'tfr', ref_val)
+        # print("Rate table index (to check parity is/isn't accounted for): ", rt.index.names)
 
         who_had_children_individuals = population.loc[population['nnewborn'] > 0].index
 

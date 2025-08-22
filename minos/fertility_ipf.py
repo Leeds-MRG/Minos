@@ -338,7 +338,7 @@ def get_constraints_data(year, age_range=AGE_RANGE_DEFAULT):
 
 
 # HR 13/08/25 Rolling IPF solution into a function
-def get_ipf_solutions(year, normaliser='nep', recalculate=False, _save=False):
+def get_ipf_solutions(year, normaliser='nep', recalculate=False, _save=False, parity=True):
     # First try and load from file, if present
     births_fullpath = os.path.join(BIRTHS_PATH, 'births_' + str(year) + '.csv')
     pop_fullpath = os.path.join(POP_PATH, 'population_' + str(year) + '.csv')
@@ -348,7 +348,12 @@ def get_ipf_solutions(year, normaliser='nep', recalculate=False, _save=False):
             df_b = pd.read_csv(births_fullpath, index_col=names)
             df_p = pd.read_csv(pop_fullpath, index_col=names)
             print('Loaded cached data from file for year {}'.format(year))
+
+            if not parity:
+                df_b = df_b.groupby(level=['age', 'eth_group']).sum()
+                df_p = df_p.groupby(level=['age', 'eth_group']).sum()
             return df_b, df_p
+
         except Exception as e:
             print(e)
             print('Cached data not found; computing and caching for year {}'.format(year))
@@ -387,6 +392,11 @@ def get_ipf_solutions(year, normaliser='nep', recalculate=False, _save=False):
     index = pd.MultiIndex.from_product(categories, names=names)
     df_b = pd.DataFrame({'births': result_b.flatten()}, index=index)
     df_p = pd.DataFrame({'population': result_p.flatten()}, index=index)
+
+    # Flatten parity column of data if not accounting for it
+    if not parity:
+        df_b = df_b.groupby(level=['age', 'eth_group']).sum()
+        df_p = df_p.groupby(level=['age', 'eth_group']).sum()
 
     if _save:
         # Check/create data folders and dump data
