@@ -245,7 +245,7 @@ def apply_age_bracket(pop,
 def apply_ethnicity_group(pop,
                           ):
     eth_group_map = get_ethnicity_map()
-    pop['eth_group'] = pop['ethnicity'].map(eth_group_map)
+    pop['eth_group'] = pop['ethnicity'].map(eth_group_map).str.lower()
     return pop
 
 

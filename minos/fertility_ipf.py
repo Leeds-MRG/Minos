@@ -142,7 +142,7 @@ def get_reference_value(reference_metric, reference_year):
 
 
 # HR 06/08/25 To match fertility rate (by applying rate table to population) to reference value iteratively
-def match_rate_table(pop, births_table, pop_table, cats, reference_metric, reference_value, tol=0.005, max_it=20):
+def match_rate_table(pop, births_table, pop_table, reference_metric, reference_value, tol=0.005, max_it=20):
     metric_functions = {'tfr': futils.get_tfr,
                         'gfr': futils.get_gfr,
                         'cbr': futils.get_cbr,
@@ -181,7 +181,7 @@ def match_rate_table(pop, births_table, pop_table, cats, reference_metric, refer
         print('Converged!')
     else:
         print('Not converged, max. iterations reached')
-    return rate_table, metric_history, conv_history
+    return pop, rate_table, metric_history, conv_history
 
 
 # HR 06/08/25 Simple RNG fertility calculator
@@ -190,19 +190,29 @@ def match_rate_table(pop, births_table, pop_table, cats, reference_metric, refer
 def apply_fertility_model(pop, rate_table, age_range=AGE_RANGE_DEFAULT):
     # Convert rate table to dict for readability
     _vars = list(rate_table.index.names)
-    rt_dict = rate_table['fertility'].to_dict()
+    rt_dict = rate_table['fertility']
 
     # Get women so all fertility variables can be added easily by index
     women = pop.loc[(pop['sex'] == 'Female') & (pop['age'].between(*age_range))]
 
     # Add tuple column, map fertility rates and get newborns
+    pop['eth_group'] = pop['ethnicity'].map(eth_map).str.lower()  # lower() very important here!
+    if not 'alive' in pop.columns:
+        pop['alive'] = 'alive'
+
+    pop['nnewborn'] = 0  # Must reset to zero!
     pop.loc[women.index, 'fertcat'] = pop[_vars].apply(tuple, axis=1)
     pop.loc[women.index, 'rnd'] = np.random.rand(len(women))
     pop.loc[women.index, 'fertval'] = pop['fertcat'].map(rt_dict)
     pop.loc[women.index, 'nnewborn'] = pop['fertval'] > pop['rnd']
 
+    pop['nnewborn'] = pop['nnewborn'].astype(int)
+    pop['nnewborn'] = pop['nnewborn'].fillna(0)
+
+    # pop.to_csv('testpop.csv')
+
     # Drop temporary columns
-    pop.drop(columns=['fertcat', 'rnd', 'fertval'])
+    pop.drop(columns=['fertcat', 'rnd', 'fertval', 'eth_group', 'alive'])
     return pop
 
 
