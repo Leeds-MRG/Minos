@@ -89,6 +89,8 @@ persistent_data/Mortality/
 persistent_data/Mortality/*
 persistent_data/HH2011PopEst2020S_population.csv
 persistent_data/Ind2011PopEst2020S_population.csv
+persistent_data/fertility_rate_table*
+persistent_data/mortality_rate_table*
 
 # conda env.
 conda_minos
