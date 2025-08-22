@@ -11,6 +11,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import minos.utils as utilities
+from minos import fertility_utils
+from minos.fertility_ipf import *
 
 from minos.RateTables.FertilityRateTable import FertilityRateTable
 from minos.modules.base_module import Base
@@ -416,7 +418,7 @@ class FertilityIPF(nkidsFertilityAgeSpecificRates):
             print("Running without parity")
             key_columns = ['sex', 'ethnicity']
 
-        view_columns = ['sex', 'ethnicity', 'age', 'hidp', 'pidp',
+        view_columns = ['alive', 'sex', 'ethnicity', 'age', 'hidp', 'pidp',
                         'nkids', 'nkids_ind', 'nresp',
                         'child_ages', 'child_ages_ind',
                         'nnewborn_hh', 'nnewborn']
@@ -429,4 +431,53 @@ class FertilityIPF(nkidsFertilityAgeSpecificRates):
         super().setup(builder)
 
     def on_time_step(self, event):
-        print('Running on_time_step for FertilityIPF... Doing nothing, but vigorously')
+        print('\nRunning on_time_step for FertilityIPF...\n')
+
+        year = event.time.year
+        population = self.population_view.get(event.index, query='alive == "alive"')
+        # population['nnewborn'] = 0
+
+        # Get reference fertility rate and IPF-based tables of births and population data
+        ref_val = get_tfr_projections().loc[year].values[0]
+        births_table, pop_table = get_ipf_solutions(year, recalculate=False, _save=False)  # Get cached tables
+
+        # Iterate rate table to match reference fertility metric (TFR initially) and produce population
+        population, rt, _, __ = match_rate_table(population, births_table, pop_table, 'tfr', ref_val)
+
+        who_had_children_individuals = population.loc[population['nnewborn'] > 0].index
+
+        population.loc[who_had_children_individuals, 'nkids_ind'] += 1
+        population.loc[who_had_children_individuals, 'child_ages_ind'] += 1
+
+        # HR 12/12/24 Also updating nresp and randomly decrementing 1/16 of individuals by one to account for ageing out of 0-15 age range
+        # This is an imperfect solution as it doesn't account for actual child ages explicitly
+        population.loc[who_had_children_individuals, 'nresp'] += 1
+        ageout_sample = population.loc[who_had_children_individuals].sample(frac=1).sample(frac=1/16).index  # Shuffle then sample
+        population.loc[ageout_sample, 'nresp'] -= 1
+
+        # 2. Find everyone in a household who has had children and calculate/add number of newborns per hh
+        had_children_hidps = population.loc[who_had_children_individuals, 'hidp'].unique()  # Get all HIDPs of people who've had children
+        who_had_children_households = population.loc[population['hidp'].isin(had_children_hidps),].index  # Get all individuals who live in HH that has had one or more new children
+
+        nnewborn_hh_map = population.loc[who_had_children_households].groupby('hidp')['nnewborn'].sum()
+        # population.loc[who_had_children_households, 'nnewborn_hh'] = population['hidp'].map(nnewborn_hh_map)
+        population['nnewborn_hh'] = population['hidp'].map(nnewborn_hh_map).fillna(0)
+
+        # 3. Increment hh-level variables
+        population.loc[who_had_children_households, 'nkids'] += population['nnewborn_hh']
+        # population.loc[who_had_children_households, 'child_ages'] = population.loc[who_had_children_households].apply(lambda x: self.add_new_child_to_chain(x['child_ages'], x['nnewborn_hh']), axis = 1)  # Add new child to children ages chain.
+        population.loc[who_had_children_households, 'child_ages'] += population['nnewborn_hh']  # Add new child to children ages chain.
+
+        # 4. Update population + type corrections (grrr)
+        # population['nnewborn'] = population['nnewborn'].astype('int64')  # HR 10/12/24 Annoying but this is easiest workaround
+        population['nnewborn_hh'] = population['nnewborn_hh'].astype('int64')
+
+        self.population_view.update(population[['nkids', 'nkids_ind', 'nresp',
+                                                'child_ages', 'child_ages_ind',
+                                                'nnewborn', 'nnewborn_hh']])
+
+        # Some metrics for diagnostics
+        n_births = len(who_had_children_individuals)
+        n_pop = len(population)
+        print('CBR (naive): {} ({}/{})'.format(1000*n_births/n_pop, n_births, n_pop))
+        print('CBR (via fertility_utils): {}'.format(fertility_utils.get_cbr(population)))
