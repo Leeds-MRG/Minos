@@ -15,7 +15,7 @@ from minos.modules.replenishment import Replenishment, ReplenishmentIndividual
 from minos.modules.replenishment import NoReplenishment
 #from minos.modules.replenishment_nowcast import ReplenishmentNowcast
 from minos.modules.replenishment_scotland import ReplenishmentScotland
-from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates
+from minos.modules.add_new_birth_cohorts import FertilityAgeSpecificRates, nkidsFertilityAgeSpecificRates, FertilityIPF
 from minos.modules.housing import Housing
 from minos.modules.income import Income, geeIncome, geeYJIncome, lmmDiffIncome, lmmYJIncome, RFDiffIncome, MarsIncome, RFIncome, XGBIncome
 from minos.modules.mental_wellbeing import MWB, geeMWB, geeYJMWB, lmmDiffMWB, lmmYJMWB, RFDiffMWB, MarsMWB, RFMWB, XGBMWB
@@ -105,6 +105,7 @@ components_map = {
     "XGBNutrition()": XGBNutrition(),
     "nkidsFertilityAgeSpecificRates()": nkidsFertilityAgeSpecificRates(),
     "FertilityAgeSpecificRates()": FertilityAgeSpecificRates(),
+    "FertilityIPF()": FertilityIPF(),
     "Mortality()": Mortality(),
     "Education()": Education(),
     "Ageing()": Ageing(),
@@ -242,7 +243,8 @@ def get_priorities():
     component_priorities.update({el: 1 for el in ["Mortality()"]})
     component_priorities.update({el: 2 for el in ["Ageing()"]})
     component_priorities.update({el: 3 for el in ["FertilityAgeSpecificRates()",
-                                                  "nkidsFertilityAgeSpecificRates()"]})
+                                                  "nkidsFertilityAgeSpecificRates()",
+                                                  "FertilityIPF()",]})
     component_priorities.update({el: 4 for el in ["Education()"]})
     component_priorities.update({el: 5 for el in ['Income()',
                                                   'geeIncome()',

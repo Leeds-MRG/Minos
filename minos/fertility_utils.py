@@ -245,7 +245,7 @@ def apply_age_bracket(pop,
 def apply_ethnicity_group(pop,
                           ):
     eth_group_map = get_ethnicity_map()
-    pop['eth_group'] = pop['ethnicity'].map(eth_group_map)
+    pop['eth_group'] = pop['ethnicity'].map(eth_group_map).str.lower()
     return pop
 
 
@@ -308,6 +308,7 @@ def get_cbr(pop):
 # Interval can be specified, in line with ASFR calculations
 # Smaller intervals less likely to give meaningful results for smaller populations or less common ethnic groups
 # N.B. Correction factor 0.5 * interval only verified as correct for interval = 1, as this is only value in literature
+# Should be 25-35
 def get_sma(pop,
             bins=BINS_SINGLE_DEFAULT,
             interval=INTERVAL_SINGLE_DEFAULT,

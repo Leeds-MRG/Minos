@@ -30,6 +30,8 @@ data/*.csv
 data/final_US/cross_validation/*
 data/replenishing/*
 data/imputed_final_US/*
+data/mice_US/*
+data/scaled_gb_US/*
 # R transitions objects and coefficient files
 data/transitions/*coefficients.txt
 data/transitions/*.rds
@@ -41,6 +43,8 @@ data/transitions/*
 data/transitions/*/*
 data/transitions/*/*/*
 data/outcomes/paper1_plots/*
+data/fertility/*
+data/fertility/*/*
 
 # build stuff
 build/
@@ -85,6 +89,8 @@ persistent_data/Mortality/
 persistent_data/Mortality/*
 persistent_data/HH2011PopEst2020S_population.csv
 persistent_data/Ind2011PopEst2020S_population.csv
+persistent_data/fertility_rate_table*
+persistent_data/mortality_rate_table*
 
 # conda env.
 conda_minos

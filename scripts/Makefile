@@ -58,6 +58,18 @@ PARITY_CONFIG=$(CONFIG)/default_parity.yaml
 PARITY_MODE=default_config_parity
 baseline_parity: setup
 	$(PYTHON) scripts/run.py -c $(PARITY_CONFIG) -o $(PARITY_MODE)
+
+# HR 15/08/25 IPF variant of GB US runs
+NOPARITY_IPF_CONFIG=$(CONFIG)/default_noparity_ipf.yaml
+NOPARITY_IPF_MODE=default_config_noparity_ipf
+baseline_noparity_ipf: setup_ipf
+	$(PYTHON) scripts/run.py -c $(NOPARITY_IPF_CONFIG) -o $(NOPARITY_IPF_MODE)
+
+PARITY_IPF_CONFIG=$(CONFIG)/default_parity_ipf.yaml
+PARITY_IPF_MODE=default_config_parity_ipf
+baseline_parity_ipf: setup_ipf
+	$(PYTHON) scripts/run.py -c $(PARITY_IPF_CONFIG) -o $(PARITY_IPF_MODE)
+
 ################################################
 
 baseline_inflated: setup_inflated
@@ -231,6 +243,19 @@ baseline_gb_parity: setup_gb_scaled
 	$(PYTHON) scripts/run.py -c $(PARITY_GB_CONFIG) -o $(PARITY_GB_MODE)
 
 fertility_suite: baseline_noparity baseline_parity baseline_gb_noparity baseline_gb_parity fertility_validation
+
+# HR 15/08/25 IPF variant of GB synthpop runs
+NOPARITY_GB_IPF_CONFIG=$(CONFIG)/gb_scaled_noparity_ipf.yaml
+NOPARITY_GB_IPF_MODE=gb_scaled_noparity_ipf
+baseline_gb_noparity_ipf: setup_gb_scaled_ipf
+	$(PYTHON) scripts/run.py -c $(NOPARITY_GB_IPF_CONFIG) -o $(NOPARITY_GB_IPF_MODE)
+
+PARITY_GB_IPF_CONFIG=$(CONFIG)/gb_scaled_parity_ipf.yaml
+PARITY_GB_IPF_MODE=gb_scaled_parity_ipf
+baseline_gb_parity_ipf: setup_gb_scaled_ipf
+	$(PYTHON) scripts/run.py -c $(PARITY_GB_IPF_CONFIG) -o $(PARITY_GB_IPF_MODE)
+
+fertility_suite_ipf: baseline_noparity_ipf baseline_parity_ipf baseline_gb_noparity_ipf baseline_gb_parity_ipf
 
 ################################################
 
