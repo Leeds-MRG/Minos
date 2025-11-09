@@ -13,7 +13,7 @@ import datetime
 from minos.minosPipeline.RunPipeline import RunPipeline
 
 
-def run(args):
+def run(args=None):
     """
 
     Parameters
@@ -25,6 +25,9 @@ def run(args):
     simulation : Vivarium.Simulation.InteractiveContext
         Simulation object after running for n timesteps
     """
+
+    if args is None:
+        return
 
     ############## READ CONFIG AND ARGS ##############
     ## Read config and set up some variables from the command line args
