@@ -324,4 +324,4 @@ map_all_EI_synthetic: all_intervention_maps
 
 
 IJM_transitions_notebook:
-	$(RSCRIPT) minos/outcomes/IJM_paper_transitions_notebook.Rmd
+	$(RSCRIPT) -e "require(rmarkdown); render('minos/outcomes/IJM_paper_transitions_notebook.Rmd')"
