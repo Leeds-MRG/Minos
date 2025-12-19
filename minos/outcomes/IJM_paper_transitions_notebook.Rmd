@@ -6,9 +6,6 @@ output:
     df_print: paged
 ---
 
-# Before Running this Notebook. Use the branch IJM_paper_June_2025.
-
-
 1.  In an Unix terminal clone the MINOS GitHub repository www.github.com/Leeds-MRG/Minos. Once downloaded, move into the Minos directory and switch to the required branch using command 'git checkout IJM_paper_June_2025'.
 
 2. Follow MINOS README instructions to install the required conda environment and datasets. This includes using Understanding Society data version 20 http://doi.org/10.5255/UKDA-SN-6614-20.
@@ -19,7 +16,7 @@ output:
 
 5. Run this notebook. This will take a few days to run the full MICE algorithm. A cached option is available on request. I recommend a machine with at least 16GB of RAM to run this notebook.
 
-6. All figures and tables will be saved into folder `./IJM_June_2025_plots_and_tables`.
+6. All figures and tables will be saved into folder `./IJM_plots_and_tables`.
 
 ```{r setup}
 # Setting working directory to top of MINOS repository.
@@ -56,7 +53,7 @@ library(cv)
 library(Rcpp)
 
 # Set save directories.
-save.path <- "IJM_June_2025_plots_and_tables/"
+save.path <- "IJM_plots_and_tables/"
 create.if.not.exists(save.path)
 #raw.data.dir <- "data/raw_US/"
 raw.data.dir  <- "data/composite_US/"
