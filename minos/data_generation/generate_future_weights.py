@@ -6,6 +6,7 @@ Mostly reusing Luke's work in generate_repl_pop.py
 import pandas as pd
 from minos.data_generation.generate_stock_pop import reweight_stock
 import numpy as np
+import os
 
 def main(years, save):
 
@@ -32,8 +33,11 @@ def main(years, save):
 
     data['time'] = main_time # reset time back to 2013 at the end.
 
+    save=True
     if save:
-        data['plus_5_weight'].to_csv(f"data/extrapolated_weights_data_{years[0]}.csv")
+        print(f"Saving to dir: {os.getcwd() + 'data/extrapolated_weights/'}.")
+        os.makedirs("data/extrapolated_weights/", exist_ok=True)
+        data['plus_5_weight'].to_csv(f"data/extrapolated_weights/extrapolated_weights_data_{years[0]}.csv")
     return data
 
 

@@ -29,11 +29,73 @@ forest_plot_lm <- function(model, file_name){
                                limits=c("n.s.", "*", "**", "***"),
                                breaks=c("n.s.", "*", "**", "***"),
                                values=c(1, 16, 17, 15)) # cast legend to certain title, variable names and shapes.
+  
+  p <- p + ylab("Coefficient Estimates")
   plot(p)
   dev.off()
 }
 
 
+
+# for glmm gamma
+raw_forest_plot <- function(model, file_name){
+  term_labels <- c("Sex: Male vs Female",
+                  "Ethnicity: BAN vs WBI",
+                  "Ethnicity: BLA vs WBI",
+                  "Ethnicity: BLC vs WBI",
+                  "Ethnicity: CHI vs WBI",
+                  "Ethnicity: IND vs WBI",
+                  "Ethnicity: MIX vs WBI",
+                  "Ethnicity: OAS vs WBI",
+                  "Ethnicity: OBL vs WBI",
+                  "Ethnicity: OTH vs WBI",
+                  "Ethnicity: PAK vs WBI",
+                  "Ethnicity: WHO vs WBI",
+                  "Age",
+                  "Education State: 1 vs 0",
+                  "Education State: 2 vs 0",
+                  "Education State: 3 vs 0",
+                  "Education State: 5 vs 0",
+                  "Education State: 6 vs 0",
+                  "Education State: 7 vs 0",
+                  "Labour State: FT Education vs Family Care",
+                  "Labour State: FT Employment vs Family Care",
+                  "Labour State: Job Seeking vs Family Care",
+                  "Labour State: Not Working vs Family Care",
+                  "Labour State: PT Employed vs Family Care",
+                  "NSSEC: 0 vs. 1",
+                  "NSSEC: 2 vs. 1",
+                  "NSSEC: 3 vs. 1",
+                  "NSSEC: 4 vs. 1",
+                  "NSSEC: 5 vs. 1",
+                  "NSSEC: 6 vs. 1",
+                  "NSSEC: 7 vs. 1",
+                  "NSSEC: 8 vs. 1",
+                  "Region: East Midlands vs London",
+                  "Region: East of England vs London",
+                  "Region: North East vs London",
+                  "Region: North West vs London",
+                  "Region: Northern Ireland vs London",
+                  "Region: Scotland vs London",
+                  "Region: South East vs London",
+                  "Region: South West vs London",
+                  "Region: Wales vs London",
+                  "Region: West Midlands vs London",
+                  "Region: Yorkshire & Humber vs London",
+                  "Household Income")
+  term_labels <- factor(term_labels, levels=unique(rev(term_labels)))
+  pdf(file_name)
+  p <- plot_model(model,
+                  title = "") + aes(shape=p.stars)
+  p$data$p.stars[p$data$p.stars == ""] <- "n.s." # force empty shape strings to n.s. so they show up in legend.
+  p$data$term <- term_labels
+  p <- p +  scale_shape_manual(name='Significance Level',
+                               breaks=c('n.s.', "*", "**", "***"),
+                               values=c(1, 16, 17, 15)) # cast legend to certain title, variable names and shapes.
+  p <- p + ylab("Coefficient Estimates")
+  plot(p)
+  dev.off()
+}
 
 # for glmm gamma
 forest_plot <- function(model, file_name){
@@ -44,20 +106,81 @@ forest_plot <- function(model, file_name){
   p <- p +  scale_shape_manual(name='Significance Level',
                                breaks=c('n.s.', "*", "**", "***"),
                                values=c(1, 16, 17, 15)) # cast legend to certain title, variable names and shapes.
+  p <- p + ylab("Coefficient Estimates")
   plot(p)
   dev.off()
 }
 
+
 # for glmm gamma
 gamma_forest_plot <- function(model, file_name){
   pdf(file_name)
-  p <- plot_model(model, transform=NULL, 
-                  title = "") + aes(shape=p.stars)
+  term_labels <- c("SF_12 Last", 
+                   "Sex: Male vs Female",
+                   "Ethnicity: BAN vs WBI",
+                   "Ethnicity: BLA vs WBI",
+                   "Ethnicity: BLC vs WBI",
+                   "Ethnicity: CHI vs WBI",
+                   "Ethnicity: IND vs WBI",
+                   "Ethnicity: MIX vs WBI",
+                   "Ethnicity: OAS vs WBI",
+                   "Ethnicity: OBL vs WBI",
+                   "Ethnicity: OTH vs WBI",
+                   "Ethnicity: PAK vs WBI",
+                   "Ethnicity: WHO vs WBI",
+                   "Age",
+                   "Education State: 1 vs 0",
+                   "Education State: 2 vs 0",
+                   "Education State: 3 vs 0",
+                   "Education State: 5 vs 0",
+                   "Education State: 6 vs 0",
+                   "Education State: 7 vs 0",
+                   "Labour State: FT Education vs Family Care",
+                   "Labour State: FT Employment vs Family Care",
+                   "Labour State: Job Seeking vs Family Care",
+                   "Labour State: Not Working vs Family Care",
+                   "Labour State: PT Employed vs Family Care",
+                   "NSSEC: 0 vs. 1",
+                   "NSSEC: 2 vs. 1",
+                   "NSSEC: 3 vs. 1",
+                   "NSSEC: 4 vs. 1",
+                   "NSSEC: 5 vs. 1",
+                   "NSSEC: 6 vs. 1",
+                   "NSSEC: 7 vs. 1",
+                   "NSSEC: 8 vs. 1",
+                   "Region: East Midlands vs London",
+                   "Region: East of England vs London",
+                   "Region: North East vs London",
+                   "Region: North West vs London",
+                   "Region: Northern Ireland vs London",
+                   "Region: Scotland vs London",
+                   "Region: South East vs London",
+                   "Region: South West vs London",
+                   "Region: Wales vs London",
+                   "Region: West Midlands vs London",
+                   "Region: Yorkshire & Humber vs London",
+                   "Household Income",
+                   "Household Income Squared",
+                   "Housing Quality: High vs Low",
+                   "Housing Quality: Medium vs Low",
+                   "Neighbourhood Safety: 2 vs 1",
+                   "Neighbourhood Safety: 3 vs 1",
+                   "Loneliness: 2 vs 1",
+                   "Loneliness: 3 vs 1",
+                   "Nutrition Quality",
+                   "Number of Cigarettes",
+                   "Time"
+  )
+  term_labels <- factor(term_labels, levels=unique(rev(term_labels)))
+  p <- plot_model(model, transform="exp", sort.set=NULL, grid.breaks=10,
+                  title = "", vline.color='black', term_labels=term_labels) + aes(shape=p.stars)
+  p$data$term <- term_labels
+  p <- p + ylim(c(0.993, 1.01))
   p$data$p.stars[p$data$p.stars == ""] <- "n.s." # force empty shape strings to n.s. so they show up in legend.
   p <- p +  scale_shape_manual(name='Significance Level',
                                breaks=c('n.s.', "*", "**", "***"),
                                values=c(1, 16, 17, 15)) # cast legend to certain title, variable names and shapes.
-  p <- p + ylim(c(-0.5, 0.1))
+  p <- p + ylab("Coefficient Estimates")
   plot(p)
   dev.off()
 }
@@ -71,6 +194,77 @@ log_forest_plot <- function(model, file_name){
                                breaks=c('n.s.', "*", "**", "***"),
                                values=c(1, 16, 17, 15)) # cast legend to certain title, variable names and shapes.
   p <- p + ylim(c(-0.125, 0.125))
+  p <- p + ylab("Coefficient Estimates")
+  plot(p)
+  dev.off()
+}
+
+
+mice_forest_plot <- function(model, file_name){
+  term_labels <- c("Sex: Male vs Female",
+                   "Ethnicity: BAN vs WBI",
+                   "Ethnicity: BLA vs WBI",
+                   "Ethnicity: BLC vs WBI",
+                   "Ethnicity: CHI vs WBI",
+                   "Ethnicity: IND vs WBI",
+                   "Ethnicity: MIX vs WBI",
+                   "Ethnicity: OAS vs WBI",
+                   "Ethnicity: OBL vs WBI",
+                   "Ethnicity: OTH vs WBI",
+                   "Ethnicity: PAK vs WBI",
+                   "Ethnicity: WHO vs WBI",
+                   "Age",
+                   "Education State: 1 vs 0",
+                   "Education State: 2 vs 0",
+                   "Education State: 3 vs 0",
+                   "Education State: 5 vs 0",
+                   "Education State: 6 vs 0",
+                   "Education State: 7 vs 0",
+                   "Labour State: FT Education vs Family Care",
+                   "Labour State: FT Employment vs Family Care",
+                   "Labour State: Job Seeking vs Family Care",
+                   "Labour State: Not Working vs Family Care",
+                   "Labour State: PT Employed vs Family Care",
+                   "NSSEC: 0 vs. 1",
+                   "NSSEC: 2 vs. 1",
+                   "NSSEC: 3 vs. 1",
+                   "NSSEC: 4 vs. 1",
+                   "NSSEC: 5 vs. 1",
+                   "NSSEC: 6 vs. 1",
+                   "NSSEC: 7 vs. 1",
+                   "NSSEC: 8 vs. 1",
+                   "Region: East Midlands vs London",
+                   "Region: East of England vs London",
+                   "Region: North East vs London",
+                   "Region: North West vs London",
+                   "Region: Northern Ireland vs London",
+                   "Region: Scotland vs London",
+                   "Region: South East vs London",
+                   "Region: South West vs London",
+                   "Region: Wales vs London",
+                   "Region: West Midlands vs London",
+                   "Region: Yorkshire & Humber vs London",
+                   "Household Income",
+                   "Household Income Squared",
+                   "Housing Quality: High vs Low",
+                   "Housing Quality: Medium vs Low",
+                   "Neighbourhood Safety: 2 vs 1",
+                   "Neighbourhood Safety: 3 vs 1",
+                   "Loneliness: 2 vs 1",
+                   "Loneliness: 3 vs 1",
+                   "Nutrition Quality",
+                   "Number of Cigarettes"
+  )
+  pdf(file_name)
+  p <- plot_model(model, transform=NULL, 
+                  title = "") + aes(shape=p.stars)
+  p$data$term <- term_labels
+  p$data$p.stars[p$data$p.stars == ""] <- "n.s." # force empty shape strings to n.s. so they show up in legend.
+  p <- p +  scale_shape_manual(name='Significance Level',
+                               breaks=c('n.s.', "*", "**", "***"),
+                               values=c(1, 16, 17, 15)) # cast legend to certain title, variable names and shapes.
+  p <- p + ylim(c(-0.125, 0.125))
+  p <- p + ylab("Coefficient Estimates")
   plot(p)
   dev.off()
 }
@@ -79,10 +273,12 @@ residual_density_plot <- function(res, file_name, guide=NULL){
   # res - residuals of plotted model
   # guide - expected residual distribution. usually standard normal. 
   pdf(file_name)
-  hist(scale(res), breaks=1000, freq=F)
+  plot(density(scale(res)), xlab="SF-12 MCS", ylab = "Residual Probability Density.", main="")
   if (guide=="normal"){
     x <- seq(-4, 4, 1/10000) # reference normal line in red.
-    lines(x, dnorm(x), col='red')
+    lines(x, dnorm(x), col='red', lty=2)
+    legend("topleft", legend=c("Residuals", "Standard Normal Guide"), 
+           col = c("black","red"), lty=c(1,2))
   }
   dev.off()
   print("saved residual density plot to")
@@ -92,7 +288,7 @@ residual_density_plot <- function(res, file_name, guide=NULL){
 
 qq_plot <- function(res, file_name){
   pdf(file_name)
-  qqnorm(scale(res))
+  qqnorm(scale(res), xlab="SF-12 MCS Theoretical Quantities")
   qqline(scale(res))
   dev.off()
   print("saved qq plot to")
@@ -104,7 +300,9 @@ fitted_residual_plot <- function(fitted_residuals, file_name){
     geom_point(shape=1) +
     geom_smooth(colour="red") +
     #geom_line(aes(y=rollmean(sqrt_residuals, 10000, na.pad=TRUE)), col='red') +
-    theme_bw()
+    theme_bw() +
+    xlab("SF-12 MCS Predicted Values") +
+    ylab("Residual Error Square Root")
   pdf(file_name)
   print(residual_fitted_plot)
   dev.off()
@@ -194,8 +392,10 @@ handover_boxplots <- function(raw, baseline, var, save.path, filename.prefix) {
   
   ggplot(data = combined, aes(x = time, y = .data[[var]],  group = interaction(time, source), fill= source)) +
     geom_boxplot(notch=TRUE) +
-    labs(title = paste0(var, ': Yearly box plots'))
-    ggsave(filename = paste0(save.path, filename.prefix, ".pdf"))
+    #labs(title = paste0(var, ': Yearly box plots')) +
+    xlab("SF-12 MCS") + 
+    ylab("SF-12 MCS Density Boxplots Over Time")
+  ggsave(filename = paste0(save.path, filename.prefix, ".pdf"))
 }
 
 
@@ -225,7 +425,7 @@ handover_lineplots <- function(raw, base, var) {
     labs(title = var, subtitle = 'Full Sample') +
     xlab('Year') +
     ylab(var)
-    ggsave(filename = paste0(save.path, "/", filename.prefix, ".pdf"))
+  ggsave(filename = paste0(save.path, "/", filename.prefix, ".pdf"))
 }
 
 
@@ -249,7 +449,9 @@ density_ridges <- function(data, v, save=FALSE, save.path=NULL, filename.tag=NUL
     #scale_color_viridis_d() +
     scale_color_cyclical(values=c("#F8766D", "#00BA38","#619CFF")) +
     scale_linetype_cyclical(values=c(1, 2, 3)) +
-    xlim(c(0, 70))
+    xlim(c(0, 70)) + 
+    ylab("SF-12 MCS Densities Over Time") +
+    xlab("SF-12 MCS")
   
   if(save) {
     if(is.null(save.path)) {
@@ -291,6 +493,13 @@ update_column_names <- function(data) {
   data.colnames[which( data.colnames=="S7_labour_state" )] <- "labour_state"
   colnames(data) <-data.colnames
   return(data)
+}
+
+# Function for getting root mean squared error for GLMM models.-
+rmse2 <- function(preds, obs){
+  obs_minus_preds_squared <- (preds - obs)**2
+  out <- sqrt(sum(obs_minus_preds_squared/length(preds)))
+  return (out)
 }
 
 

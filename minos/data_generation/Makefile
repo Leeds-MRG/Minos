@@ -6,6 +6,8 @@ data: ### Run all four levels of data generation from raw Understanding Society 
 ###	format with composite variables generated
 data: raw_data adj_raw_data corrected_data composite_data complete_data final_data
 
+IJM_data: raw_data adj_raw_data corrected_data composite_data complete_data final_data transitions_IJM replenishing_data future_weights_data
+
 synthetic_glasgow_data: data glasgow_scaled_data
 
 raw_data: ### Generate starting data in the correct format from raw Understanding Society data
@@ -25,6 +27,9 @@ complete_data: $(COMPLETEDATA)/2020_US_cohort.csv
 
 final_data: ### Produce the final version of the data (including replenishing population for 2018-2070), after reweighting both the stock and replenishing input_populations
 final_data: $(FINALDATA)/2020_US_cohort.csv
+
+future_weights_data: # Produce extrapolated weights for IJM paper.
+future_weights_data: $(EXTRAPOLATED_WEIGHTS_DATA)/extrapolated_weights_data_2013.csv
 
 inflated_data: ### Inflate the data to account for survey weights, with records duplicated (weight * 100) times
 inflated_data: $(INFLATEDDATA)/2020_US_cohort.csv
@@ -103,6 +108,9 @@ $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv: $(COMPLETEDATA)/2020_US
 
 $(DATADIR)/replenishing/cross_validation/replenishing_pop_2019-2070.csv: $(FINALDATA)/cross_validation/batch5/2020_US_cohort.csv $(TRANSITION_DATA)/cross_validation/version5/education_state/nnet/education_state_2018_2019.rds $(DATAGEN)/US_utils.py $(DATAGEN)/generate_repl_pop.py $(PERSISTJSON)/*.json $(MODULES)/r_utils.py
 	$(PYTHON) $(DATAGEN)/generate_repl_pop.py --cross_validation
+
+$(EXTRAPOLATED_WEIGHTS_DATA)/extrapolated_weights_data_2013.csv:
+	$(PYTHON) $(DATAGEN)/generate_future_weights.py
 
 # synthetic input for glasgow with spatial component.
 $(GLASGOWSCALEDDATA)/2020_US_cohort.csv: $(FINALDATA)/2020_US_cohort.csv $(DATAGEN)/US_utils.py $(DATAGEN)/US_household_upscaling.py
