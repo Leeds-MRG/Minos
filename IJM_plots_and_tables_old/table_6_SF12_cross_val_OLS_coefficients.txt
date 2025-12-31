@@ -1,0 +1,79 @@
+
+\begin{small}
+\begin{longtable}{l D{)}{)}{13)3}}
+\toprule
+ & \multicolumn{1}{c}{5-Fold Cross Validated SF-12 MCS OLS} \\
+\midrule
+\endfirsthead
+\toprule
+ & \multicolumn{1}{c}{5-Fold Cross Validated SF-12 MCS OLS} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\multicolumn{2}{l}{\tiny{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}\\
+\caption{Model OLS coefficients for estimation of variable: Cross-validated SF-12 MCS.}
+\label{table: sf12_mcs_ols_cross_val_coefficients}
+\endlastfoot \\
+Intercept                                  & -0.1273 \; (0.0225)^{***} \\
+Sex: Male vs Female                        & 0.1275 \; (0.0052)^{***}  \\
+Ethnicity: BAN vs WBI                      & -0.1340 \; (0.0190)^{***} \\
+Ethnicity: BLA vs WBI                      & 0.1216 \; (0.0178)^{***}  \\
+Ethnicity: BLC vs WBI                      & 0.0503 \; (0.0194)^{**}   \\
+Ethnicity: CHI vs WBI                      & 0.0536 \; (0.0377)        \\
+Ethnicity: IND vs WBI                      & 0.0223 \; (0.0143)        \\
+Ethnicity: MIX vs WBI                      & -0.0567 \; (0.0196)^{**}  \\
+Ethnicity: OAS vs WBI                      & -0.0091 \; (0.0211)       \\
+Ethnicity: OBL vs WBI                      & 0.0262 \; (0.0604)        \\
+Ethnicity: OTH vs WBI                      & -0.1394 \; (0.0375)^{***} \\
+Ethnicity: PAK vs WBI                      & -0.1389 \; (0.0156)^{***} \\
+Ethnicity: WHO vs WBI                      & 0.0020 \; (0.0122)        \\
+Age                                        & 0.1584 \; (0.0039)^{***}  \\
+Education State: 1 vs 0                    & 0.0570 \; (0.0156)^{***}  \\
+Education State: 2 vs 0                    & 0.0764 \; (0.0071)^{***}  \\
+Education State: 3 vs 0                    & 0.0503 \; (0.0093)^{***}  \\
+Education State: 5 vs 0                    & 0.0368 \; (0.0100)^{***}  \\
+Education State: 6 vs 0                    & 0.0523 \; (0.0086)^{***}  \\
+Education State: 7 vs 0                    & 0.0659 \; (0.0099)^{***}  \\
+Labour State: FT Education vs Family Care  & 0.2694 \; (0.0147)^{***}  \\
+Labour State: FT Employment vs Family Care & 0.1137 \; (0.0125)^{***}  \\
+Labour State: Job Seeking vs Family Care   & -0.0758 \; (0.0150)^{***} \\
+Labour State: Not Working vs Family Care   & -0.0293 \; (0.0124)^{*}   \\
+Labour State: PT Employed vs Family Care   & 0.1385 \; (0.0134)^{***}  \\
+NSSEC: 0 vs. 1                             & 0.0387 \; (0.0164)^{*}    \\
+NSSEC: 2 vs. 1                             & 0.0175 \; (0.0174)        \\
+NSSEC: 3 vs. 1                             & 0.0349 \; (0.0150)^{*}    \\
+NSSEC: 4 vs. 1                             & 0.0517 \; (0.0163)^{**}   \\
+NSSEC: 5 vs. 1                             & 0.0879 \; (0.0168)^{***}  \\
+NSSEC: 6 vs. 1                             & 0.1286 \; (0.0178)^{***}  \\
+NSSEC: 7 vs. 1                             & 0.0923 \; (0.0160)^{***}  \\
+NSSEC: 8 vs. 1                             & 0.1318 \; (0.0170)^{***}  \\
+Region: East Midlands vs London            & 0.0299 \; (0.0119)^{*}    \\
+Region: East of England vs London          & 0.0544 \; (0.0116)^{***}  \\
+Region: North East vs London               & -0.0038 \; (0.0151)       \\
+Region: North West vs London               & 0.0106 \; (0.0113)        \\
+Region: Northern Ireland vs London         & 0.0401 \; (0.0128)^{**}   \\
+Region: Scotland vs London                 & 0.0540 \; (0.0118)^{***}  \\
+Region: South East vs London               & 0.0271 \; (0.0108)^{*}    \\
+Region: South West vs London               & 0.0550 \; (0.0120)^{***}  \\
+Region: Wales vs London                    & 0.0139 \; (0.0122)        \\
+Region: West Midlands vs London            & -0.0049 \; (0.0116)       \\
+Region: Yorkshire \& Humber vs London      & 0.0262 \; (0.0118)^{*}    \\
+Household Income                           & 0.0383 \; (0.0033)^{***}  \\
+Household Income Squared                   & -0.0271 \; (0.0032)^{***} \\
+Housing Quality: High vs Low               & 0.0806 \; (0.0078)^{***}  \\
+Housing Quality: Medium vs Low             & 0.0865 \; (0.0070)^{***}  \\
+Neighbourhood Safety: 2 vs 1               & 0.0826 \; (0.0055)^{***}  \\
+Neighbourhood Safety: 3 vs 1               & 0.1027 \; (0.0070)^{***}  \\
+Loneliness: 2 vs 1                         & -0.5082 \; (0.0055)^{***} \\
+Loneliness: 3 vs 1                         & -1.1570 \; (0.0089)^{***} \\
+Nutrition Quality                          & 0.0019 \; (0.0003)^{***}  \\
+Number of Cigarettes                       & -0.0098 \; (0.0003)^{***} \\
+\midrule
+R$^2$                                      & 0.2050                    \\
+Adj. R$^2$                                 & 0.2047                    \\
+Num. obs.                                  & 139825                    \\
+RMSE                                       & 0.8918                    \\
+\end{longtable}
+\end{small}

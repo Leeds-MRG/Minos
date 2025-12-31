@@ -1,0 +1,74 @@
+
+\begin{small}
+\begin{longtable}{l D{)}{)}{7)0} D{)}{)}{7)0}}
+\toprule
+ & \multicolumn{1}{c}{Minimum Error} & \multicolumn{1}{c}{First Standard Error} \\
+\midrule
+\endfirsthead
+\toprule
+ & \multicolumn{1}{c}{Minimum Error} & \multicolumn{1}{c}{First Standard Error} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\multicolumn{3}{l}{\tiny{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}\\
+\caption{Model lasso coefficients for estimation of variable: SF-12 MCS.}
+\label{table: sf12_mcs_lasso_coefficients}
+\endlastfoot \\
+Intercept                                  & 48.7700  & 50.9149  \\
+Sex: Male vs Female                        & 1.2756   & 1.1916   \\
+Ethnicity: BAN vs WBI                      & -0.3710  & 0.0000   \\
+Ethnicity: BLA vs WBI                      & 1.9037   & 0.9626   \\
+Ethnicity: BLC vs WBI                      & 0.5883   & 0.0000   \\
+Ethnicity: CHI vs WBI                      & 0.8446   & 0.0000   \\
+Ethnicity: IND vs WBI                      & 0.8117   & 0.0536   \\
+Ethnicity: MIX vs WBI                      & -0.2904  & 0.0000   \\
+Ethnicity: OAS vs WBI                      & 0.5031   & 0.0000   \\
+Ethnicity: OBL vs WBI                      & 3.0247   & 0.1822   \\
+Ethnicity: OTH vs WBI                      & 0.1892   & 0.0000   \\
+Ethnicity: PAK vs WBI                      & -0.9740  & -0.6503  \\
+Ethnicity: WHO vs WBI                      & 0.3458   & 0.0000   \\
+Age                                        & 1.4144   & 1.1517   \\
+Education State: 1 vs 0                    & 0.4915   & 0.0060   \\
+Education State: 2 vs 0                    & 0.5133   & 0.2368   \\
+Education State: 3 vs 0                    & 0.0318   & 0.0000   \\
+Education State: 5 vs 0                    & 0.1511   & 0.0000   \\
+Education State: 6 vs 0                    & 0.1245   & 0.0000   \\
+Education State: 7 vs 0                    & 0.1407   & 0.0000   \\
+Labour State: FT Education vs Family Care  & 2.4898   & 1.2901   \\
+Labour State: FT Employment vs Family Care & 0.8891   & 0.1388   \\
+Labour State: Job Seeking vs Family Care   & -0.2641  & -0.7857  \\
+Labour State: Not Working vs Family Care   & -0.1256  & -0.2209  \\
+Labour State: PT Employed vs Family Care   & 1.1622   & 0.3997   \\
+NSSEC: 0 vs. 1                             & 0.4328   & -0.1854  \\
+NSSEC: 2 vs. 1                             & 0.0884   & 0.0000   \\
+NSSEC: 3 vs. 1                             & 0.2585   & 0.0000   \\
+NSSEC: 4 vs. 1                             & 0.3725   & 0.0000   \\
+NSSEC: 5 vs. 1                             & 0.9787   & 0.3410   \\
+NSSEC: 6 vs. 1                             & 1.3005   & 0.5429   \\
+NSSEC: 7 vs. 1                             & 0.9268   & 0.2246   \\
+NSSEC: 8 vs. 1                             & 1.4288   & 0.6429   \\
+Region: East Midlands vs London            & 0.3933   & 0.0000   \\
+Region: East of England vs London          & 0.4856   & 0.0456   \\
+Region: North East vs London               & 0.0000   & 0.0000   \\
+Region: North West vs London               & 0.1197   & 0.0000   \\
+Region: Northern Ireland vs London         & 0.2458   & 0.0000   \\
+Region: Scotland vs London                 & 0.5744   & 0.0917   \\
+Region: South East vs London               & 0.1879   & 0.0000   \\
+Region: South West vs London               & 0.5081   & 0.0728   \\
+Region: Wales vs London                    & 0.1287   & 0.0000   \\
+Region: West Midlands vs London            & -0.0922  & -0.0761  \\
+Region: Yorkshire \& Humber vs London      & 0.2492   & 0.0000   \\
+Household Income                           & 0.3317   & 0.1529   \\
+Household Income Squared                   & -0.2248  & -0.0571  \\
+Housing Quality: High vs Low               & 0.7824   & 0.2905   \\
+Housing Quality: Medium vs Low             & 0.7485   & 0.2226   \\
+Neighbourhood Safety: 2 vs 1               & 0.7481   & 0.5723   \\
+Neighbourhood Safety: 3 vs 1               & 1.1413   & 0.9198   \\
+Loneliness: 2 vs 1                         & -6.3737  & -6.2569  \\
+Loneliness: 3 vs 1                         & -13.3653 & -13.2658 \\
+Nutrition Quality                          & 0.0195   & 0.0118   \\
+Number of Cigarettes                       & -0.0846  & -0.0823  \\
+\end{longtable}
+\end{small}

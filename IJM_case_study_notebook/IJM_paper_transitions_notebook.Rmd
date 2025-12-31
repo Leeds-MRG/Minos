@@ -1,0 +1,780 @@
+---
+title: "IJM Papers Notebook"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r Preamble Loading Packages and Script.}
+# Setting working directory to top of MINOS repository.
+library(here)
+library(knitr)
+knitr::opts_knit$set(root.dir = here::here())
+
+# Importing packages and supporting R. scripts.
+source(here::here("IJM_case_study_notebook", "utils.R"))
+source(here::here("IJM_case_study_notebook", "transition_model_functions.R"))
+source(here::here("IJM_case_study_notebook", "paper_1_plots.R"))
+
+library(dplyr)
+library(texreg)
+library(lme4)
+library(glmnet)
+library(mice)
+library(sjPlot)
+library(visreg)
+library(ggplot2)
+library(ggpattern)
+library(VIM)
+library(caret)
+library(tidyverse)
+library(performance)
+library(broom.mixed)
+library(ggridges)
+library(ggmice)
+library(MASS)
+library(Rcpp)
+
+# Set save directories for plots and tables.
+save.path <- "IJM_plots_and_tables/"
+create.if.not.exists(save.path)
+
+# Set directories for input Understanding Society.
+understanding.society.data.dir <- "data/composite_US/"
+# set.seed(8) # set seed if require reproducible MICE results.
+```
+
+# Section 2: Baseline SF-12 MCS Model
+
+This section formats raw Understanding Society (UKHLS) data and fits an Ordinary Least Squares model estimating Short Form 12 Mental Component Score (SF-12 MCS). This OLS model is used in Sections 2 and 3 of the IJM case study paper.
+
+```{r OLS Data Preprocessing., echo=FALSE, warning=FALSE}
+
+# Load Understanding Society data for the years 2011-2013.
+filelist <- list.files(understanding.society.data.dir,
+                       include.dirs = FALSE,
+                       full.names = TRUE,
+                       pattern = '[0-9]{4}_US_cohort.csv')[3:5]#[21:23] # get files for 2011-2013.
+understanding.society.data <- do.call(rbind, lapply(filelist, read.csv))
+names(understanding.society.data)[names(understanding.society.data) == 'SF_12'] <- 'SF_12_MCS'
+
+# Baseline OLS model formula.
+baseline.ols.model.formula.string <- "I(scale(log((SF_12_MCS)+10))) ~ factor(sex) + 
+                  relevel(factor(ethnicity), ref='WBI') + 
+                  scale(age) + 
+                  factor(education_state) + 
+                  factor(labour_state) + 
+                  relevel(factor(NSSEC), ref=1) +
+                  relevel(factor(region), ref='London') +
+                  scale(hh_income)"
+
+# Calculate required variables for regression to run. 
+raw.model.formula <- as.formula(baseline.ols.model.formula.string)
+variables <- all.vars(raw.model.formula)
+
+# Get only needed variables and replace missing codes with NA.
+understanding.society.data <- update.column.names(understanding.society.data)
+understanding.society.data <- understanding.society.data[, append(variables, c("time", 'pidp','hidp', 'weight'))]
+understanding.society.data <- replace.missing(understanding.society.data)
+
+# Use raw data both with and without incomplete columns containing missing data removed.
+understanding.society.data <- drop_na(understanding.society.data)
+
+# SF12_MCS mean and variance reused later.
+sf12.mcs.mean <- mean(log(understanding.society.data$SF_12_MCS+10))
+sf12.mcs.std <- sqrt(var(log(understanding.society.data$SF_12_MCS+10)))
+
+# Fit SF-12 MCS baseline OLS model.
+sf12.mcs.ols <- lm(baseline.ols.model.formula.string,
+              data= understanding.society.data)
+
+#Save Coefficients to LaTeX table.
+OLS.make.latex.tables(sf12.mcs.ols)
+```
+
+This section performs five-fold cross-validation of the baseline OLS model and estimates the root mean squared error (RMSE) for the OLS model.
+
+```{r OLS Cross-Validation., echo=FALSE, warning=FALSE, warning=FALSE}
+# Baseline cross val.
+# Estimating the root mean squared error score of the baseline OLS model using five-fold cross-validation.
+
+trControl <- trainControl(method = "cv", number=5, trim=T, verboseIter = TRUE, savePredictions = TRUE)
+
+raw.cross.val.sf12.mcs.model <- train(as.formula(baseline.ols.model.formula.string), data = understanding.society.data,
+               method = "lm",
+               trControl = trControl)
+
+# Getting RMSE scores for each of five cross folds.
+raw.RMSE.statistics <- raw.cross.val.sf12.mcs.model$pred %>% 
+  group_by(Resample) %>%
+  mutate(obs =  exp(sf12.mcs.std * obs + sf12.mcs.mean) - 10) %>%
+  mutate(pred =  exp(sf12.mcs.std * pred + sf12.mcs.mean) - 10) %>%
+  summarise(output.RMSE=caret::RMSE(pred, obs)) %>%
+  summarise(mean = mean(output.RMSE), std = sd(output.RMSE))
+
+# Compute mean RMSE and standard deviation across all five folds.
+print("Baseline OLS model RMSE Statistics: ")
+print("RMSE mean: ")
+print(raw.RMSE.statistics$mean)
+print("RMSE standard deviation: ")
+print(raw.RMSE.statistics$std)
+```
+
+# Section 3: Presentation of the OLS model
+
+This section produces diagnostics for the OLS model providing evidence for why this model fails and how it can be improved. Plots form this section are included in Section 3 of the IMA case study paper.
+
+```{r OLS Diagnostic Plots., echo=FALSE, warning=FALSE}
+
+# Diagnostic plots for OLS presentation. Standard figures given using plot() function on lm object.
+# Plot coefficient forest plot. Note exponential scaling for lognormal model.
+ols.exponential.sf12.mcs.forest.plot(sf12.mcs.ols, paste0(save.path, "figure_3a_presentation_forest.pdf"))
+# residuals density and quantile-quantile (qq) plots. checking for normality of residuals.
+residual.density.plot(res=resid(sf12.mcs.ols), plot.file.name=paste0(save.path, "figure_3b_presentation_residual_density.pdf"), guide="normal")
+qq.plot(resid(sf12.mcs.ols), paste0(save.path, "figure_3c_presentation_qq.pdf"))
+
+# Creating scale-location plot using model residual errors. Doing this manually for consistency with other plots later..
+squareRootRes <- sqrt(abs(scale(resid(sf12.mcs.ols))))
+fitted.residuals <- as.data.frame(cbind(fitted(sf12.mcs.ols), squareRootRes))
+colnames(fitted.residuals) <- c("fitted", "sqrt_residuals")
+fitted.residual.plot(fitted.residuals, paste0(save.path, "figure_3d_presentation_scale_location_plot.pdf"))
+
+# Performing nowcasting estimating SF-12 MCS scores from 2014-2020 using 2013 data.
+# Loading and formatting 2013 data.
+start.data <- understanding.society.data[which(understanding.society.data$time==2013),]
+# Changing some variable names for consistency and readability.
+start.data <- update.column.names(start.data)
+handover.data <- start.data[, c("pidp", "SF_12_MCS", "hidp", "time")]
+rolling.data <- start.data 
+
+# mean and variances for unscaling back to standard SF-12 MCS variable.
+start.sf12.mcs.mean <- mean(log(understanding.society.data$SF_12_MCS+10))
+start.sf12.mcs.std <- sqrt(var(log(understanding.society.data$SF_12_MCS+10)))
+
+# Repeat prediction using OLS model 8 times to transition from 2013 to 2021.
+for (i in 1:8){
+  rolling.data$SF_12_MCS <- ((exp(start.sf12.mcs.mean + start.sf12.mcs.std * predict(sf12.mcs.ols, rolling.data))-10))
+  rolling.data[, 'time'] <- rolling.data[, 'time'] +1
+  handover.data <- rbind(handover.data, rolling.data[, c("pidp", "hidp", "SF_12_MCS", "time")])
+}
+
+# Plotting handovers using ridgeline plots.
+handover.boxplots(understanding.society.data, handover.data, "SF_12_MCS", save.path, "ols_SF12_boxplot")
+density.ridges(understanding.society.data, "SF_12_MCS", save=TRUE, save.path=save.path, filename.tag = "figure_4a_ols_raw_ridges")
+density.ridges(handover.data, "SF_12_MCS", save=TRUE, save.path=save.path, filename.tag = "figure_4b_ols_handover_ridges")
+
+# Tidying up some data not used anymore.
+rm(understanding.society.data)
+rm(handover.data, rolling.data, start.data)
+rm(fitted.residuals, squareRootRes, raw.cross.val.sf12.mcs.model)
+```
+
+# Section 4: Missingness
+
+This section processes Understanding Society data again including further variables required for multiple imputation chained equations (MICE) imputation. The missing data structure for Understanding Society data is also provided.
+
+```{r MICE Preprocessing., echo=FALSE, warning=FALSE}
+# Load in UKHLS data again preprocessing for MICE imputation.
+mice.data.filelist <- list.files(understanding.society.data.dir,
+                       include.dirs = FALSE,
+                       full.names = TRUE,
+                       pattern = '[0-9]{4}_US_cohort.csv')
+mice.data <- do.call(rbind, lapply(mice.data.filelist, read.csv))
+mice.data <- update.column.names(mice.data)
+names(mice.data)[names(mice.data) == 'SF_12'] <- 'SF_12_MCS'
+
+# Define the regression model formula for the OLS model using MICE imputation.
+# Note more variables are included due to imputation that cannot be used in the baseline model.
+mice.formula.string <- "I(scale(log(SF_12_MCS+10))) ~ 
+                        factor(sex) + 
+                        relevel(factor(ethnicity), ref='WBI') + 
+                        scale(age) + 
+                        factor(education_state) + 
+                        factor(labour_state) + 
+                        relevel(factor(NSSEC), ref='1') +
+                        relevel(factor(region), ref='London') +
+                        scale(hh_income) + 
+                        scale(I(hh_income**2)) +
+                        relevel(factor(housing_quality), ref='Low') +
+                        factor(neighbourhood_safety) + 
+                        factor(loneliness) +
+                        nutrition_quality +
+                        ncigs"
+
+# Get required UKHLS variables and replace missing value codes.
+mice.model.formula <- as.formula(mice.formula.string)
+variables <- all.vars(mice.model.formula)
+mice.data <- replace.missing(mice.data)
+
+# Preserving key columns that cannot be imputed. These are used later.
+# Preserving time, sample weights, and identifiers.
+mice.pidp <- mice.data[which(mice.data$time %in% seq(2011,2018)), "pidp"]
+mice.hidp <- mice.data[which(mice.data$time %in% seq(2011,2018)), "hidp"]
+mice.time <- mice.data[which(mice.data$time %in% seq(2011,2018)), "time"]
+mice.weights <- mice.data[which(mice.data$time %in% seq(2011,2018)), "weight"]
+```
+
+
+This section performs MICE imputation and saves model coefficients.
+
+```{r Running MICE., echo=FALSE, warning=FALSE}
+
+# Plotting missing data structure for 2011-2013 Understanding Society data.
+#defining required columns and labels for missing data structure aggr plot in VIM.
+aggr.columns <- c("SF_12_MCS",
+                 "NSSEC",
+                 "education_state",
+                 "labour_state", 
+                 "ethnicity", 
+                 "hh_income",
+                 "neighbourhood_safety",
+                 "loneliness",
+                 "ncigs",
+                 'nutrition_quality'
+)
+aggr.labels <- c("SF-12 MCS",
+                 "NSSEC",
+                 "Education State",
+                 "Labour State", 
+                 "Ethnicity", 
+                 "Household Income",
+                 "Neighbourhood Safety",
+                 "Loneliness",
+                 "Number of cigarettes",
+                 'Nutrition Quality'
+)
+
+# Create aggr plot for missing data structure.
+mice.missingness.structure.aggr.plot(mice.data, save.path, aggr.columns, "figure_5a_total_missingness_structure1.pdf")
+
+# Defining columns that are IMPUTED in MICE imputation.
+imp.columns <- c("SF_12_MCS",
+                 'sex',
+                 "NSSEC",
+                 "education_state",
+                 "labour_state", 
+                 "region", 
+                 "ethnicity", 
+                 "age", 
+                 "time", 
+                 "hh_income",
+                 "housing_quality",
+                 "neighbourhood_safety",
+                 "loneliness",
+                 "ncigs",
+                 'nutrition_quality'
+)
+
+# Defining all columns used in MICE imputation. Not all columns are imputed. All columns are used to predict imputed values.
+mice.columns <- c("age", 
+                  "region", 
+                  "NSSEC", 
+                  "ncigs",
+                  "education_state",            
+                  "ethnicity",
+                  "loneliness",
+                  "sex", 
+                  "SF_12_MCS",
+                  "nkids",       
+                  "behind_on_bills",
+                  "financial_situation",
+                  "future_financial_situation",
+                  "likely_move",
+                  "ghq_depression",
+                  "ghq_happiness",
+                  "clinical_depression", 
+                  "scsf1",
+                  "health_limits_social",
+                  "housing_quality",
+                  "hh_income",
+                  "neighbourhood_safety",
+                  "labour_state",
+                  "nutrition_quality"
+)
+
+# Categorical variables must be declared for the MICE package to work.
+mice.data$ethnicity <- factor(mice.data$ethnicity)
+mice.data$region <- factor(mice.data$region)
+mice.data$NSSEC <- factor(mice.data$NSSEC)
+mice.data$education_state <- factor(mice.data$education_state)
+mice.data$loneliness <- factor(mice.data$loneliness)
+mice.data$ethnicity <- factor(mice.data$ethnicity)
+mice.data$sex <- factor(mice.data$sex)
+
+mice.data$ghq_happiness <- factor(mice.data$ghq_happiness)
+mice.data$ghq_depression <- factor(mice.data$ghq_depression)
+mice.data$clinical_depression <- factor(mice.data$clinical_depression)
+mice.data$scsf1 <- factor(mice.data$scsf1)
+mice.data$health_limits_social <- factor(mice.data$health_limits_social)
+mice.data$housing_quality <- factor(mice.data$housing_quality)
+mice.data$loneliness <- factor(mice.data$loneliness)
+mice.data$neighbourhood_safety <- factor(mice.data$neighbourhood_safety)
+mice.data$labour_state <- factor(mice.data$labour_state)
+
+
+# MICE imputation is time intensive. This option allows for reloading previous MICE imputation for faster plotting.
+# Setting this to F means results will take at least a day for these parameters on a local machine.
+load.cache <- T # load cached data?
+n.populations <- 10 # number of imputed populations.
+max.mice.iterations.per.population <- 10 # mice iterations per imputed population.
+
+# if loading cached mice data check it exists. if it doesn't exist cannot use cache.
+if (load.cache) { # check for saved MICE data. if cached data doesn't exist force MICE algorihtm to be run.
+  if (!file.exists("data/transitions/imputed_mice_populations.rds")) {
+    load.cache <- F
+  }
+}
+
+# -either load cached mice data or run MICE from scratch.
+  if (load.cache) {
+  imputed.mice.populations <- readRDS("data/transitions/imputed_mice_populations.rds")
+  if ("SF_12" %in% names(imputed.mice.populations$data)){
+    names(imputed.mice.populations$data)[names(imputed.mice.populations$data) == 'SF_12'] <- 'SF_12_MCS'
+  }
+} else {
+  # Number of mice imputations and number of imputation steps per population.
+  # run MICE algorithm.
+  imputed.mice.populations <- mice(data = mice.data[mice.data$time %in%  seq(2011, 2018), mice.columns],
+                   m = n.populations, maxit = max.mice.iterations.per.population,
+                   remove.collinear=T)
+  
+  # future mice is parallelised version of MICE. useful on multi-core machines but uses a lot of resources.
+  #imputed.mice.populations <- futuremice(data = mice.data[, mice.columns], #method=method,
+  #                m = n.populations, maxit = max.mice.iterations.per.population,
+  #                 remove.collinear=T, quiet=F,
+  #                 progressor = progressr::handlers("progress"))
+  
+  # save MICE data for caching later.
+  create.if.not.exists(here::here("data", "transitions"))
+  saveRDS(imputed.mice.populations, here::here("data", "transitions", "imputed_mice_populations.rds"))
+}
+
+```
+
+This section applies the OLS SF-12 MCS model to all 30 MICE imputed populations. 
+These 30 models are pooled together producing a final set of model coefficients estimating SF-12 MCS.
+Diagnostic plots assessing MICE convergence and model goodness of fit are also provided.
+
+```{r Formatting MICE data., echo=FALSE, warning=FALSE}
+
+# Extract imputed data from mids object produced by MICE() function.
+# Attach other variables needed for model including personal/household identifiers (pidp/hidp), sample weights and time that aren't imputed.
+mice.populations.long <- complete(imputed.mice.populations, action = "long", include=T) 
+
+# Reassign variables that could not be imputed. Weights and IDs.
+mice.populations.long$pidp <- mice.pidp
+mice.populations.long$hidp <- mice.hidp
+mice.populations.long$weight <- mice.weights
+mice.populations.long$time <- mice.time
+mice.populations.long <- update.column.names(mice.populations.long)
+
+# Looking at data from 2011-2013 only. Data used in baseline model for direct comparison.
+mice.populations.long.subset <- mice.populations.long[mice.populations.long$time %in% c(2011, 2012, 2013), ]
+# MICE doesn't like completely empty loneliness column in base data so giving it a dummy column. Not used in any validation.
+mice.populations.long.subset[which(mice.populations.long.subset$.imp==0),"loneliness"] <- mice.populations.long.subset[which(mice.populations.long.subset$.imp==2), "loneliness"]
+# Cast back to MIDS for pooling.
+imputed.mice.populations.subset <- as.mids(mice.populations.long.subset) 
+```
+
+```{r MICE Diagnostics., echo=FALSE, warning=FALSE}
+
+# Make MICE convergence plot. checking variance and mean SF-12 MCS values for each imputed population and MICE iteration for stability.
+mice.convergence.trace.plot(imputed.mice.populations, save.path, "figure_5b_ols_mice_convergence.pdf")
+
+# Fit OLS model to all 30 MICE populations and pool together into one model.
+mice.sf12.mcs.ols <- with(imputed.mice.populations.subset, lm(as.formula(mice.formula.string)))
+final.sf12.mcs.mice.pool<- pool(mice.sf12.mcs.ols)
+
+# Summary statistics for the pooled OLS model.
+pooled.sf12.mcs.mice.ols <- mice.sf12.mcs.ols$analyses[[1]]
+pool.sum <- summary(final.sf12.mcs.mice.pool)
+pooled.sf12.mcs.mice.ols$coefficients = pool.sum$estimate
+mice.preds<- predict(pooled.sf12.mcs.mice.ols)
+pool.r.squared(final.sf12.mcs.mice.pool) # getting r squared.
+
+# mids object can't make most of the summary plots needed.
+# Cast mids object to an lm predict object.
+# Use a dummy lm model and overwrite model coefficients, standard errors, and t/p values.
+mice.lm.object <- summary(lm(mice.formula.string, data = complete(imputed.mice.populations.subset)))
+mice.lm.object$coefficients[,1] <- pool.sum$estimate
+mice.lm.object$coefficients[,2] <- pool.sum$std.error
+mice.lm.object$coefficients[,3] <- pool.sum$statistic
+mice.lm.object$coefficients[,4] <- pool.sum$p.value
+
+# making forest plots and qq plot for MICE model diagnostics.
+mice.ols.sf12.mcs.forest.plot(mice.lm.object, paste0(save.path,'figure_5c_mice_SF12_forest.pdf'))
+qq.plot(resid(mice.lm.object), paste0(save.path, "figure_5d_mice_qq.pdf"))
+SF12.MCS.OLS.MICE.make.latex.tables(final.sf12.mcs.mice.pool)
+
+rm(pooled.sf12.mcs.mice.ols)
+```
+
+# Section 5: Validation and Uncertainty
+
+This section describes how the OLS model is validated as well as methods for testing uncertainty due to missing data and model coefficients.
+
+This section applies five fold cross validation to the OLS model using MICE imputed data. This model is used to forecast from 2013-2020 comparing model output against real data using 'nowcasting'.
+
+## Uncertainty due to calibration data.
+
+```{r MICE Cross-Validation and Nowcasting., echo=FALSE, warning=FALSE}
+# Required mean and variances of sf-12 ms for scaling later.
+mice.sf12.mcs.mean <- mean(log(complete(imputed.mice.populations, 1)$SF_12_MCS+10))
+mice.sf12.mcs.std <- sqrt(var(log(complete(imputed.mice.populations, 1)$SF_12_MCS+10)))
+
+# Apply five fold cross-validation to the OLS model using MICE data.
+mice.cross.val.sf12.mcs.model <- train(as.formula(mice.formula.string), data = complete(imputed.mice.populations.subset, 1, include=F),
+               method = "lm",
+               trControl = trControl)
+
+# calculating RMSE mean and variance for five cross validation folds.
+mice.RMSE.statistics <- mice.cross.val.sf12.mcs.model$pred %>% 
+  group_by(Resample) %>%
+  mutate(obs =  exp(mice.sf12.mcs.std * obs + mice.sf12.mcs.mean) - 10) %>%
+  mutate(pred =  exp(mice.sf12.mcs.std * pred + mice.sf12.mcs.mean) - 10) %>%
+  summarise(output.RMSE=caret::RMSE(pred, obs)) %>%
+  summarise(mean = mean(output.RMSE), std = sd(output.RMSE))
+
+print("MICE RMSE Statistics: ")
+print(mice.RMSE.statistics$mean)
+print(mice.RMSE.statistics$std)
+
+# Saving cross-validation OLS model coefficients.
+sf12.mcs.ols.crossval.coefficients(mice.cross.val.sf12.mcs.model)
+
+# Performing nowcasting use MICE model.
+# Process MICE imputed data so it can be run using the lm predict function.
+# Allows nowcasting to be performed.
+crossval.mice.data <- complete(imputed.mice.populations.subset, 1, include = F)
+crossval.mice.data <- replace.missing(crossval.mice.data)
+crossval.mice.data <- drop_na(crossval.mice.data)
+crossval.mice.data <- update.column.names(crossval.mice.data)
+crossval.mice.data <- crossval.mice.data[which(crossval.mice.data$time==2013),]
+  
+# Use the cross-validted OLS model to perform nowcasting from 2013 to 2020.
+start.data <- crossval.mice.data
+rolling.data <- start.data
+handover.data <- rolling.data[, c("pidp", "hidp", "SF_12_MCS", "time")]
+
+for (i in 1:8){
+  rolling.data$SF_12_MCS <- exp(mice.sf12.mcs.mean + mice.sf12.mcs.std * predict(mice.cross.val.sf12.mcs.model, rolling.data))-10
+  rolling.data$SF_12_MCS  <- rolling.data$SF_12_MCS
+  rolling.data[, 'time'] <- rolling.data[, 'time'] +1
+  handover.data <- rbind(handover.data, rolling.data[, c("pidp", 'hidp', "SF_12_MCS", "time")])
+}
+
+# Plot nowcasting results using density ridges and boxplots.
+handover.boxplots(mice.data[which(mice.data$time>=2014),], handover.data, "SF_12_MCS", save.path, "figure_6b_crossval_sf12_mcs_mice_validation_ridges_boxplots")
+#density.ridges(mice.data[which(mice.data$time>=2014),], "SF_12_MCS", save=TRUE, save.path=save.path, filename.tag = "figure_6a_crossval_mice_raw_ridges")
+density.ridges(handover.data[which(handover.data$time>=2014),], "SF_12_MCS", save=TRUE, save.path=save.path, filename.tag = "figure_6a_crossval_sf12_mcs_mice_validation_ridgelines")
+
+rm(handover.data, rolling.data, start.data)
+# setting dummy data for loneliness column to NA again.. Needed? 
+#imputed.mice.populations.subset$data$loneliness<-NA
+```
+
+## Uncertainty due to model coefficients
+
+This section tests OLS model uncertainty due to model coefficients. Model coefficients are randomly sampled from a multi-variate Normal distribution. 
+Multiple randomised models are used to predict SF-12 MCS and compared to determine any significant differences.
+
+```{r OLS Model With Randomised Coefficients., echo=FALSE, warning=FALSE}
+
+# Get OLS prediction using MICE imputed data. Fitting as OLS model. 
+# Use this model and randomise its coefficients to test for stability.
+randomised.mice.model.data <- data.frame()
+random.mice.lm.object <- lm(mice.formula.string, data = complete(imputed.mice.populations.subset, 1))
+
+# Randomise model coefficients 100 times and predict SF-12 MCS scores. Looking for any variance in prediction due to randomised coefficients.
+for (i in 1:100) {
+  # Randomise OLS model coefficients using multivariate random Normal sampling from MASS package.
+  model.choice <- random.mice.lm.object
+  model.choice$coefficients <- MASS::mvrnorm(n=1, mu=mice.lm.object$coefficients[, 1], Sigma=vcov(mice.lm.object))
+
+  # Perform nowcasting from 2013-2020 using randomised coefficients model and understanding society data.
+  random.start.data <- crossval.mice.data
+  for (j in 1:7){
+    random.start.data$SF_12_MCS <- exp(mice.sf12.mcs.mean + mice.sf12.mcs.std *predict(model.choice, random.start.data))-10
+  }
+  
+  # Estimate SF-12 MCS distribution in 2020 for each randomised model using kernel density estimation.
+  individual.density <- density(random.start.data$SF_12_MCS)
+  new.data.frame <- cbind(individual.density$x, individual.density$y, i)
+  colnames(new.data.frame) <- c("SF_12_MCS", "Density", "run_id")
+  
+  # Stored SF-12 MCS density estimates for each set of randomised coefficients.
+  # Produces 100 KDE curves plotted together to look for any areas where prediction is sensetive to randomised coefficients.
+  randomised.mice.model.data <- rbind(randomised.mice.model.data, new.data.frame)
+
+}
+
+# Plot SF-12 MCS predicted distributions for each of the 100 models with randomised coefficients.
+sf12.mcs.randomised.coefficients.plot(randomised.mice.model.data, save.path, "figure_7_randomised_coefficients_2020_density.pdf")
+
+rm(crossval.mice.data, random.start.data, randomised.mice.model.data)
+```
+
+
+## Uncertainty due to model variables using LASSO variable selection.
+
+Model coefficients are tested further using variable selection. The least absolute shrinkage and selection operator (LASSO) method is used to 
+identify any model coefficients used in the OLS model that are not statistically significant and could be removed to create a more parsimonious model.
+
+```{r OLS Model LASSO Variable Selection., echo=FALSE, warning=FALSE}
+
+# Format MICE data to work with glmnet package.
+lasso.data <- tidyr::drop_na(complete(imputed.mice.populations.subset))
+X <- model.matrix(as.formula(mice.formula.string), data=lasso.data)
+y <- lasso.data$SF_12_MCS
+weight <- lasso.data$weight
+
+# Apply cross-validated LASSO algorithm.
+sf12.mcs.cv.lasso <- cv.glmnet(X, y, family = "gaussian", weights = weight)
+
+# Plotting optimal parameter choice for the LASSO using cross-validation using 1se and minimum error rules.
+sf12.mcs.cv.lasso.plot(sf12.mcs.cv.lasso, save.path,'figure_8_ols_cv_lasso_2013.pdf')
+
+# plot cross-validation diagnostic.
+plot(sf12.mcs.cv.lasso, xlab="L1 Regularisation Constraint (log(lambda))", ylab="Mean Squared Error") # run twice so prints to notebook.
+
+# Get two sets of coefficients chosen using minimum error and 1 standard error rules.
+lasso.min.coefs <- coef(sf12.mcs.cv.lasso, s=sf12.mcs.cv.lasso$lambda.min)
+lasso.min.coefs <- lasso.min.coefs[-c(2),] # remove weird bug where intercept printed twice.
+lasso.1se.coefs <- coef(sf12.mcs.cv.lasso, s=sf12.mcs.cv.lasso$lambda.1se)
+lasso.1se.coefs <- lasso.1se.coefs[-c(2),] # remove weird bug where intercept printed twice.
+lasso_model_names <- c("Minimum Error", "First Standard Error") # Label coefficient sets.
+
+# saving coefficients to latex table.
+sf12.mcs.lasso.coefficients.table(lasso.min, lasso.1se, lasso.min.coefs, lasso.1se.coefs)
+rm(lasso.data, X, y)
+```
+
+## Uncertainty due to sample weights using extrapolated weights 
+
+This section explores application of sample weights in the OLS model using sample weights from different years of Understanding Society data to determine
+any difference in model structure and prediction. 
+The aim is to determine if model coefficients change over time due to change in demographics reflected in sample weights.
+Weighted regressions are compared using 2013 sample weights, 2013 sample weights projected to 2018, and 2018 sample weights.
+
+```{r Weighted OLS model., echo=FALSE, warning=FALSE}
+
+# Get 2016-2018 Understanding Society MICE imputed data. Assign standard Understanding society sample weights.
+imputed.mice.populations.subset.2016.2018 <- mice.populations.long[which(mice.populations.long$time %in% c(2016, 2017, 2018)), ]
+imputed.mice.populations.subset.2016.2018 <- as.mids(imputed.mice.populations.subset.2016.2018)
+
+# Get 2011-2013 sample weights projected into 2016-2018 using cell-based reweighting.
+# Reweighting done on age, sex, and ethnicity based on data from Office for National Statistics midyear demographic estimates.
+extrapolated.weights.filelist <- list.files("data/extrapolated_weights/",
+                       include.dirs = FALSE,
+                       full.names = TRUE,
+                       pattern = 'extrapolated_weights_data_[0-9]{4}.csv')[1:3]# get files for 2016-2018.
+
+# Add extrapolated 2016-2018 extrapolated weights to 2011-2013 MICE data. 
+# Comparing differences between OLS models fitted using real UKHLS data and sample weights from 2016-2018
+# versus model using 2011-2013 data but with 2016-2018 projected sample weights.
+# Curious if these two models have similar coefficients or if reweighting alone is insufficient for using 2011-2013 model to predict 2016-2018 states.
+
+extrapolated.weights.data <- do.call(rbind, lapply(extrapolated.weights.filelist, read.csv))
+extrapolated.weights.data <- replace.missing(extrapolated.weights.data)
+extrapolated.weights <- extrapolated.weights.data[, c("plus_5_weight")]
+imputed.mice.populations.subset.2011_2013.updated.weights <- mice.populations.long.subset
+imputed.mice.populations.subset.2011_2013.updated.weights$weight <- extrapolated.weights
+imputed.mice.populations.subset.2011_2013.updated.weights <- as.mids(imputed.mice.populations.subset.2011_2013.updated.weights)
+
+rm(extrapolated.weights.data)
+rm(mice.populations.long, mice.populations.long.subset)
+```
+
+
+More weighted regression using MICE pooled data.
+Producing LATEX table comparing OLS model coefficients using different sample weights.
+
+```{r Saving Weighted Regression Models., echo=FALSE, warning=FALSE}
+
+# Fit linear regression on 2011-2013 MICE data using 2011-2013 and 2016-2018 extrapolated weights to compare any differences between models.
+# weighted regression for 2016-2018 using 2011-2013 models and projected weights
+sf12.mcs.ols.weighted.2013 <- pool(with(imputed.mice.populations.subset.2011_2013.updated.weights, lm(as.formula(mice.formula.string), weights = weight)))
+
+#  weighted regression for 2016-2018 using 2018 data.
+sf12.mcs.ols.weighted.2018 <- pool(with(imputed.mice.populations.subset.2016.2018, lm(as.formula(mice.formula.string), weights = weight)))
+
+# Print models to latex tables.
+sf12.mcs.weighted.ols.latex.coefficients.table(sf12.mcs.ols.weighted.2013, sf12.mcs.ols.weighted.2018)
+
+rm(imputed.mice.populations.subset.2011_2013.updated.weights, imputed.mice.populations.subset.2016.2018)
+```
+
+# Section 6: Heterogeneity using Generalised Linear Mixed models.
+
+This section aims to estimate longitudinal heterogeneity within individuals over time using generalised linear mixed modelling.
+A GLMM model using individual person random intercepts is fitted and assessed using model diagnostics from previous uncertainty and presentation sections.
+
+This model is assessed using repeated diagnostic plots and cross-validation methods. 
+
+```{r Generalised Linear Mixed Model., echo=FALSE, warning=FALSE}
+
+# Preprocessing MICE data to use in GLMM.
+# Getting mice data for preprocessing and use in GLMM.
+glmm.mice.populations.long.subset <- complete(imputed.mice.populations.subset, "long", include=T)
+rm(imputed.mice.populations.subset)
+
+# reflecting SF-12 MCS to be right skewed so can be modelled using gamma glmm.
+reflect <- T
+if (reflect) {
+    max.sf12.mcs.value <- nanmax(mice.data$SF_12_MCS)
+    glmm.mice.populations.long.subset$SF_12_MCS <- max.sf12.mcs.value - glmm.mice.populations.long.subset$SF_12_MCS + 0.001
+  }
+
+# Order MICE data by time. Add lagged dependent SF-12 MCS variable. Take 2011-2013 data.
+glmm.mice.populations.long.subset <- glmm.mice.populations.long.subset %>%
+           group_by(pidp) %>%
+            mutate(last = lag(.data[["SF_12_MCS"]], order_by = time)) %>%
+            rename_with(.fn = ~paste0('SF_12_MCS_', .), .cols = last)  # add the dependent as prefix to the calculated diff
+glmm.mice.populations.long.subset <- glmm.mice.populations.long.subset[glmm.mice.populations.long.subset$time %in% c(2011, 2012, 2013), ]
+
+# ARE THESE NEEDED?
+#glmm.mice.populations.long.subset$.imp <- as.numeric(glmm.mice.populations.long.subset$.imp)
+#glmm.mice.populations.long.subset <- as.data.frame(glmm.mice.populations.long.subset)
+glmm.mice.set <- as.mids(glmm.mice.populations.long.subset)
+
+# define GLMM model formula
+sf12.mcs.glmm.model.formula.string <- "I(log(SF_12_MCS+10)) ~ I(log(SF_12_MCS_last)+10) +
+                  factor(sex) + 
+                  relevel(factor(ethnicity), ref='WBI') + 
+                  scale(age) + 
+                  factor(education_state) + 
+                  factor(labour_state) + 
+                  relevel(factor(NSSEC), ref='1') +
+                  relevel(factor(region), ref='London') +
+                  scale(hh_income) + 
+                  I(scale(hh_income**2)) +
+                  relevel(factor(housing_quality), ref='Low') +
+                  factor(neighbourhood_safety) +
+                  factor(loneliness) + 
+                  nutrition_quality + 
+                  ncigs + time +
+                  (1|pidp)"
+
+# apply GLMM to pooled MICE data.
+sf12.glmm.model <- with(glmm.mice.set, glmer(sf12.mcs.glmm.model.formula.string,  
+               nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes a few weeks.
+               family=Gamma(link='log')#, weights=weight# gamma family with log link. no weights for MICE sample.
+               ))
+
+# pool GLMM SF-12 MCS model results.
+sf12.glmm.pool <- pool(sf12.glmm.model)
+
+# Print GLMM latex coefficients table.
+sf12.mcs.glmm.coefficients.latex.table(sf12.glmm.pool)
+
+# Get Nakagawa R-squared for GLMMs.
+print(r2_nakagawa(sf12.glmm.model$analyses[[1]]))
+
+# Cast MICE mids object to nlmer predict object allowing for diagnostic plots.
+mice.glmm.object <- sf12.glmm.model$analyses[[1]]
+mice.glmm.object@beta <- sf12.glmm.pool$pooled$estimate
+
+# Transform SF-12 MCS data back to correct distribution scale for diagnostic plots.
+glmm.fitted <-  max.sf12.mcs.value - (exp(predict(mice.glmm.object, type='response')) - 10)
+```
+
+```{r GLMM Diagnostics., echo=FALSE, warning=FALSE}
+# Make GLMM diagnostic plots. 
+# Forest coefficient plot. note flipping coefficients required for reflected data.
+# Allows coefficients to align with results from previous models.
+mice.glmm.object@beta <- - mice.glmm.object@beta # flip coefficients due to flipped SF-12 MCS variable.
+gamma.forest.plot(mice.glmm.object, save.path, paste0(save.path, "figure_9a_sf12_mcs_glmm_forest.pdf"))
+mice.glmm.object@beta <- - mice.glmm.object@beta # flip coefficients back after plotting diagnostics so can use in handovers. 
+
+# QQ and residual density plots testing normality of residuals.
+qq.plot(scale(residuals(mice.glmm.object, type='deviance')), paste0(save.path, "figure_9c_sf12_mcs_glmm_qq.pdf")) # also have pearson type residuals.
+residual.density.plot(res=residuals(mice.glmm.object) , plot.file.name=paste0(save.path, "figure_9b_sf12_mcs_glmm_residual_density.pdf"), guide="normal")
+
+# Scale-location plot testing fitted vs residual values for homoscedasticity. Need to do manually for GLMM model as not built in like for OLS.
+squareRootRes <- sqrt(residuals(mice.glmm.object, type='pearson')**2)
+fitted.residuals <- as.data.frame(cbind(glmm.fitted, squareRootRes))
+colnames(fitted.residuals) <- c("fitted", "sqrt_residuals")
+fitted.residual.plot(fitted.residuals, paste0(save.path, "figure_9d_sf12_mcs_glmm_scale_location_plot.pdf"))
+rm(fitted.residuals, squareRootRes)
+```
+
+Performing nowcasting using the updated GLMM model.
+
+```{r GLMM Nowcasting., echo=FALSE, warning=FALSE}
+# Process MICE data for nowcasting by removing incomplete rows.
+# Get 2013 start data for nowcasting. 
+start.data <- complete(glmm.mice.set, 1)
+start.data <- start.data[which(start.data$time==2013),]
+start.data$SF_12_MCS <- max.sf12.mcs.value - start.data$SF_12_MCS
+start.data$SF_12_MCS_last <- max.sf12.mcs.value - start.data$SF_12_MCS_last 
+handover.data <- start.data
+rolling.data <- start.data
+
+# Perform nowcasting from 2013-2021 for SF-12 MCS using GLMM model.
+for (i in 1:8){
+  rolling.data$SF_12_MCS <- max.sf12.mcs.value - rolling.data$SF_12_MCS
+  rolling.data$SF_12_MCS_last <- max.sf12.mcs.value - rolling.data$SF_12_MCS_last 
+
+  rolling.data$SF_12_MCS <- (exp(predict(mice.glmm.object, rolling.data, type='response',allow.new.levels=T))-10)
+  rolling.data$SF_12_MCS <- max.sf12.mcs.value - rolling.data$SF_12_MCS
+  rolling.data[which(rolling.data$SF_12_MCS < 0), "SF_12_MCS"] <- 0
+  rolling.data[which(rolling.data$SF_12_MCS > 100), "SF_12_MCS"] <- 100
+  rolling.data[, 'time'] <- rolling.data[, 'time'] + 1
+  handover.data <- rbind(handover.data, rolling.data)
+  
+  rolling.data$SF_12_MCS_last <- rolling.data$SF_12_MCS
+}
+
+# Plot nowcasting results in boxplots/ridgeline plots.
+handover.boxplots(mice.data[which(mice.data$time>= 2013),], handover.data, "SF_12_MCS", save.path, "figure_10b_glmm_SF_12_MCS_boxplot")
+density.ridges(mice.data[which(mice.data$time>= 2013),], "SF_12_MCS", save=TRUE, save.path=save.path, filename.tag = "figure_4a_ols_real_SF_12_MCS_ridges")
+density.ridges(handover.data, "SF_12_MCS", save=TRUE, save.path=save.path, filename.tag = "figure_10a_glmm_handover_ridges")
+
+rm(handover.data, start.data, rolling.data)
+```
+
+Five-fold cross-validation applied to GLMM model estimating final RMSE score.
+
+```{r GLMM Cross-Validation., echo=FALSE, warning=FALSE}
+
+# Function needed to apply GLMM using five fold cross-validation and print Nakagawa R-squared.
+fit.glmm.to.each.fold <- function(mice.fold.data) {
+  sf12.glmm.model <- with(mice.fold.data, glmer(sf12.mcs.glmm.model.formula.string,  
+               nAGQ=0, # fast but inaccurate optimiser. nAGQ=1 takes forever..
+               family=Gamma(link='log')#, weights=weight# gamma family with log link.
+               ))
+  
+  sf12.glmm.pool <- pool(sf12.glmm.model)
+  
+  # mice objects dont go in forest plot annoyingly. move coefficients over to a
+  # dummy lm that sjPlot::plot_models can read.
+  mice.glmm.object <- sf12.glmm.model$analyses[[1]]
+  mice.glmm.object@beta <- sf12.glmm.pool$pooled$estimate
+  # give nakagawa r squared.
+  print(r2_nakagawa(sf12.glmm.model$analyses[[1]]))
+  return(mice.glmm.object)
+}
+
+#split mice sets into 5 based on pidps
+pidps <- unique(mice.pidp)
+glmm.cross.folds <- 5
+pidp.chunks <- groupKFold(pidps, k=glmm.cross.folds)
+rmse.glmm.values <- c()
+
+for (j in 1:glmm.cross.folds)
+{
+ pidp.chunks.sample <- unique(pidps[pidp.chunks[[j]]])
+ glmm.mice.populations.long.subset.fold <- filter(glmm.mice.populations.long.subset, !pidp %in% pidp.chunks.sample)
+ glmm.mice.set.fold <- as.mids(glmm.mice.populations.long.subset.fold)
+ sf12.glmm.fold <- fit.glmm.to.each.fold(glmm.mice.set.fold)
+ glmm.mice.populations.long.subset.test <- drop_na(filter(glmm.mice.populations.long.subset, pidp %in% pidp.chunks.sample))
+ glmm.fold.RMSE <- caret::RMSE(max.sf12.mcs.value - exp(predict(sf12.glmm.fold, glmm.mice.populations.long.subset.test, type='response', allow.new.levels=T)) + 10,
+                max.sf12.mcs.value - glmm.mice.populations.long.subset.test$SF_12_MCS) #replace with CARET::RMSE
+ rmse.glmm.values[j] <- glmm.fold.RMSE
+}
+
+print(mean(rmse.glmm.values))
+print(sd(rmse.glmm.values))
+rm(glmm.mice.set.fold, sf12.glmm.fold, glmm.mice.populations.long.subset.fold, glmm.mice.populations.long.subset.test, pidp.chunks, pidp.chunks.sample)
+```

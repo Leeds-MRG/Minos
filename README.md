@@ -18,16 +18,16 @@ Docker images hosted on Dockerhub, including a readme for how to setup and use M
 
 ```> git clone https://github.com/Leeds-MRG/Minos```
 
-2. Download and unpack the Understanding Society dataset from the UK Data Service (UKDA) website [here](https://ukdataservice.ac.uk/find-data/) (more information [here](https://www.understandingsociety.ac.uk/documentation/access-data)), for which you will need a UKDA account. Ensure you download the dataset in STATA format such that the folder is named ```UKDA-6614-stata```. Understanding Society is a longitudinal study of UK households and is used as input data for *Minos*; more details [here](https://www.understandingsociety.ac.uk/).
-
-3. Contact the developers to obtain the spatially disaggregated version of the Understanding Society data (in a folder called ```US_spatial_lookup```) that will allow you to plot results produced by *Minos*. The resulting directory structure should look as it does below.
+2. Download and unpack the Understanding Society dataset from the UK Data Service (UKDA) website [here](https://ukdataservice.ac.uk/find-data/) (more information [here](https://www.understandingsociety.ac.uk/documentation/access-data)), for which you will need a UKDA account.  Ensure you download the dataset in STATA format such that the folder is named ```UKDA-6614-stata```.Understanding Society is a longitudinal study of UK households and is used as input data for *Minos*; more details [here](https://www.understandingsociety.ac.uk/).  The resulting directory structure should look as it does below.
 
 ```
 yourproject/
 └─  Minos/
 └─  UKDA-6614-stata/
-└─  US_spatial_lookup/
 ```
+
+Please note IJM submissions were created using [version 20](http://doi.org/10.5255/UKDA-SN-6614-20) of Understanding Society. 
+Results will vary if a more recent Understanding Society dataset is used.
 
 4. Create a ```conda``` environment in which to run *Minos* using the file provided, via the command below, noting that you may additionally specify a different environment than the default (```minos_conda```) using the ```-n/--name=``` flag. Then activate your environment with either ```source activate minos_conda``` or ```conda activate minos_conda```, depending on your system.
 

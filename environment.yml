@@ -1,4 +1,4 @@
-name: minos_conda
+name: minos_conda_IJM
 channels:
   - conda-forge
   - defaults
@@ -25,10 +25,20 @@ dependencies: # Added pip and python at top to avoid conda giving grumpy warning
   - r-here
   - r-scales
   - r-ggextra
+  - r-ggplot2
   - r-mice
   - r-progressr
   - r-furrr
   - r-purrr
+  - r-sjplot
+  - r-visreg
+  - r-ggpattern
+  - r-VIM
+  - r-caret
+  - r-ggridges
+  - r-ggmice
+  - r-rcpp
+  - r-broom.mixed
   - pandoc
   - sphinx
   - myst-parser

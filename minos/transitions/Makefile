@@ -13,6 +13,9 @@
 transitions_default: | $(TRANSITION_DATA)
 transitions_default: final_data $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds $(TRANSITION_DATA)/SF_12/glmm/SF_12_GLMM.rds
 
+transitions_IJM: | $(TRANSITION_DATA)
+transitions_IJM: final_data $(TRANSITION_DATA)/data/transitions/education_state/nnet/education_state_2018_2019.rds
+
 transitions_SIPHER7: | $(TRANSITION_DATA)
 transitions_SIPHER7: final_data $(TRANSITION_DATA)/S7_mental_health/clm/S7_mental_health_2019_2020.rds $(TRANSITION_DATA)/hh_income/glmm/hh_income_new_GLMM.rds
 
@@ -25,6 +28,9 @@ cv_S7_transitions: $(TRANSITION_DATA)/cross_validation/version5/S7_mental_health
 
 $(TRANSITION_DATA)/ncigs/zip/ncigs_2019_2020.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --default
+
+$(TRANSITION_DATA)/data/transitions/education_state/nnet/education_state_2018_2019.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_default.txt
+	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --IJM
 
 $(TRANSITION_DATA)/S7_mental_health/clm/S7_mental_health_2019_2020.rds: $(FINALDATA)/2020_US_cohort.csv $(TRANSITION_SOURCE)/estimate_transitions.R $(TRANSITION_SOURCE)/model_definitions_S7.txt
 	$(RSCRIPT) $(SOURCEDIR)/transitions/estimate_transitions.R --sipher7

@@ -1,0 +1,76 @@
+
+\begin{center}
+\begin{small}
+\begin{longtable}{l D{)}{)}{5)0} D{)}{)}{5)0}}
+\toprule
+ & \multicolumn{1}{c}{Minimum Error} & \multicolumn{1}{c}{First Standard Error} \\
+\midrule
+\endfirsthead
+\toprule
+ & \multicolumn{1}{c}{Minimum Error} & \multicolumn{1}{c}{First Standard Error} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\multicolumn{3}{l}{\tiny{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}\\
+\caption{Model lasso coefficients for estimation of variable: SF\_12.}
+\label{table: sf12_lasso_coefficients}
+\endlastfoot \\
+Intercept                                  & 48.77  & 50.95  \\
+Sex: Male vs Female                        & 1.25   & 1.16   \\
+Ethnicity: BAN vs WBI                      & -0.23  & 0.00   \\
+Ethnicity: BLA vs WBI                      & 1.46   & 0.47   \\
+Ethnicity: BLC vs WBI                      & 0.76   & 0.00   \\
+Ethnicity: CHI vs WBI                      & 1.15   & 0.00   \\
+Ethnicity: IND vs WBI                      & 0.69   & 0.00   \\
+Ethnicity: MIX vs WBI                      & -0.21  & 0.00   \\
+Ethnicity: OAS vs WBI                      & 0.43   & 0.00   \\
+Ethnicity: OBL vs WBI                      & 3.40   & 0.53   \\
+Ethnicity: OTH vs WBI                      & -1.12  & 0.00   \\
+Ethnicity: PAK vs WBI                      & -0.61  & -0.29  \\
+Ethnicity: WHO vs WBI                      & 0.58   & 0.07   \\
+Age                                        & 1.38   & 1.11   \\
+Education State: 1 vs 0                    & 0.68   & 0.21   \\
+Education State: 2 vs 0                    & 0.43   & 0.15   \\
+Education State: 3 vs 0                    & -0.02  & 0.00   \\
+Education State: 5 vs 0                    & 0.13   & 0.00   \\
+Education State: 6 vs 0                    & 0.20   & 0.00   \\
+Education State: 7 vs 0                    & 0.11   & 0.00   \\
+Labour State: FT Education vs Family Care  & 2.18   & 0.96   \\
+Labour State: FT Employment vs Family Care & 0.81   & 0.06   \\
+Labour State: Job Seeking vs Family Care   & -0.43  & -0.95  \\
+Labour State: Not Working vs Family Care   & -0.13  & -0.22  \\
+Labour State: PT Employed vs Family Care   & 1.09   & 0.32   \\
+NSSEC: 0 vs. 1                             & 0.44   & -0.18  \\
+NSSEC: 2 vs. 1                             & 0.09   & 0.00   \\
+NSSEC: 3 vs. 1                             & 0.20   & 0.00   \\
+NSSEC: 4 vs. 1                             & 0.42   & 0.00   \\
+NSSEC: 5 vs. 1                             & 1.02   & 0.39   \\
+NSSEC: 6 vs. 1                             & 1.38   & 0.62   \\
+NSSEC: 7 vs. 1                             & 0.96   & 0.26   \\
+NSSEC: 8 vs. 1                             & 1.60   & 0.81   \\
+Region: East Midlands vs London            & 0.46   & 0.00   \\
+Region: East of England vs London          & 0.59   & 0.11   \\
+Region: North East vs London               & -0.05  & -0.00  \\
+Region: North West vs London               & 0.09   & 0.00   \\
+Region: Northern Ireland vs London         & 0.23   & 0.00   \\
+Region: Scotland vs London                 & 0.54   & 0.01   \\
+Region: South East vs London               & 0.34   & 0.00   \\
+Region: South West vs London               & 0.43   & 0.00   \\
+Region: Wales vs London                    & 0.14   & 0.00   \\
+Region: West Midlands vs London            & 0.09   & 0.00   \\
+Region: Yorkshire & Humber vs London       & 0.24   & 0.00   \\
+Household Income                           & 0.32   & 0.15   \\
+Household Income Squared                   & -0.22  & -0.05  \\
+Housing Quality: High vs Low               & 0.85   & 0.37   \\
+Housing Quality: Medium vs Low             & 0.76   & 0.23   \\
+Neighbourhood Safety: 2 vs 1               & 0.73   & 0.55   \\
+Neighbourhood Safety: 3 vs 1               & 1.22   & 0.98   \\
+Loneliness: 2 vs 1                         & -6.42  & -6.30  \\
+Loneliness: 3 vs 1                         & -13.44 & -13.33 \\
+Nutrition Quality                          & 0.02   & 0.01   \\
+Number of Cigarettes                       & -0.09  & -0.09  \\
+\end{longtable}
+\end{small}
+\end{center}

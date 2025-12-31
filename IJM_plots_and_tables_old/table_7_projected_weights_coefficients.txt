@@ -1,0 +1,79 @@
+
+\begin{small}
+\begin{longtable}{l D{)}{)}{13)3} D{)}{)}{13)3}}
+\toprule
+ & \multicolumn{1}{c}{SF-12 MCS 2018 With 2013 Extrapolated Weights} & \multicolumn{1}{c}{SF-12 MCS 2018 With Weights} \\
+\midrule
+\endfirsthead
+\toprule
+ & \multicolumn{1}{c}{SF-12 MCS 2018 With 2013 Extrapolated Weights} & \multicolumn{1}{c}{SF-12 MCS 2018 With Weights} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\multicolumn{3}{l}{\tiny{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}\\
+\caption{Model OLS models with current and projected sample weights. coefficients for estimation of variable: SF-12 MCS.}
+\label{table: sf12_projected_weights_coefficients}
+\endlastfoot \\
+Intercept                                  & -0.0369 \; (0.0257)       & -0.1229 \; (0.0290)^{***} \\
+Sex: Male vs Female                        & 0.1198 \; (0.0056)^{***}  & 0.1082 \; (0.0067)^{***}  \\
+Ethnicity: BAN vs WBI                      & -0.0402 \; (0.0336)       & 0.0780 \; (0.0401)        \\
+Ethnicity: BLA vs WBI                      & 0.1375 \; (0.0209)^{***}  & 0.1537 \; (0.0293)^{***}  \\
+Ethnicity: BLC vs WBI                      & 0.0809 \; (0.0272)^{**}   & 0.0693 \; (0.0340)^{*}    \\
+Ethnicity: CHI vs WBI                      & 0.1243 \; (0.0294)^{***}  & 0.0087 \; (0.0559)        \\
+Ethnicity: IND vs WBI                      & 0.0812 \; (0.0165)^{***}  & 0.1175 \; (0.0223)^{***}  \\
+Ethnicity: MIX vs WBI                      & -0.0655 \; (0.0208)^{**}  & -0.0431 \; (0.0275)       \\
+Ethnicity: OAS vs WBI                      & 0.0572 \; (0.0222)^{*}    & 0.1484 \; (0.0297)^{***}  \\
+Ethnicity: OBL vs WBI                      & 0.2103 \; (0.0672)^{**}   & 0.0742 \; (0.1181)        \\
+Ethnicity: OTH vs WBI                      & -0.0569 \; (0.0330)       & 0.1227 \; (0.0565)^{*}    \\
+Ethnicity: PAK vs WBI                      & -0.1121 \; (0.0197)^{***} & 0.1359 \; (0.0260)^{***}  \\
+Ethnicity: WHO vs WBI                      & 0.0395 \; (0.0119)^{***}  & 0.0757 \; (0.0155)^{***}  \\
+Age                                        & 0.1297 \; (0.0041)^{***}  & 0.1924 \; (0.0048)^{***}  \\
+Education State: 1 vs 0                    & 0.0332 \; (0.0187)        & 0.0702 \; (0.0231)^{**}   \\
+Education State: 2 vs 0                    & 0.0440 \; (0.0089)^{***}  & 0.0338 \; (0.0092)^{***}  \\
+Education State: 3 vs 0                    & -0.0047 \; (0.0102)       & 0.0102 \; (0.0123)        \\
+Education State: 5 vs 0                    & 0.0295 \; (0.0108)^{**}   & 0.0069 \; (0.0135)        \\
+Education State: 6 vs 0                    & 0.0235 \; (0.0100)^{*}    & 0.0299 \; (0.0103)^{**}   \\
+Education State: 7 vs 0                    & 0.0165 \; (0.0116)        & -0.0053 \; (0.0128)       \\
+Labour State: FT Education vs Family Care  & 0.2335 \; (0.0166)^{***}  & 0.2490 \; (0.0224)^{***}  \\
+Labour State: FT Employment vs Family Care & 0.0931 \; (0.0141)^{***}  & 0.1071 \; (0.0190)^{***}  \\
+Labour State: Job Seeking vs Family Care   & -0.0487 \; (0.0166)^{**}  & -0.0890 \; (0.0260)^{**}  \\
+Labour State: Not Working vs Family Care   & -0.0453 \; (0.0143)^{**}  & -0.0412 \; (0.0183)^{*}   \\
+Labour State: PT Employed vs Family Care   & 0.1105 \; (0.0150)^{***}  & 0.1002 \; (0.0210)^{***}  \\
+NSSEC: 0 vs. 1                             & 0.0554 \; (0.0172)^{**}   & -0.0258 \; (0.0191)       \\
+NSSEC: 2 vs. 1                             & 0.0298 \; (0.0180)        & 0.0264 \; (0.0196)        \\
+NSSEC: 3 vs. 1                             & 0.0381 \; (0.0156)^{*}    & 0.0181 \; (0.0172)        \\
+NSSEC: 4 vs. 1                             & 0.0597 \; (0.0169)^{***}  & 0.0405 \; (0.0191)^{*}    \\
+NSSEC: 5 vs. 1                             & 0.0987 \; (0.0179)^{***}  & 0.0636 \; (0.0195)^{**}   \\
+NSSEC: 6 vs. 1                             & 0.1308 \; (0.0189)^{***}  & 0.0600 \; (0.0213)^{**}   \\
+NSSEC: 7 vs. 1                             & 0.1049 \; (0.0167)^{***}  & 0.0596 \; (0.0188)^{**}   \\
+NSSEC: 8 vs. 1                             & 0.1515 \; (0.0177)^{***}  & 0.0869 \; (0.0195)^{***}  \\
+Region: East Midlands vs London            & 0.0397 \; (0.0126)^{**}   & 0.0102 \; (0.0143)        \\
+Region: East of England vs London          & 0.0438 \; (0.0118)^{***}  & 0.0278 \; (0.0130)^{*}    \\
+Region: North East vs London               & 0.0043 \; (0.0152)        & -0.0013 \; (0.0179)       \\
+Region: North West vs London               & -0.0044 \; (0.0116)       & -0.0202 \; (0.0130)       \\
+Region: Northern Ireland vs London         & 0.0117 \; (0.0169)        & 0.0433 \; (0.0192)^{*}    \\
+Region: Scotland vs London                 & 0.0400 \; (0.0128)^{**}   & -0.0328 \; (0.0138)^{*}   \\
+Region: South East vs London               & 0.0138 \; (0.0115)        & -0.0016 \; (0.0122)       \\
+Region: South West vs London               & 0.0413 \; (0.0127)^{**}   & -0.0203 \; (0.0137)       \\
+Region: Wales vs London                    & 0.0039 \; (0.0146)        & -0.0558 \; (0.0158)^{***} \\
+Region: West Midlands vs London            & -0.0216 \; (0.0123)       & -0.0287 \; (0.0136)^{*}   \\
+Region: Yorkshire \& Humber vs London      & 0.0166 \; (0.0122)        & -0.0075 \; (0.0137)       \\
+Household Income                           & 0.0296 \; (0.0033)^{***}  & 0.0168 \; (0.0032)^{***}  \\
+Household Income Squared                   & -0.0210 \; (0.0027)^{***} & 0.0025 \; (0.0029)        \\
+Housing Quality: High vs Low               & 0.0794 \; (0.0089)^{***}  & 0.1881 \; (0.0117)^{***}  \\
+Housing Quality: Medium vs Low             & 0.0785 \; (0.0081)^{***}  & 0.1717 \; (0.0112)^{***}  \\
+Neighbourhood Safety: 2 vs 1               & 0.0728 \; (0.0063)^{***}  & 0.0988 \; (0.0070)^{***}  \\
+Neighbourhood Safety: 3 vs 1               & 0.1093 \; (0.0078)^{***}  & 0.1316 \; (0.0083)^{***}  \\
+Loneliness: 2 vs 1                         & -0.5850 \; (0.0068)^{***} & -0.6197 \; (0.0079)^{***} \\
+Loneliness: 3 vs 1                         & -1.3483 \; (0.0130)^{***} & -1.4932 \; (0.0154)^{***} \\
+Nutrition Quality                          & 0.0020 \; (0.0004)^{***}  & 0.0023 \; (0.0003)^{***}  \\
+Number of Cigarettes                       & -0.0091 \; (0.0005)^{***} & -0.0067 \; (0.0005)^{***} \\
+\midrule
+nimp                                       & 10                        & 10                        \\
+nobs                                       & 115852                    & 98605                     \\
+R$^2$                                      & 0.2479                    & 0.2890                    \\
+Adj. R$^2$                                 & 0.2476                    & 0.2886                    \\
+\end{longtable}
+\end{small}

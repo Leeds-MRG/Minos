@@ -1,0 +1,69 @@
+
+\begin{small}
+\begin{longtable}{l D{)}{)}{13)3}}
+\toprule
+ & \multicolumn{1}{c}{Baseline SF-12 MCS OLS} \\
+\midrule
+\endfirsthead
+\toprule
+ & \multicolumn{1}{c}{Baseline SF-12 MCS OLS} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\bottomrule
+\multicolumn{2}{l}{\tiny{$^{***}p<0.001$; $^{**}p<0.01$; $^{*}p<0.05$}}\\
+\caption{Model OLS coefficients for estimation of variable: SF-12 MCS.}
+\label{table: baseline_SF12_MCS_OLS_coefficients}
+\endlastfoot \\
+Intercept                                  & -0.3031 \; (0.0187)^{***} \\
+Sex: Male vs Female                        & 0.1823 \; (0.0068)^{***}  \\
+Ethnicity: BAN vs WBI                      & 0.0043 \; (0.0279)        \\
+Ethnicity: BLA vs WBI                      & 0.1646 \; (0.0238)^{***}  \\
+Ethnicity: BLC vs WBI                      & 0.0045 \; (0.0245)        \\
+Ethnicity: CHI vs WBI                      & 0.0728 \; (0.0482)        \\
+Ethnicity: IND vs WBI                      & 0.0582 \; (0.0189)^{**}   \\
+Ethnicity: MIX vs WBI                      & -0.0801 \; (0.0243)^{***} \\
+Ethnicity: OAS vs WBI                      & -0.0029 \; (0.0277)       \\
+Ethnicity: OBL vs WBI                      & 0.1493 \; (0.0813)        \\
+Ethnicity: OTH vs WBI                      & -0.0776 \; (0.0542)       \\
+Ethnicity: PAK vs WBI                      & -0.0745 \; (0.0215)^{***} \\
+Ethnicity: WHO vs WBI                      & 0.0070 \; (0.0170)        \\
+Age                                        & 0.2275 \; (0.0050)^{***}  \\
+Education State: 1 vs 0                    & 0.1280 \; (0.0219)^{***}  \\
+Education State: 2 vs 0                    & 0.0659 \; (0.0094)^{***}  \\
+Education State: 3 vs 0                    & 0.0622 \; (0.0123)^{***}  \\
+Education State: 5 vs 0                    & 0.0539 \; (0.0131)^{***}  \\
+Education State: 6 vs 0                    & 0.1050 \; (0.0112)^{***}  \\
+Education State: 7 vs 0                    & 0.1202 \; (0.0131)^{***}  \\
+Labour State: FT Education vs Family Care  & 0.3244 \; (0.0191)^{***}  \\
+Labour State: FT Employment vs Family Care & 0.0917 \; (0.0171)^{***}  \\
+Labour State: Job Seeking vs Family Care   & -0.2412 \; (0.0198)^{***} \\
+Labour State: Not Working vs Family Care   & -0.1141 \; (0.0168)^{***} \\
+Labour State: PT Employed vs Family Care   & 0.1011 \; (0.0181)^{***}  \\
+NSSEC: 0 vs. 1                             & 0.0937 \; (0.0220)^{***}  \\
+NSSEC: 2 vs. 1                             & 0.0911 \; (0.0183)^{***}  \\
+NSSEC: 3 vs. 1                             & 0.0790 \; (0.0136)^{***}  \\
+NSSEC: 4 vs. 1                             & 0.1050 \; (0.0151)^{***}  \\
+NSSEC: 5 vs. 1                             & 0.1427 \; (0.0166)^{***}  \\
+NSSEC: 6 vs. 1                             & 0.1617 \; (0.0181)^{***}  \\
+NSSEC: 7 vs. 1                             & 0.1043 \; (0.0134)^{***}  \\
+NSSEC: 8 vs. 1                             & 0.1498 \; (0.0157)^{***}  \\
+Region: East Midlands vs London            & 0.0644 \; (0.0156)^{***}  \\
+Region: East of England vs London          & 0.0670 \; (0.0149)^{***}  \\
+Region: North East vs London               & 0.0033 \; (0.0192)        \\
+Region: North West vs London               & 0.0180 \; (0.0145)        \\
+Region: Northern Ireland vs London         & 0.1264 \; (0.0189)^{***}  \\
+Region: Scotland vs London                 & 0.1041 \; (0.0158)^{***}  \\
+Region: South East vs London               & 0.0484 \; (0.0138)^{***}  \\
+Region: South West vs London               & 0.0832 \; (0.0153)^{***}  \\
+Region: Wales vs London                    & 0.0696 \; (0.0172)^{***}  \\
+Region: West Midlands vs London            & 0.0039 \; (0.0150)        \\
+Region: Yorkshire \& Humber vs London      & 0.0274 \; (0.0153)        \\
+Household Income                           & 0.0486 \; (0.0033)^{***}  \\
+\midrule
+R$^2$                                      & 0.0561                    \\
+Adj. R$^2$                                 & 0.0556                    \\
+Num. obs.                                  & 94908                     \\
+\end{longtable}
+\end{small}

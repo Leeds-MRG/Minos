@@ -337,12 +337,20 @@ parser$add_argument('-s7',
                     variable models, as well as some demographic models such
                     as education state.')
 
+parser$add_argument('-i',
+                    '--IJM',
+                    action='store_true',
+                    dest='IJM',
+                    default=FALSE,
+                    help='Run the transitions required for IJM papers.')
+
 args <- parser$parse_args()
 
 scotland.mode <- args$scotland
 cross_validation <- args$crossval
 default <- args$default
 sipher7 <- args$SIPHER7
+ijm <- args$IJM
 
 ## RUNTIME ARGS
 transSourceDir <- 'minos/transitions/'
@@ -375,6 +383,9 @@ if(scotland.mode) {
 if(sipher7) {
   print('Estimating models for SIPHER7 Equivalent Income experiment')
   modDefFilename <- 'model_definitions_S7.txt'
+} else if (ijm) {
+  print('Estimating models for IJM papers.')
+  modDefFilename <- 'model_definitions_IJM.txt'
 }
 
 

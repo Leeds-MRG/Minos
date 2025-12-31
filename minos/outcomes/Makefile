@@ -322,3 +322,6 @@ map_all_EI_synthetic: REGION=glasgow
 map_all_EI_synthetic: SYNTH=true
 map_all_EI_synthetic: all_intervention_maps
 
+
+IJM_transitions_notebook: IJM_data
+	$(RSCRIPT) -e "require(rmarkdown); render('minos/outcomes/IJM_paper_transitions_notebook.Rmd')"
