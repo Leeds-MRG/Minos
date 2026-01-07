@@ -352,7 +352,7 @@ def format_ukhls_columns(year):
                       "floors": "floors", #number of floors in the house. used to determined between bungalow/detached. etc.
                       "addfloor": 'entrance_floor', # entrance floor of the building.
                       "npensioner_dv": "n_pensioners", # number of pensioners.
-                      "hsroom": "number_of_rooms", # number of rooms.
+                      "hsrooms": "number_of_rooms", # number of rooms.
                       "hsbeds": "number_of_bedrooms", # number of bedrooms
                       #"hstype": "household_type", # household type #BHPS only
                       ###### PCS VARS #####
