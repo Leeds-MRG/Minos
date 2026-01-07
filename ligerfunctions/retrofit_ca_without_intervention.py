@@ -17,10 +17,7 @@ class Namespace:
 
 def retrofit_ca_without_intervention():
     # 1. Read the population file for intervention and upgrade the house adequate heating
-    df = (pd
-          .read_csv(os.path.join('data/scaled_manchester_aligned_US', '2020_US_cohort_original.csv'))
-          .rename(columns={'ZoneID': 'lsoa_code'})
-          )
+    df = pd.read_csv(os.path.join('data/scaled_manchester_aligned_US', '2020_US_cohort_original.csv'))
 
     # save the new population
     df.to_csv(os.path.join('data/scaled_manchester_aligned_US', '2020_US_cohort.csv'), index=False)

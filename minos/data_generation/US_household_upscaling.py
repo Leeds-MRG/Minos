@@ -26,7 +26,7 @@ from minos.data_generation.align_household_spatial_data import main as align_mai
 import os
 from sipherdb.sipher_database import SipherDatabase
 from sipherdb.sipher_database import SqlDB
-from sipherdb.query.general_queries import GeneralDataQueries
+from sipherdb.query.queries import Queries
 
 ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '../..'))
 os.chdir(ROOT_DIR)
@@ -104,7 +104,7 @@ def main(region, percentage = 100, bootstrapping=False, n=100_000):
 
     db = SipherDatabase()
     db.init_class(sql_db=SqlDB.POSTGRESQL, db_config_file=os.path.join(ROOT_DIR, 'database.ini'))
-    sdb = GeneralDataQueries()
+    sdb = Queries()
 
     # get synthetic data.
     if region in ['scotland', 'glasgow', 'edinburgh']:

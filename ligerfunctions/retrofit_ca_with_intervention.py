@@ -15,11 +15,12 @@ from sipherdb.query.queries import Queries
 ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
 os.chdir(ROOT_DIR)
 
-without_intervention_path = '/home/jduro/sipher/ws5/complete_runs/without_intervention_2020_2035/'
-simul_folders_baseline = ('2025_07_17_11_02_52_r1', '2025_07_22_10_21_39_r2', '2025_07_24_11_17_17_r3',
+without_intervention_path = '/home/jduro/sipher/ws5/complete_runs/without_intervention_2020_2035/raw'
+simul_folders_baseline = ('2026_01_07_09_58_37_r1', '2025_07_22_10_21_39_r2', '2025_07_24_11_17_17_r3',
                           '2025_07_24_18_31_54_r4', '2025_07_25_22_07_36_r5', '2025_07_26_08_16_40_r6',
                           '2025_07_26_13_18_42_r7', '2025_07_26_21_09_48_r8', '2025_07_27_08_59_19_r9',
                           '2025_07_27_13_15_23_r10', '2025_07_28_00_05_48_r11')
+
 
 def dbquery(sql_db=SqlDB.POSTGRESQL):
     db_obj = SipherDatabase()
@@ -29,6 +30,95 @@ def dbquery(sql_db=SqlDB.POSTGRESQL):
 class Namespace:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
+
+
+def sp_merge_epc(data_ref_df: pd.DataFrame, epc_latest_df: pd.DataFrame) -> pd.DataFrame:
+
+    # 1) Build lookup for the 2020 reference households
+    lookup = build_house_lookup(data_ref_df, epc_latest_df, seed=42)
+
+    # 2) Bring EPC features via house_id
+    #    First expose house_id on EPC side to merge (same as inside helper)
+    if epc_latest_df.index.name is None:
+        epc_with_id = epc_latest_df.reset_index().rename(columns={'index': 'house_id'})
+    else:
+        epc_with_id = epc_latest_df.reset_index().rename(columns={epc_latest_df.index.name: 'house_id'})
+
+    # Select only the columns you want to attach to people
+    epc_cols_to_keep = [
+        'house_id', 'imd_rank',
+        'energy_rating', 'energy_rating_new', 'environment_impact'
+    ]
+
+    # 3) Merge onto the reference households (2025)
+    data_ref_with_epc = (
+        data_ref_df
+        .merge(lookup, on='hidp', how='left')
+        .merge(epc_with_id[epc_cols_to_keep], on='house_id', how='left')
+    )
+
+    return data_ref_with_epc
+
+
+def build_house_lookup(data_ref_df: pd.DataFrame, epc_latest_df: pd.DataFrame, seed: int) -> pd.DataFrame:
+
+    rng = np.random.default_rng(seed)
+
+    # Ensure EPC frame exposes a house id
+    if epc_latest_df.index.name is None:
+        epc_with_id = epc_latest_df.reset_index().rename(columns={'index': 'house_id'})
+    else:
+        epc_with_id = epc_latest_df.reset_index().rename(columns={epc_latest_df.index.name: 'house_id'})
+
+    keys = ['ZoneID', 'housing_tenure_num', 'number_of_habitable_rooms']
+
+    # Group by all three keys for fast exact lookups
+    epc_groups = epc_with_id.groupby(keys, sort=False)
+
+    data_households = data_ref_df.drop_duplicates(subset='hidp')
+
+    out_frames = []
+
+    # Also group by (tenure, number of habitable rooms) that ignores ZoneID
+    epc_by_zt = {
+        zt_key: grp.copy()
+        for zt_key, grp in epc_with_id.groupby(['housing_tenure_num', 'number_of_habitable_rooms'], sort=False)
+    }
+
+    for (zone_id, tenure_num, rooms), hh_grp in data_households.groupby(keys, sort=False):
+        key_vals = (zone_id, tenure_num, rooms)
+
+        if key_vals in epc_groups.groups:
+            epc_pool = epc_groups.get_group(key_vals)
+        else:
+            zt_key = (tenure_num, rooms)
+            epc_pool = epc_by_zt.get(zt_key)
+
+        if epc_pool.empty:
+            # If absolutely no match in the same ZoneID & tenure after widening, you might:
+            # - raise an error,
+            # - or relax ZoneID/tenure as a second-level fallback (not implemented here by request).
+            raise ValueError(
+                f"No EPC houses for group (ZoneID={zone_id}, housing_tenure_num={tenure_num}, rooms~{rooms}) "
+                f"even after ignoring ZoneID.")
+
+        n_households = len(hh_grp)
+        house_ids = epc_pool['house_id'].to_numpy()
+        m_houses = len(house_ids)
+
+        # Repeat/shuffle to cover all households
+        repeats = int(np.ceil(n_households / m_houses))
+        pool = np.tile(house_ids, repeats)
+        rng.shuffle(pool)
+        assigned = pool[:n_households]
+
+        out_frames.append(pd.DataFrame({
+            'hidp': hh_grp['hidp'].to_numpy(),
+            'house_id': assigned
+        }))
+
+    return pd.concat(out_frames, ignore_index=True)
+
 
 def do_intervention(df_in, geographic_level_for_intervention, locations_for_intervention_df, sdb):
 
@@ -96,6 +186,45 @@ def house_retrofit_intervention(
         geographic_level_for_intervention,
         run_number=0
 ):
+    # 1. Read the population for intervention: synthetic pop 2025
+    folder_name = os.path.join(without_intervention_path, simul_folders_baseline[run_number])
+    synpop = pd.read_csv(folder_name + '/2025.csv')
+    # synpop.rename(columns={'ZoneID': 'lsoa_code'}, inplace=True)
+
+    # 2. Format number of rooms, number of bedrooms, and housing tenure
+    synpop = synpop.astype({'number_of_rooms': int, 'housing_tenure': int, 'number_of_bedrooms': int})
+
+    max_number_of_rooms = 8  # this is a parameter
+    synpop['number_of_habitable_rooms'] = synpop['number_of_rooms'] + synpop['number_of_bedrooms']
+    synpop['number_of_habitable_rooms'] = np.where(synpop['number_of_habitable_rooms'] > max_number_of_rooms,
+                                                   max_number_of_rooms, synpop['number_of_habitable_rooms'])
+
+    # simplify housing tenure
+    synpop['housing_tenure_simple'] = synpop['housing_tenure']
+    synpop['housing_tenure_simple'] = synpop['housing_tenure_simple'].replace(3, 4)  # social rented
+    synpop['housing_tenure_simple'] = synpop['housing_tenure_simple'].replace(5, 3)  # private rented
+    synpop['housing_tenure_simple'] = synpop['housing_tenure_simple'].replace(6, 3)  # private rented
+    synpop['housing_tenure_simple'] = synpop['housing_tenure_simple'].replace(7, 3)  # private rented
+
+    # map housing tenure to 3 categories
+    housing_tenure_dic = {
+        1: 1,  # owned outright => owned
+        2: 1,  # owned with mortgage => owned
+        3: 2,  # private rented => private rented
+        4: 3,  # social rented => social rented
+    }
+    synpop['housing_tenure_num'] = synpop['housing_tenure_simple'].map(housing_tenure_dic)
+
+    # 3. Load EPC latest data
+    epc_latest_df = pd.read_csv('data/epc_latest_gmca.csv')
+
+    # 4. Merge synthetic population with EPC latest data
+    synpop_epc = sp_merge_epc(synpop, epc_latest_df)
+
+    # 5. Build model to predict thermal comfort
+    model_keys = ['imd_rank', 'number_of_habitable_rooms', 'housing_tenure_num', 'energy_rating', 'net_hh_income', 'heating']
+    model_data = synpop_epc[model_keys]
+
     # format geographic_level_area
     geographic_level_area = geographic_level_area.upper()
     # format geographic_level_divisions
@@ -168,7 +297,7 @@ if __name__ == "__main__":
 
     input_data = [True for _ in range(n_locations_for_intervention)]
 
-    run_number = 10
+    run_number = 0
     start = time.time()
     house_retrofit_intervention(
         x=input_data, sql_db=sql_db, area_name=area_name,
