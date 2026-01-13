@@ -4,6 +4,10 @@ import os
 import numpy as np
 import pandas as pd
 
+from sklearn.preprocessing import StandardScaler
+from statsmodels.discrete.discrete_model import Logit
+from statsmodels.tools import add_constant
+
 from minos.data_generation.generate_repl_pop import generate_replenishing
 from scripts.run import run
 from minos.data_generation.generate_composite_vars import calculate_equivalent_income
@@ -16,10 +20,10 @@ ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), '..'))
 os.chdir(ROOT_DIR)
 
 without_intervention_path = '/home/jduro/sipher/ws5/complete_runs/without_intervention_2020_2035/raw'
-simul_folders_baseline = ('2026_01_07_09_58_37_r1', '2025_07_22_10_21_39_r2', '2025_07_24_11_17_17_r3',
-                          '2025_07_24_18_31_54_r4', '2025_07_25_22_07_36_r5', '2025_07_26_08_16_40_r6',
-                          '2025_07_26_13_18_42_r7', '2025_07_26_21_09_48_r8', '2025_07_27_08_59_19_r9',
-                          '2025_07_27_13_15_23_r10', '2025_07_28_00_05_48_r11')
+simul_folders_baseline = ('2026_01_07_09_58_37_r1', '2026_01_07_22_38_00_r2', '2026_01_08_09_48_11_r3',
+                          '2026_01_08_14_16_42_r4', '2026_01_09_23_19_35_r5', '2026_01_10_13_11_08_r6',
+                          '2026_01_11_11_36_04_r7', '2026_01_11_17_22_56_r8', '2026_01_12_10_47_12_r9',
+                          '2026_01_12_16_51_48_r10', '2026_01_13_14_37_43_r11')
 
 
 def dbquery(sql_db=SqlDB.POSTGRESQL):
@@ -215,6 +219,12 @@ def house_retrofit_intervention(
     }
     synpop['housing_tenure_num'] = synpop['housing_tenure_simple'].map(housing_tenure_dic)
 
+    # Identify household that live below the poverty line
+    #  60% of the national median equivalised household income after housing costs (AHC)
+    #  in the UK for the financial year ending (FYE) 2024 was approximately £1,467 per month
+    poverty_line_2024 = 1467 * 0.6
+    synpop['poverty'] = np.where(synpop['hh_income'] < poverty_line_2024, 1, 0)
+
     # 3. Load EPC latest data
     epc_latest_df = pd.read_csv('data/epc_latest_gmca.csv')
 
@@ -222,8 +232,32 @@ def house_retrofit_intervention(
     synpop_epc = sp_merge_epc(synpop, epc_latest_df)
 
     # 5. Build model to predict thermal comfort
-    model_keys = ['imd_rank', 'number_of_habitable_rooms', 'housing_tenure_num', 'energy_rating', 'net_hh_income', 'heating']
+    model_keys = ['imd_rank', 'number_of_habitable_rooms', 'housing_tenure_simple',
+                  'energy_rating', 'hh_income', 'poverty', 'heating']
     model_data = synpop_epc[model_keys]
+    rating_map = {'G': 0, 'F': 1, 'E': 2, 'D': 3, 'C': 4, 'B': 5, 'A': 6}
+    model_data['energy_rating_num'] = model_data['energy_rating'].map(rating_map)
+
+    X = pd.get_dummies(
+        model_data[['imd_rank', 'number_of_habitable_rooms',
+                    'housing_tenure_simple', 'energy_rating_num', 'hh_income', 'poverty']],
+        columns=['housing_tenure_simple'],
+        drop_first=True,  # avoid dummy trap
+        dtype=float
+    )
+
+    # scale continuous predictors to aid optimization
+    continuous_vars = ['imd_rank', 'number_of_habitable_rooms', 'energy_rating_num', 'hh_income']
+    scaler = StandardScaler()
+    X[continuous_vars] = scaler.fit_transform(X[continuous_vars])
+    X = add_constant(X)
+
+    model = Logit(
+        endog=model_data['heating'].astype(int),
+        exog=X.astype(float)
+    )
+
+    res = model.fit(method='newton', maxiter=100000, disp=True)
 
     # format geographic_level_area
     geographic_level_area = geographic_level_area.upper()

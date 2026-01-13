@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from statsmodels.miscmodels.ordinal_model import OrderedModel
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
 
 from sipherdb.sipher_database import SipherDatabase
 from sipherdb.sipher_database import SqlDB
@@ -40,7 +41,6 @@ def compute_clogit(data_latest_df, epc_retrofit_df):
     )
 
     # Optional: scale continuous predictors to aid optimization
-    from sklearn.preprocessing import StandardScaler
     scaler = StandardScaler()
     X[['imd_rank', 'number_of_habitable_rooms', 'rating_previous_num']] = scaler.fit_transform(
         X[['imd_rank', 'number_of_habitable_rooms', 'rating_previous_num']]
