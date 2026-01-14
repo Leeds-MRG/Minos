@@ -222,7 +222,7 @@ def house_retrofit_intervention(
     # Identify household that live below the poverty line
     #  60% of the national median equivalised household income after housing costs (AHC)
     #  in the UK for the financial year ending (FYE) 2024 was approximately £1,467 per month
-    poverty_line_2024 = 1467 * 0.6
+    poverty_line_2024 = 2435 * 0.6
     synpop['poverty'] = np.where(synpop['hh_income'] < poverty_line_2024, 1, 0)
 
     # 3. Load EPC latest data
