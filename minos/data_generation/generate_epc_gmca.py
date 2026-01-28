@@ -140,8 +140,20 @@ def main():
     X = df_model[['number_of_habitable_rooms', 'rating_previous_num', 'rating_latest_num', 'imd_rank']]
     y = df_model['environment_impact']
 
-    regr = RandomForestRegressor(n_estimators=100)
+    regr = RandomForestRegressor(n_estimators=100, oob_score=True)
     regr.fit(X, y)
+
+    oob_score = regr.oob_score_
+    print(f'Out-of-Bag Score: {oob_score}')
+
+    predictions = regr.predict(X)
+
+    from sklearn.metrics import mean_squared_error, r2_score
+    mse = mean_squared_error(y, predictions)
+    print(f'Mean Squared Error: {mse}')
+
+    r2 = r2_score(y, predictions)
+    print(f'R-squared: {r2}')
 
     epc_latest_df['rating_latest_num'] = epc_latest_df['energy_rating_new'].map(rating_map)
     epc_latest_df['environment_impact'] = regr.predict(epc_latest_df[['number_of_habitable_rooms', 'rating_previous_num',
