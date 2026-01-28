@@ -259,6 +259,30 @@ def house_retrofit_intervention(
 
     res = model.fit(method='newton', maxiter=100000, disp=True)
 
+    # Use the binary logistic model to predict the new thermal comfort of the synthetic population
+    model_keys_new = ['imd_rank', 'number_of_habitable_rooms', 'housing_tenure_simple',
+                      'energy_rating_new', 'hh_income', 'poverty', 'heating']
+    model_data_new = synpop_epc[model_keys_new]
+    model_data_new['energy_rating_num'] = model_data_new['energy_rating_new'].map(rating_map)
+
+    X_new = pd.get_dummies(
+        model_data_new[['imd_rank', 'number_of_habitable_rooms', 'housing_tenure_simple',
+                        'energy_rating_num', 'hh_income', 'poverty']],
+        columns=['housing_tenure_simple'],
+        drop_first=True,  # avoid dummy trap
+        dtype=float
+    )
+
+    # scale continuous predictors to aid optimization
+    scaler = StandardScaler()
+    X_new[continuous_vars] = scaler.fit_transform(X_new[continuous_vars])
+    X_new = add_constant(X_new)
+
+    probs = res.predict(X_new)
+    synpop['heating_prob'] = probs
+    # sample from a binomial distribution
+    synpop['heating_new'] = np.random.binomial(1, probs)
+
     # format geographic_level_area
     geographic_level_area = geographic_level_area.upper()
     # format geographic_level_divisions
