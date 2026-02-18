@@ -50,7 +50,7 @@ def sp_merge_epc(data_ref_df: pd.DataFrame, epc_latest_df: pd.DataFrame) -> pd.D
 
     # Select only the columns you want to attach to people
     epc_cols_to_keep = [
-        'house_id', 'imd_rank',
+        'house_id', 'imd_decile',
         'energy_rating', 'energy_rating_new', 'environment_impact'
     ]
 
@@ -182,6 +182,45 @@ def do_intervention(df_in, geographic_level_for_intervention, locations_for_inte
     return df_in
 
 
+def alternative_logit_model(hdata):
+
+    model_keys = ['imd_decile', 'number_of_habitable_rooms', 'housing_tenure_simple',
+                  'epc_poor', 'poverty', 'fuel_poor', 'heating']
+    model_data = hdata[model_keys]
+    model_data['fuel_poor_mortgage'] = model_data['fuel_poor'] * np.where(model_data['housing_tenure_simple'] == 2, 1, 0)
+    model_data['fuel_poor_private'] = model_data['fuel_poor'] * np.where(model_data['housing_tenure_simple'] == 3, 1, 0)
+    model_data['fuel_poor_social'] = model_data['fuel_poor'] * np.where(model_data['housing_tenure_simple'] == 4, 1, 0)
+    model_data['epc_poor_mortgage'] = model_data['epc_poor'] * np.where(model_data['housing_tenure_simple'] == 2, 1, 0)
+    model_data['epc_poor_private'] = model_data['epc_poor'] * np.where(model_data['housing_tenure_simple'] == 3, 1, 0)
+    model_data['epc_poor_social'] = model_data['epc_poor'] * np.where(model_data['housing_tenure_simple'] == 4, 1, 0)
+    X = pd.get_dummies(
+        model_data[['imd_decile', 'number_of_habitable_rooms',
+                    'poverty', 'fuel_poor', 'epc_poor', 'housing_tenure_simple',
+                    'fuel_poor_mortgage', 'fuel_poor_private', 'fuel_poor_social',
+                    'epc_poor_mortgage', 'epc_poor_private', 'epc_poor_social']],
+        columns=['poverty', 'fuel_poor', 'epc_poor', 'housing_tenure_simple',
+                 'fuel_poor_mortgage', 'fuel_poor_private', 'fuel_poor_social',
+                 'epc_poor_mortgage', 'epc_poor_private', 'epc_poor_social'],
+        drop_first=True,  # avoid dummy trap
+        dtype=float
+    )
+
+    # scale continuous predictors to aid optimization
+    continuous_vars = ['imd_decile', 'number_of_habitable_rooms']
+    scaler = StandardScaler()
+    X[continuous_vars] = scaler.fit_transform(X[continuous_vars])
+    X = add_constant(X)
+
+    model = Logit(
+        endog=model_data['heating'].astype(int),
+        exog=X.astype(float)
+    )
+
+    res = model.fit(method='newton', maxiter=100000, disp=True)
+
+    return res
+
+
 def house_retrofit_intervention(
         x,
         sql_db,
@@ -218,36 +257,42 @@ def house_retrofit_intervention(
         4: 3,  # social rented => social rented
     }
     synpop['housing_tenure_num'] = synpop['housing_tenure_simple'].map(housing_tenure_dic)
-
-    # Identify household that live below the poverty line
-    #  60% of the national median equivalised household income after housing costs (AHC)
-    #  in the UK for the financial year ending (FYE) 2024 was approximately £1,467 per month
-    poverty_line_2024 = 2435 * 0.6
-    synpop['poverty'] = np.where(synpop['hh_income'] < poverty_line_2024, 1, 0)
+    synpop = synpop[synpop['hh_income']>-5500].copy()  # remove extreme low household incomes (only 6 individuals)
 
     # 3. Load EPC latest data
     epc_latest_df = pd.read_csv('data/epc_latest_gmca.csv')
 
     # 4. Merge synthetic population with EPC latest data
     synpop_epc = sp_merge_epc(synpop, epc_latest_df)
+    data_households = synpop_epc.drop_duplicates(subset='hidp')
 
-    # 5. Build model to predict thermal comfort
-    model_keys = ['imd_rank', 'number_of_habitable_rooms', 'housing_tenure_simple',
-                  'energy_rating', 'hh_income', 'poverty', 'heating']
-    model_data = synpop_epc[model_keys]
+    # 5. Build model to predict thermal comfort (logit model)
+
+    # Identify household that live below the poverty line
+    #  60% of the national median equivalised household income after housing costs (AHC)
+    #  in the UK for the financial year ending (FYE) 2024 was approximately £1,467 per month
+    # poverty_line_2024 = 2435 * 0.6
+    poverty_line_2024 = data_households['hh_income'].median() * 0.6
+    data_households['poverty'] = np.where(data_households['hh_income'] < poverty_line_2024, 1, 0)
+
     rating_map = {'G': 0, 'F': 1, 'E': 2, 'D': 3, 'C': 4, 'B': 5, 'A': 6}
-    model_data['energy_rating_num'] = model_data['energy_rating'].map(rating_map)
+    data_households['energy_rating_num'] = data_households['energy_rating'].map(rating_map)
+    data_households['epc_poor'] = np.where(data_households['energy_rating_num'] < 4, 1, 0)
+    data_households['fuel_poor'] = np.where(data_households['epc_poor'] & data_households['poverty'], 1, 0)
 
+    model_keys = ['imd_decile', 'number_of_habitable_rooms',
+                  'poverty', 'fuel_poor', 'housing_tenure_simple', 'heating']
+    model_data = data_households[model_keys]
     X = pd.get_dummies(
-        model_data[['imd_rank', 'number_of_habitable_rooms',
-                    'housing_tenure_simple', 'energy_rating_num', 'hh_income', 'poverty']],
-        columns=['housing_tenure_simple'],
+        model_data[['imd_decile', 'number_of_habitable_rooms',
+                    'poverty', 'fuel_poor', 'housing_tenure_simple']],
+        columns=['poverty', 'fuel_poor', 'housing_tenure_simple'],
         drop_first=True,  # avoid dummy trap
         dtype=float
     )
 
     # scale continuous predictors to aid optimization
-    continuous_vars = ['imd_rank', 'number_of_habitable_rooms', 'energy_rating_num', 'hh_income']
+    continuous_vars = ['imd_decile', 'number_of_habitable_rooms']
     scaler = StandardScaler()
     X[continuous_vars] = scaler.fit_transform(X[continuous_vars])
     X = add_constant(X)
@@ -259,16 +304,26 @@ def house_retrofit_intervention(
 
     res = model.fit(method='newton', maxiter=100000, disp=True)
 
-    # Use the binary logistic model to predict the new thermal comfort of the synthetic population
-    model_keys_new = ['imd_rank', 'number_of_habitable_rooms', 'housing_tenure_simple',
-                      'energy_rating_new', 'hh_income', 'poverty', 'heating']
-    model_data_new = synpop_epc[model_keys_new]
+    # alternative_logit_model(data_households)
+
+    # A. Estimate the probability of thermal comfort before intervention
+    probs_p1 = res.predict(X)
+
+    # B. Prepare the data and provided to the model for estimating the probability
+    # of thermal comfort after intervention
+
+    # B.1. Recalculate EPC poor and relative poverty with energy_rating_new
+    model_keys_new = ['imd_decile', 'number_of_habitable_rooms', 'poverty', 'housing_tenure_simple',
+                      'energy_rating_new', 'heating']
+    model_data_new = data_households[model_keys_new].copy()
     model_data_new['energy_rating_num'] = model_data_new['energy_rating_new'].map(rating_map)
+    model_data_new['epc_poor_new'] = np.where(model_data_new['energy_rating_num'] < 4, 1, 0)
+    model_data_new['fuel_poor_new'] = np.where(model_data_new['epc_poor_new'] & model_data_new['poverty'], 1, 0)
 
     X_new = pd.get_dummies(
-        model_data_new[['imd_rank', 'number_of_habitable_rooms', 'housing_tenure_simple',
-                        'energy_rating_num', 'hh_income', 'poverty']],
-        columns=['housing_tenure_simple'],
+        model_data_new[['imd_decile', 'number_of_habitable_rooms',
+                        'poverty', 'fuel_poor_new', 'housing_tenure_simple']],
+        columns=['poverty', 'fuel_poor_new', 'housing_tenure_simple'],
         drop_first=True,  # avoid dummy trap
         dtype=float
     )
@@ -278,10 +333,24 @@ def house_retrofit_intervention(
     X_new[continuous_vars] = scaler.fit_transform(X_new[continuous_vars])
     X_new = add_constant(X_new)
 
-    probs = res.predict(X_new)
-    synpop['heating_prob'] = probs
+    probs_p2 = res.predict(X_new)
+
+    model_data_new['p1'] = probs_p1
+    model_data_new['p2'] = probs_p2
+
+    model_data_new['heating_prob'] = np.where( model_data_new['p1'] > model_data_new['p2'], 0.0,
+                                               (probs_p2 - probs_p1) / (1.0 - probs_p1 + np.finfo(float).eps ))
+    fuel_poor_bad_thermal_comfort_mask = (model_data['fuel_poor'] == 1) & (model_data['heating'] == 0)
+    model_data_new['heating_new'] = model_data_new['heating']
     # sample from a binomial distribution
-    synpop['heating_new'] = np.random.binomial(1, probs)
+    model_data_new.loc[fuel_poor_bad_thermal_comfort_mask, 'heating_new'] = (
+        np.random.binomial(1, model_data_new.loc[fuel_poor_bad_thermal_comfort_mask, 'heating_prob']))
+    data_households['heating_new'] = model_data_new['heating_new']
+
+    synpop_final = (
+        synpop_epc
+        .merge(data_households[['heating_new','hidp']], on='hidp', how='left')
+    )
 
     # format geographic_level_area
     geographic_level_area = geographic_level_area.upper()

@@ -24,7 +24,7 @@ def db_init(sql_db=SqlDB.POSTGRESQL):
 
 def compute_clogit(data_latest_df, epc_retrofit_df):
 
-    df = epc_retrofit_df[['imd_rank', 'housing_tenure', 'number_of_habitable_rooms',
+    df = epc_retrofit_df[['imd_decile', 'housing_tenure', 'number_of_habitable_rooms',
                           'rating_previous', 'rating_latest']].copy()
 
     # Map EPC ratings (worst->best) G..A to integers 0..6
@@ -34,7 +34,7 @@ def compute_clogit(data_latest_df, epc_retrofit_df):
 
     # Encode features
     X = pd.get_dummies(
-        df[['imd_rank', 'number_of_habitable_rooms', 'housing_tenure', 'rating_previous_num']],
+        df[['imd_decile', 'number_of_habitable_rooms', 'housing_tenure', 'rating_previous_num']],
         columns=['housing_tenure'],
         drop_first=True,  # avoid dummy trap
         dtype=float
@@ -42,8 +42,8 @@ def compute_clogit(data_latest_df, epc_retrofit_df):
 
     # Optional: scale continuous predictors to aid optimization
     scaler = StandardScaler()
-    X[['imd_rank', 'number_of_habitable_rooms', 'rating_previous_num']] = scaler.fit_transform(
-        X[['imd_rank', 'number_of_habitable_rooms', 'rating_previous_num']]
+    X[['imd_decile', 'number_of_habitable_rooms', 'rating_previous_num']] = scaler.fit_transform(
+        X[['imd_decile', 'number_of_habitable_rooms', 'rating_previous_num']]
     )
 
     # Fit proportional-odds (logit link)
@@ -63,13 +63,13 @@ def compute_clogit(data_latest_df, epc_retrofit_df):
     data_latest_df['rating_previous_num'] = data_latest_df['energy_rating'].map(rating_map)
 
     X_latest = pd.get_dummies(
-        data_latest_df[['imd_rank', 'number_of_habitable_rooms', 'housing_tenure', 'rating_previous_num']],
+        data_latest_df[['imd_decile', 'number_of_habitable_rooms', 'housing_tenure', 'rating_previous_num']],
         columns=['housing_tenure'],
         drop_first=True,  # avoid dummy trap
         dtype=float
     )
 
-    cont_cols = ['imd_rank', 'number_of_habitable_rooms', 'rating_previous_num']
+    cont_cols = ['imd_decile', 'number_of_habitable_rooms', 'rating_previous_num']
     X_latest[cont_cols] = scaler.transform(X_latest[cont_cols])
 
     # Align columns with the training matrix X
@@ -114,7 +114,8 @@ def main():
         max_number_of_rooms, epc_latest_df['number_of_habitable_rooms'])
 
     imd_data = dbquery.imd_rank_in_ca(ca_name='Greater Manchester')
-    imd_data_df = pd.DataFrame(imd_data, columns=['lsoa_code', 'imd_rank'])
+    imd_data_df = pd.DataFrame(imd_data, columns=['lsoa_code', 'imd_rank', 'imd_decile'])
+    imd_data_df = imd_data_df[['lsoa_code', 'imd_decile']]
     epc_latest_df = pd.merge(epc_latest_df, imd_data_df, on='lsoa_code', how='left')
 
     # Get the EPC retrofit data and merge with IMD
@@ -137,7 +138,7 @@ def main():
     df_model['rating_previous_num'] = df_model['rating_previous'].map(rating_map)
     df_model['rating_latest_num'] = df_model['rating_latest'].map(rating_map)
 
-    X = df_model[['number_of_habitable_rooms', 'rating_previous_num', 'rating_latest_num', 'imd_rank']]
+    X = df_model[['number_of_habitable_rooms', 'rating_previous_num', 'rating_latest_num', 'imd_decile']]
     y = df_model['environment_impact']
 
     regr = RandomForestRegressor(n_estimators=100, oob_score=True)
@@ -157,7 +158,7 @@ def main():
 
     epc_latest_df['rating_latest_num'] = epc_latest_df['energy_rating_new'].map(rating_map)
     epc_latest_df['environment_impact'] = regr.predict(epc_latest_df[['number_of_habitable_rooms', 'rating_previous_num',
-                                                                      'rating_latest_num', 'imd_rank']])
+                                                                      'rating_latest_num', 'imd_decile']])
 
     # format variables in epc_latest_df
     housing_tenure_reduced_dic = {
