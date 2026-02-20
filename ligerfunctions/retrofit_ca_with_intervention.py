@@ -3,6 +3,7 @@ import time
 import os
 import numpy as np
 import pandas as pd
+from fontTools.merge.util import recalculate
 
 from sklearn.preprocessing import StandardScaler
 from statsmodels.discrete.discrete_model import Logit
@@ -124,8 +125,9 @@ def build_house_lookup(data_ref_df: pd.DataFrame, epc_latest_df: pd.DataFrame, s
     return pd.concat(out_frames, ignore_index=True)
 
 
-def do_intervention(df_in, geographic_level_for_intervention, locations_for_intervention_df, sdb):
+def calc_vars_after_intervention(df_in, geographic_level_for_intervention, locations_for_intervention_df, sdb):
 
+    df_in.rename(columns={'ZoneID': 'lsoa_code'}, inplace=True)
     if geographic_level_for_intervention == "MSOA":
         # add LSOAs to MSOAs mapping to dataset
         if geographic_level_area == "LAD":
@@ -137,10 +139,10 @@ def do_intervention(df_in, geographic_level_for_intervention, locations_for_inte
     df_in = pd.merge(df_in, locations_for_intervention_df, on='lsoa_code', how='left')
 
     df_in['household_with_intervention'] = np.where(
-        (df_in['intervention'] == 1) & (df_in['heating'] == 0), True, False)
-    df_in['heating'] = np.where(
-        (df_in['household_with_intervention'] == True), 1, df_in['heating']
-    )
+        (df_in['intervention'] == 1) & (df_in['thermal_comfort_improved']), True, False)
+    # df_in['heating'] = np.where(
+    #     (df_in['household_with_intervention'] == True), 1, df_in['heating']
+    # )
 
     core_list = ['fridge_freezer', 'washing_machine', 'heating']
     bonus_list = ['tumble_dryer', 'dishwasher', 'microwave']
@@ -221,52 +223,9 @@ def alternative_logit_model(hdata):
     return res
 
 
-def house_retrofit_intervention(
-        x,
-        sql_db,
-        area_name,
-        geographic_level_area,
-        geographic_level_for_intervention,
-        run_number=0
-):
-    # 1. Read the population for intervention: synthetic pop 2025
-    folder_name = os.path.join(without_intervention_path, simul_folders_baseline[run_number])
-    synpop = pd.read_csv(folder_name + '/2025.csv')
-    # synpop.rename(columns={'ZoneID': 'lsoa_code'}, inplace=True)
+def prob_thermal_comfort(data_households):
 
-    # 2. Format number of rooms, number of bedrooms, and housing tenure
-    synpop = synpop.astype({'number_of_rooms': int, 'housing_tenure': int, 'number_of_bedrooms': int})
-
-    max_number_of_rooms = 8  # this is a parameter
-    synpop['number_of_habitable_rooms'] = synpop['number_of_rooms'] + synpop['number_of_bedrooms']
-    synpop['number_of_habitable_rooms'] = np.where(synpop['number_of_habitable_rooms'] > max_number_of_rooms,
-                                                   max_number_of_rooms, synpop['number_of_habitable_rooms'])
-
-    # simplify housing tenure
-    synpop['housing_tenure_simple'] = synpop['housing_tenure']
-    synpop['housing_tenure_simple'] = synpop['housing_tenure_simple'].replace(3, 4)  # social rented
-    synpop['housing_tenure_simple'] = synpop['housing_tenure_simple'].replace(5, 3)  # private rented
-    synpop['housing_tenure_simple'] = synpop['housing_tenure_simple'].replace(6, 3)  # private rented
-    synpop['housing_tenure_simple'] = synpop['housing_tenure_simple'].replace(7, 3)  # private rented
-
-    # map housing tenure to 3 categories
-    housing_tenure_dic = {
-        1: 1,  # owned outright => owned
-        2: 1,  # owned with mortgage => owned
-        3: 2,  # private rented => private rented
-        4: 3,  # social rented => social rented
-    }
-    synpop['housing_tenure_num'] = synpop['housing_tenure_simple'].map(housing_tenure_dic)
-    synpop = synpop[synpop['hh_income']>-5500].copy()  # remove extreme low household incomes (only 6 individuals)
-
-    # 3. Load EPC latest data
-    epc_latest_df = pd.read_csv('data/epc_latest_gmca.csv')
-
-    # 4. Merge synthetic population with EPC latest data
-    synpop_epc = sp_merge_epc(synpop, epc_latest_df)
-    data_households = synpop_epc.drop_duplicates(subset='hidp')
-
-    # 5. Build model to predict thermal comfort (logit model)
+    # 1. Build model to predict thermal comfort (logit model)
 
     # Identify household that live below the poverty line
     #  60% of the national median equivalised household income after housing costs (AHC)
@@ -338,20 +297,79 @@ def house_retrofit_intervention(
     model_data_new['p1'] = probs_p1
     model_data_new['p2'] = probs_p2
 
-    model_data_new['heating_prob'] = np.where( model_data_new['p1'] > model_data_new['p2'], 0.0,
-                                               (probs_p2 - probs_p1) / (1.0 - probs_p1 + np.finfo(float).eps ))
+    model_data_new['heating_prob'] = np.where(model_data_new['p1'] > model_data_new['p2'], 0.0,
+                                              (probs_p2 - probs_p1) / (1.0 - probs_p1 + np.finfo(float).eps))
     fuel_poor_bad_thermal_comfort_mask = (model_data['fuel_poor'] == 1) & (model_data['heating'] == 0)
-    model_data_new['heating_new'] = model_data_new['heating']
-    # sample from a binomial distribution
+    model_data_new['heating_new'] = model_data_new['heating']  # copy the old heating column
+    # Update the thermal comfort only for fuel poor households with previously poor thermal comfort
+    # (sample from a binomial distribution)
     model_data_new.loc[fuel_poor_bad_thermal_comfort_mask, 'heating_new'] = (
         np.random.binomial(1, model_data_new.loc[fuel_poor_bad_thermal_comfort_mask, 'heating_prob']))
-    data_households['heating_new'] = model_data_new['heating_new']
+    return model_data_new['heating_new']
 
+
+def house_retrofit_intervention(
+        x,
+        sql_db,
+        area_name,
+        geographic_level_area,
+        geographic_level_for_intervention,
+        run_number=0
+):
+    # 1. Read the population for intervention: synthetic pop 2025
+    folder_name = os.path.join(without_intervention_path, simul_folders_baseline[run_number])
+    synpop = pd.read_csv(folder_name + '/2025.csv')
+    # synpop.rename(columns={'ZoneID': 'lsoa_code'}, inplace=True)
+
+    # 2. Format number of rooms, number of bedrooms, and housing tenure
+    synpop = synpop.astype({'number_of_rooms': int, 'housing_tenure': int, 'number_of_bedrooms': int})
+    max_number_of_rooms = 8  # this is a parameter
+    synpop['number_of_habitable_rooms'] = synpop['number_of_rooms'] + synpop['number_of_bedrooms']
+    synpop['number_of_habitable_rooms'] = np.where(synpop['number_of_habitable_rooms'] > max_number_of_rooms,
+                                                   max_number_of_rooms, synpop['number_of_habitable_rooms'])
+
+    # simplify housing tenure
+    synpop['housing_tenure_simple'] = synpop['housing_tenure']
+    synpop['housing_tenure_simple'] = synpop['housing_tenure_simple'].replace(3, 4)  # social rented
+    synpop['housing_tenure_simple'] = synpop['housing_tenure_simple'].replace(5, 3)  # private rented
+    synpop['housing_tenure_simple'] = synpop['housing_tenure_simple'].replace(6, 3)  # private rented
+    synpop['housing_tenure_simple'] = synpop['housing_tenure_simple'].replace(7, 3)  # private rented
+
+    # map housing tenure to 3 categories
+    housing_tenure_dic = {
+        1: 1,  # owned outright => owned
+        2: 1,  # owned with mortgage => owned
+        3: 2,  # private rented => private rented
+        4: 3,  # social rented => social rented
+    }
+    synpop['housing_tenure_num'] = synpop['housing_tenure_simple'].map(housing_tenure_dic)
+    # synpop = synpop[synpop['hh_income']>-5500].copy()  # remove extreme low household incomes (only 6 individuals)
+
+    # 3. Load EPC latest data
+    epc_latest_df = pd.read_csv('data/epc_latest_gmca.csv')
+
+    # 4. Merge synthetic population with EPC latest data
+    synpop_epc = sp_merge_epc(synpop, epc_latest_df)
+
+    # 5. Predict the new thermal comfort using a logit model
+    data_households = synpop_epc.drop_duplicates(subset='hidp')  # filter households only
+    data_households['heating_new'] = prob_thermal_comfort(data_households)
+
+    # 6. Keep track of households with intervention
+    data_households['thermal_comfort_improved'] = np.where((data_households['heating'] == 0) &
+                                                           (data_households['heating_new'] == 1), True, False)
+    # 7. Do the "actual" intervention
+    data_households['heating'] = data_households['heating_new']
+
+    # 8. Merge households with new thermal comfort column into the synthetic population
+    synpop_epc.drop(['heating'], axis=1, inplace=True)
     synpop_final = (
         synpop_epc
-        .merge(data_households[['heating_new','hidp']], on='hidp', how='left')
+        .merge(data_households[['thermal_comfort_improved', 'heating', 'hidp']], on='hidp', how='left')
     )
 
+    # 9. The following code will be used in the future for spatial targeting
+    # At the moment all locations are chosen for intervention
     # format geographic_level_area
     geographic_level_area = geographic_level_area.upper()
     # format geographic_level_divisions
@@ -377,16 +395,13 @@ def house_retrofit_intervention(
 
     locations_for_intervention_df.loc[:, 'intervention'] = x
 
-    # 3. Do the intervention
-    # Read the 2025 population
-    folder_name = os.path.join(without_intervention_path, simul_folders_baseline[run_number])
-    df2 = pd.read_csv(folder_name + '/2025.csv')
-    df2.rename(columns={'ZoneID': 'lsoa_code'}, inplace=True)
-    df2 = do_intervention(df2, geographic_level_for_intervention, locations_for_intervention_df, sdb)
-    # Save the population
-    df2.to_csv(os.path.join('data/scaled_manchester_aligned_US', '2025_US_cohort.csv'), index=False)
+    # 10. Recalculate some population variables following intervention into thermal comfort
+    synpop_final = calc_vars_after_intervention(synpop_final, geographic_level_for_intervention,
+                                                locations_for_intervention_df, sdb)
+    # 11. Save the population
+    synpop_final.to_csv(os.path.join('data/scaled_manchester_aligned_US', '2025_US_cohort.csv'), index=False)
 
-    # 4. Run the pipeline (part-2)
+    # 12. Run the pipeline (part-2)
     output_file_folder = simul_folders_baseline[run_number]
     args = Namespace(config=os.path.join(ROOT_DIR, 'config/energy_manchester_scaled_part2.yaml'),
                      intervention=None,
@@ -424,7 +439,7 @@ if __name__ == "__main__":
 
     input_data = [True for _ in range(n_locations_for_intervention)]
 
-    run_number = 0
+    run_number = 5
     start = time.time()
     house_retrofit_intervention(
         x=input_data, sql_db=sql_db, area_name=area_name,
