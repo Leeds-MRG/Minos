@@ -157,8 +157,8 @@ def main():
     print(f'R-squared: {r2}')
 
     epc_latest_df['rating_latest_num'] = epc_latest_df['energy_rating_new'].map(rating_map)
-    epc_latest_df['environment_impact'] = regr.predict(epc_latest_df[['number_of_habitable_rooms', 'rating_previous_num',
-                                                                      'rating_latest_num', 'imd_decile']])
+    tvars = ['number_of_habitable_rooms', 'rating_previous_num', 'rating_latest_num', 'imd_decile']
+    epc_latest_df['environment_impact'] = regr.predict(epc_latest_df[tvars])
 
     # format variables in epc_latest_df
     housing_tenure_reduced_dic = {

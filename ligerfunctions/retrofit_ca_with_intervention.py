@@ -184,6 +184,98 @@ def calc_vars_after_intervention(df_in, geographic_level_for_intervention, locat
     return df_in
 
 
+def alternative_logit_model4(hdata):
+
+    model_keys = ['imd_decile', 'number_of_habitable_rooms', 'housing_tenure_simple',
+                  'epc_very_poor', 'poverty', 'heating']
+    model_data = hdata[model_keys]
+    X = pd.get_dummies(
+        model_data[['imd_decile', 'number_of_habitable_rooms',
+                    'poverty', 'epc_very_poor', 'housing_tenure_simple']],
+        columns=['poverty', 'epc_very_poor', 'housing_tenure_simple'],
+        drop_first=True,  # avoid dummy trap
+        dtype=float
+    )
+
+    # scale continuous predictors to aid optimization
+    continuous_vars = ['imd_decile', 'number_of_habitable_rooms']
+    scaler = StandardScaler()
+    X[continuous_vars] = scaler.fit_transform(X[continuous_vars])
+    X = add_constant(X)
+
+    model = Logit(
+        endog=model_data['heating'].astype(int),
+        exog=X.astype(float)
+    )
+
+    res = model.fit(method='newton', maxiter=100000, disp=True)
+
+    return res
+
+
+def alternative_logit_model3(hdata):
+
+    model_keys = ['imd_decile', 'number_of_habitable_rooms', 'housing_tenure_simple',
+                  'epc_poor', 'poverty', 'heating']
+    model_data = hdata[model_keys]
+    X = pd.get_dummies(
+        model_data[['imd_decile', 'number_of_habitable_rooms',
+                    'poverty', 'epc_poor', 'housing_tenure_simple']],
+        columns=['poverty', 'epc_poor', 'housing_tenure_simple'],
+        drop_first=True,  # avoid dummy trap
+        dtype=float
+    )
+
+    # scale continuous predictors to aid optimization
+    continuous_vars = ['imd_decile', 'number_of_habitable_rooms']
+    scaler = StandardScaler()
+    X[continuous_vars] = scaler.fit_transform(X[continuous_vars])
+    X = add_constant(X)
+
+    model = Logit(
+        endog=model_data['heating'].astype(int),
+        exog=X.astype(float)
+    )
+
+    res = model.fit(method='newton', maxiter=100000, disp=True)
+
+    return res
+
+
+def alternative_logit_model2(hdata):
+
+    model_keys = ['imd_decile', 'number_of_habitable_rooms', 'housing_tenure_simple',
+                  'epc_poor', 'poverty', 'heating']
+    model_data = hdata[model_keys]
+    model_data['epc_poor_mortgage'] = model_data['epc_poor'] * np.where(model_data['housing_tenure_simple'] == 2, 1, 0)
+    model_data['epc_poor_private'] = model_data['epc_poor'] * np.where(model_data['housing_tenure_simple'] == 3, 1, 0)
+    model_data['epc_poor_social'] = model_data['epc_poor'] * np.where(model_data['housing_tenure_simple'] == 4, 1, 0)
+    X = pd.get_dummies(
+        model_data[['imd_decile', 'number_of_habitable_rooms',
+                    'poverty', 'epc_poor', 'housing_tenure_simple',
+                    'epc_poor_mortgage', 'epc_poor_private', 'epc_poor_social']],
+        columns=['poverty', 'epc_poor', 'housing_tenure_simple',
+                 'epc_poor_mortgage', 'epc_poor_private', 'epc_poor_social'],
+        drop_first=True,  # avoid dummy trap
+        dtype=float
+    )
+
+    # scale continuous predictors to aid optimization
+    continuous_vars = ['imd_decile', 'number_of_habitable_rooms']
+    scaler = StandardScaler()
+    X[continuous_vars] = scaler.fit_transform(X[continuous_vars])
+    X = add_constant(X)
+
+    model = Logit(
+        endog=model_data['heating'].astype(int),
+        exog=X.astype(float)
+    )
+
+    res = model.fit(method='newton', maxiter=100000, disp=True)
+
+    return res
+
+
 def alternative_logit_model(hdata):
 
     model_keys = ['imd_decile', 'number_of_habitable_rooms', 'housing_tenure_simple',
@@ -231,7 +323,8 @@ def prob_thermal_comfort(data_households):
     #  60% of the national median equivalised household income after housing costs (AHC)
     #  in the UK for the financial year ending (FYE) 2024 was approximately £1,467 per month
     # poverty_line_2024 = 2435 * 0.6
-    poverty_line_2024 = data_households['hh_income'].median() * 0.6
+    # poverty_line_2024 = data_households['hh_income'].median() * 0.6
+    poverty_line_2024 = 840
     data_households['poverty'] = np.where(data_households['hh_income'] < poverty_line_2024, 1, 0)
 
     rating_map = {'G': 0, 'F': 1, 'E': 2, 'D': 3, 'C': 4, 'B': 5, 'A': 6}
@@ -263,7 +356,8 @@ def prob_thermal_comfort(data_households):
 
     res = model.fit(method='newton', maxiter=100000, disp=True)
 
-    # alternative_logit_model(data_households)
+    # data_households['epc_very_poor'] = np.where(data_households['energy_rating_num'] < 4, 1, 0)
+    # alternative_logit_model3(data_households)
 
     # A. Estimate the probability of thermal comfort before intervention
     probs_p1 = res.predict(X)
@@ -439,7 +533,7 @@ if __name__ == "__main__":
 
     input_data = [True for _ in range(n_locations_for_intervention)]
 
-    run_number = 5
+    run_number = 0
     start = time.time()
     house_retrofit_intervention(
         x=input_data, sql_db=sql_db, area_name=area_name,
