@@ -46,7 +46,7 @@ class QALYs(Base):
         # transition models and any outputs.
         view_columns = ['SF_12_MCS',
                         'SF_12_PCS']
-        columns_created = ["QALYs"]
+        columns_created = ['QALYs', 'eq5d_utility_6d']
         # view_columns += self.transition_model.rx2('model').names
         self.population_view = builder.population.get_view(columns=view_columns + columns_created)  # + columns_created)
 
@@ -72,7 +72,8 @@ class QALYs(Base):
             creation_window, and current simulation state (setup/running/etc.).
         """
 
-        pop_update = pd.DataFrame({"QALYs": 0.,}, index=pop_data.index)
+        pop_update = pd.DataFrame({'QALYs': 0.,
+                                   'eq5d_utility_6d': 0.}, index=pop_data.index)
         self.population_view.update(pop_update)
 
     def on_time_step(self, event):
@@ -92,21 +93,21 @@ class QALYs(Base):
 
         # setting qalys of dead people to 0.
         dead_pop = self.population_view.get(event.index, query="alive=='dead'")
-        dead_pop['QALYs'] = 0.
-        self.population_view.update(dead_pop["QALYs"])
+        dead_pop['eq5d_utility_6d'] = 0.
+        self.population_view.update(dead_pop[['eq5d_utility_6d']])
 
-        n_dead = dead_pop.shape[0]
+        # n_dead = dead_pop.shape[0]
 
         # alive people calculate qalys using lawrence/fleischmann formula.
         alive_pop = self.population_view.get(event.index, query="alive=='alive'")
-        n_alive = alive_pop.shape[0]
-        proportion_pop_alive = (n_alive / (n_dead + n_alive))
-        alive_pop = self.calculate_two_term_qaly(alive_pop, proportion_pop_alive)
+        # n_alive = alive_pop.shape[0]
+        # proportion_pop_alive = (n_alive / (n_dead + n_alive))
+        alive_pop = self.calculate_six_term_qaly(alive_pop)
+        alive_pop['QALYs'] = alive_pop['QALYs'] + alive_pop['eq5d_utility_6d']
+        self.population_view.update(alive_pop[['QALYs', 'eq5d_utility_6d']])
 
-        self.population_view.update(alive_pop[["QALYs"]])
 
-
-    def calculate_two_term_qaly(self, df, proportion_pop_alive):
+    def calculate_two_term_qaly(self, df):
         """
         QALY calculation comes from Lawrence and Fleishman (2004) - https://pubmed.ncbi.nlm.nih.gov/15090102/
 
@@ -131,15 +132,19 @@ class QALYs(Base):
 
         # Run without any subpopulations to worry about
 
-        # First calculate utility score using values table 4 from Lawrence and Fleishman (2004)
-        df['eq5d_utility'] = -0.3720 + (df['SF_12_PCS'] * 0.01411) + (df['SF_12_MCS'] * 0.02859)
-        # Now calculate QALYs by multiplying utility score by pop_size
-        df['QALYs'] = (df['eq5d_utility'] * proportion_pop_alive)
+        b0 = -0.3720
+        b_pcs = 0.01411
+        b_mcs = 0.00967
 
+        # First calculate utility score using values table 4 from Lawrence and Fleishman (2004)
+        # df['eq5d_utility'] = -0.3720 + (df['SF_12_PCS'] * 0.01411) + (df['SF_12_MCS'] * 0.02859)
+        df['eq5d_utility_2d'] = b0 + b_pcs*df['SF_12_PCS'] + b_mcs*df['SF_12_MCS']
+        # Now calculate QALYs by multiplying utility score by pop_size
+        # df['QALYs'] = (df['eq5d_utility'] * proportion_pop_alive)
         return df
 
 
-    def calculate_six_term_qaly(self, df, alive_pop):
+    def calculate_six_term_qaly(self, df):
         """
         QALY calculation comes from Lawrence and Fleishman (2004) - https://pubmed.ncbi.nlm.nih.gov/15090102/
 
@@ -159,16 +164,31 @@ class QALYs(Base):
 
         # Run without any subpopulations to worry about
 
-        # First calculate utility score using values table 4 from Lawrence and Fleishman (2004)
-        df['utility'] = -1.6984 + \
-                        (df['SF_12_PCS'] * 0.07927) + \
-                        (df['SF_12_MCS'] * 0.02859) + \
-                        ((df['SF_12_PCS'] * df['SF_12_MCS']) * -0.000126) + \
-                        ((df['SF_12_PCS'] * df['SF_12_PCS']) * -0.00141) + \
-                        ((df['SF_12_MCS'] * df['SF_12_MCS']) * -0.00014) + \
-                        ((df['SF_12_PCS'] * df['SF_12_PCS'] * df['SF_12_PCS']) * 0.0000107)
+        pcs = df['SF_12_PCS']
+        mcs = df['SF_12_MCS']
 
-        # Now calculate QALYs by multiplying utility score by pop_size
-        df['QALYs'] = df['utility'] * df['alive_pop']
+        utility = (
+                -1.6984
+                + 0.07927 * pcs
+                + 0.02859 * mcs
+                - 0.000126 * (pcs * mcs)
+                - 0.00141 * (pcs ** 2)
+                - 0.00014 * (mcs ** 2)
+                + 0.0000107 * (pcs ** 3)
+        )
+
+        df['eq5d_utility_6d'] = utility
+
+
+        # First calculate utility score using values table 4 from Lawrence and Fleishman (2004)
+        # df['utility'] = -1.6984 + \
+        #                 (df['SF_12_PCS'] * 0.07927) + \
+        #                 (df['SF_12_MCS'] * 0.02859) + \
+        #                 ((df['SF_12_PCS'] * df['SF_12_MCS']) * -0.000126) + \
+        #                 ((df['SF_12_PCS'] * df['SF_12_PCS']) * -0.00141) + \
+        #                 ((df['SF_12_MCS'] * df['SF_12_MCS']) * -0.00014) + \
+        #                 ((df['SF_12_PCS'] * df['SF_12_PCS'] * df['SF_12_PCS']) * 0.0000107)
+        # # Now calculate QALYs by multiplying utility score by pop_size
+        # df['QALYs'] = df['utility'] * df['alive_pop']
 
         return df

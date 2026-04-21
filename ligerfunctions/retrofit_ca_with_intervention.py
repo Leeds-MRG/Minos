@@ -52,7 +52,8 @@ def sp_merge_epc(data_ref_df: pd.DataFrame, epc_latest_df: pd.DataFrame) -> pd.D
     # Select only the columns you want to attach to people
     epc_cols_to_keep = [
         'house_id', 'imd_decile',
-        'energy_rating', 'energy_rating_new', 'environment_impact'
+        'energy_rating', 'energy_rating_new',
+        'co2_emissions_diff',
     ]
 
     # 3) Merge onto the reference households (2025)
@@ -459,7 +460,7 @@ def house_retrofit_intervention(
     synpop_epc.drop(['heating'], axis=1, inplace=True)
     synpop_final = (
         synpop_epc
-        .merge(data_households[['thermal_comfort_improved', 'heating', 'hidp']], on='hidp', how='left')
+        .merge(data_households[['thermal_comfort_improved', 'fuel_poor', 'epc_poor', 'heating', 'hidp']], on='hidp', how='left')
     )
 
     # 9. The following code will be used in the future for spatial targeting
@@ -533,7 +534,7 @@ if __name__ == "__main__":
 
     input_data = [True for _ in range(n_locations_for_intervention)]
 
-    run_number = 0
+    run_number = 11
     start = time.time()
     house_retrofit_intervention(
         x=input_data, sql_db=sql_db, area_name=area_name,
